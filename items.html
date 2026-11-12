@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Zombie Run Supply Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Stencil+One&family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap">
+<style>
+/* Layout: a survival field-kit console. Header with phase steps, then one of three
+   views: emergency broadcast (story), supply depot (choose items), survival board (play). */
+:root{
+  --bg:#1c2118;        /* night olive */
+  --panel:#262d20;     /* kit panel */
+  --panel-2:#2f3728;
+  --line:#3e4834;
+  --fg:#eef0e4;
+  --muted:#a7af98;
+  --khaki:#e7ddc1;     /* index-card paper */
+  --khaki-2:#d8cca9;
+  --ink:#232818;       /* text on paper */
+  --caution:#f2902b;   /* hazard orange */
+  --blood:#c9342c;     /* LOST stamp */
+  --alive:#86b86f;
+  --t1:#5aa9e6; --t2:#e8c94a; --t3:#c47ad6; --t4:#4fc3a1; --t5:#ef7b9a; --t6:#b9d36a;
+  --f-display:"Saira Stencil One","Impact","Arial Black",sans-serif;
+  --f-body:"Barlow",system-ui,"Segoe UI",Arial,sans-serif;
+  --f-cond:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{background:var(--bg);color:var(--fg)}
+body{font-family:var(--f-body);font-size:16px;line-height:1.45}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--panel)}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--caution);outline-offset:2px}
+
+.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* ---------- header ---------- */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--panel);border-bottom:2px solid var(--line)}
+.bar-in{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;padding-block:10px;max-width:1400px;margin:0 auto}
+.brand{font-family:var(--f-display);font-size:26px;letter-spacing:.02em;line-height:1;color:var(--fg);display:flex;align-items:center;gap:10px}
+.brand .tape{display:inline-block;width:34px;height:20px;border-radius:2px;background:repeating-linear-gradient(-45deg,var(--caution) 0 7px,var(--ink) 7px 14px)}
+.steps{display:flex;gap:6px;flex-wrap:wrap}
+.step{border:2px solid var(--line);background:transparent;border-radius:6px;padding:6px 12px;font-family:var(--f-cond);font-weight:600;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.step[aria-current="true"]{border-color:var(--caution);color:var(--fg);background:var(--panel-2)}
+.step b{color:var(--caution);margin-right:6px}
+.bar .spacer{flex:1}
+.school{display:flex;align-items:center;gap:8px;padding:4px 12px 4px 6px;border:2px solid var(--line);border-radius:8px;background:var(--panel-2)}
+.school .crest{width:30px;height:35px;flex:none}
+.school span{display:grid;line-height:1.05}
+.school small{font-family:var(--f-cond);font-weight:600;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.school b{font-family:var(--f-cond);font-weight:700;font-size:17px;letter-spacing:.04em;color:var(--fg)}
+.back .school-mark{font-family:var(--f-cond);font-weight:700;font-size:15px;letter-spacing:.16em;text-transform:uppercase;color:var(--khaki);opacity:.8}
+.ghost{border:2px solid var(--line);background:transparent;border-radius:6px;padding:6px 12px;font-family:var(--f-cond);font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.ghost:hover{color:var(--fg);border-color:var(--muted)}
+.confirm-row{display:flex;gap:8px;align-items:center;font-family:var(--f-cond);font-size:16px}
+.danger{background:var(--blood);border:0;color:#fff;border-radius:6px;padding:7px 12px;font-family:var(--f-cond);font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+
+main{max-width:1400px;margin:0 auto;padding-block:24px 48px}
+.view{display:block}
+h2.sec{font-family:var(--f-display);font-size:clamp(28px,4vw,44px);line-height:1.05;margin:0 0 12px;text-wrap:balance}
+.lede{color:var(--muted);max-width:65ch;margin:0 0 20px}
+.btn{background:var(--caution);color:var(--ink);border:0;border-radius:8px;padding:12px 20px;font-family:var(--f-cond);font-weight:700;font-size:20px;letter-spacing:.06em;text-transform:uppercase}
+.btn:hover{filter:brightness(1.07)}
+.btn:disabled{opacity:.4;cursor:not-allowed;filter:none}
+.btn.sec{background:var(--panel-2);color:var(--fg);border:2px solid var(--line)}
+
+/* ---------- story ---------- */
+.story{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:24px;align-items:start}
+.broadcast{background:var(--khaki);color:var(--ink);border-radius:10px;padding:28px 30px;position:relative;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.broadcast::before{content:"";position:absolute;inset:0 0 auto;height:12px;border-radius:10px 10px 0 0;background:repeating-linear-gradient(-45deg,var(--caution) 0 12px,var(--ink) 12px 24px)}
+.broadcast .eyebrow{font-family:var(--f-cond);font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:15px;color:var(--blood);margin:8px 0 6px}
+.broadcast h3{font-family:var(--f-display);font-size:clamp(30px,4.6vw,54px);line-height:1;margin:0 0 16px}
+.broadcast p{font-size:21px;line-height:1.5;margin:0 0 12px;max-width:60ch}
+.broadcast .time{font-family:var(--f-cond);font-weight:700;font-size:22px;background:var(--ink);color:var(--khaki);padding:1px 8px;border-radius:4px}
+.rumours{background:var(--panel);border:2px solid var(--line);border-radius:10px;padding:22px 24px}
+.rumours h4,.rules h4{font-family:var(--f-cond);font-weight:700;font-size:18px;letter-spacing:.12em;text-transform:uppercase;color:var(--caution);margin:0 0 10px}
+.rumours ul{margin:0;padding:0;list-style:none;display:grid;gap:10px}
+.rumours li{display:flex;gap:12px;align-items:flex-start;font-size:19px}
+.rumours li span:first-child{font-size:24px;line-height:1.1}
+.rules{margin-top:18px;background:var(--panel);border:2px solid var(--line);border-radius:10px;padding:22px 24px}
+.rules ol{margin:0;padding-left:22px;display:grid;gap:8px;font-size:19px}
+.story-actions{margin-top:22px;display:flex;gap:12px;flex-wrap:wrap}
+
+/* ---------- choose ---------- */
+.choose-top{display:flex;flex-wrap:wrap;gap:16px;align-items:stretch;margin-bottom:18px}
+.timer{background:var(--panel);border:2px solid var(--line);border-radius:10px;padding:12px 18px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.timer .clock{font-family:var(--f-display);font-size:48px;line-height:1;font-variant-numeric:tabular-nums;min-width:4.2ch}
+.timer .clock.done{color:var(--blood);animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:.25}}
+.timer .tbtns{display:flex;gap:8px;flex-wrap:wrap}
+.settings{background:var(--panel);border:2px solid var(--line);border-radius:10px;padding:12px 18px;display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.settings label{font-family:var(--f-cond);font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:flex;gap:8px;align-items:center}
+.settings select{background:var(--panel-2);border:2px solid var(--line);border-radius:6px;padding:6px 10px;color:var(--fg);font-weight:600}
+
+.choose{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,380px);gap:20px;align-items:start}
+.items{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.tile{position:relative;background:var(--khaki);color:var(--ink);border:2px solid var(--khaki-2);border-radius:8px;padding:8px 10px 10px;text-align:left;display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:8px;align-items:center;min-height:74px}
+.tile:hover{border-color:var(--caution)}
+.tile .no{grid-column:1/-1;font-family:var(--f-cond);font-weight:700;font-size:15px;letter-spacing:.05em;color:#6b6450}
+.tile .em{font-size:28px;line-height:1}
+.tile .nm{font-weight:600;font-size:15.5px;line-height:1.15}
+.tile .dots{position:absolute;top:7px;right:8px;display:flex;gap:3px}
+.dot{width:12px;height:12px;border-radius:50%;border:2px solid var(--ink)}
+.tile.mine{border-color:var(--ink);box-shadow:0 0 0 3px var(--active-color,var(--caution))}
+.tile.taken{opacity:.4;cursor:not-allowed}
+.tile.taken:hover{border-color:var(--khaki-2)}
+.tile .owner{position:absolute;bottom:5px;right:8px;font-family:var(--f-cond);font-weight:700;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink)}
+.tile.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.status .note{color:var(--caution);font-size:14px;font-weight:500;letter-spacing:0}
+.front .lostlist li.nobody{opacity:.42}
+.win-card .wi{font-size:76px;line-height:1;margin:6px 0 0}
+.win-card .with{font-family:var(--f-cond);font-weight:700;font-size:22px;letter-spacing:.04em;margin:0 0 14px}
+.win-card .tale{text-align:left;font-size:20px;line-height:1.5;background:rgba(35,40,24,.07);border-left:5px solid var(--caution);padding:12px 16px;border-radius:4px;margin:0 0 18px}
+.win-card .tale b{display:block;font-family:var(--f-cond);letter-spacing:.12em;text-transform:uppercase;font-size:14px;color:var(--blood);margin-bottom:4px}
+
+.teams-setup{display:grid;gap:12px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 76px)}
+.tcard{background:var(--panel);border:2px solid var(--line);border-left:8px solid var(--tc);border-radius:10px;padding:12px 14px;display:grid;gap:8px}
+.tcard.active{border-color:var(--tc);border-left-width:8px;background:var(--panel-2)}
+.trow{display:flex;gap:8px;align-items:center}
+.tname{flex:1;min-width:0;background:transparent;border:0;border-bottom:2px dashed var(--line);font-family:var(--f-cond);font-weight:700;font-size:22px;padding:2px 0}
+.tname:focus{border-bottom-color:var(--tc);outline:none}
+.pickbtn{border:2px solid var(--tc);background:transparent;border-radius:6px;padding:4px 10px;font-family:var(--f-cond);font-weight:600;font-size:14px;letter-spacing:.05em;text-transform:uppercase;color:var(--fg);white-space:nowrap}
+.tcard.active .pickbtn{background:var(--tc);color:var(--ink)}
+.nums{width:100%;background:var(--bg);border:2px solid var(--line);border-radius:6px;padding:8px 10px;font-variant-numeric:tabular-nums;font-size:17px}
+.nums:focus{border-color:var(--tc);outline:none}
+.chips{display:flex;flex-wrap:wrap;gap:6px;min-height:28px}
+.chip{display:inline-flex;align-items:center;gap:5px;background:var(--khaki);color:var(--ink);border-radius:999px;padding:2px 10px 2px 6px;font-size:14px;font-weight:600}
+.chip .n{font-family:var(--f-cond);color:#6b6450}
+.status{font-family:var(--f-cond);font-weight:600;font-size:15px;letter-spacing:.04em;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.status .ok{color:var(--alive)} .status .warn{color:var(--caution)}
+.linkbtn{background:none;border:0;color:var(--muted);text-decoration:underline;font-size:14px;padding:0}
+.linkbtn:hover{color:var(--fg)}
+.start-box{background:var(--panel);border:2px solid var(--line);border-radius:10px;padding:14px;display:grid;gap:10px}
+.start-box .msg{font-size:15px;color:var(--muted)}
+
+/* ---------- play ---------- */
+.play{display:grid;grid-template-columns:minmax(320px,440px) minmax(0,1fr);gap:24px;align-items:start}
+.deckbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+.deckcount{font-family:var(--f-cond);font-weight:700;font-size:18px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.deckcount b{color:var(--fg);font-size:22px}
+.pick-card{background:var(--panel-2);border:2px solid var(--line);border-radius:6px;padding:8px 10px;color:var(--fg);max-width:100%}
+.stage{perspective:1400px}
+.card3d{position:relative;width:100%;aspect-ratio:3/4;max-width:440px;transform-style:preserve-3d;transition:transform .8s cubic-bezier(.2,.7,.2,1)}
+.card3d.flipped{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:16px;overflow:hidden;box-shadow:0 14px 40px rgba(0,0,0,.45)}
+.back{background:var(--ink);border:3px solid var(--caution);display:grid;place-items:center;text-align:center;padding:24px}
+.back .stripes{position:absolute;inset:0;background:repeating-linear-gradient(-45deg,rgba(242,144,43,.14) 0 22px,transparent 22px 44px)}
+.back .inner{position:relative;display:grid;gap:10px}
+.back .q{font-family:var(--f-display);font-size:120px;line-height:.9;color:var(--caution)}
+.back .lbl{font-family:var(--f-display);font-size:34px;color:var(--fg)}
+.back .hint{font-family:var(--f-cond);font-size:17px;letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+.front{transform:rotateY(180deg);background:var(--khaki);color:var(--ink);display:flex;flex-direction:column;padding:22px 22px 18px}
+.front .ctop{display:flex;justify-content:space-between;align-items:center;font-family:var(--f-cond);font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-size:14px;color:#6b6450}
+.front .cem{font-size:64px;line-height:1;margin:10px 0 6px}
+.front h3{font-family:var(--f-display);font-size:38px;line-height:1;margin:0 0 10px;text-wrap:balance}
+.front .ctext{font-size:19px;line-height:1.4;margin:0 0 12px}
+.front .losthdr{font-family:var(--f-cond);font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-size:15px;color:var(--blood);border-top:2px dashed #b9ad8b;padding-top:10px;margin-bottom:6px}
+.front .lostlist{list-style:none;margin:0;padding:0;display:grid;gap:8px;align-content:start;overflow:auto;min-height:0;flex:1}
+.front .lostlist li{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;font-size:16px;line-height:1.2}
+.front .lostlist .e{font-size:22px}
+.front .lostlist .why{display:block;font-size:14px;color:#5d5743;font-style:italic}
+.front .lostlist .who{display:flex;gap:3px}
+.front .phew{font-family:var(--f-display);font-size:30px;color:#3f6b2f;margin-top:8px}
+
+.board{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.team{background:var(--panel);border:2px solid var(--line);border-top:8px solid var(--tc);border-radius:10px;padding:12px 14px;position:relative;overflow:hidden}
+.team h3{font-family:var(--f-cond);font-weight:700;font-size:24px;margin:0;line-height:1.1;overflow-wrap:anywhere}
+.team .left{font-family:var(--f-cond);font-weight:600;letter-spacing:.05em;text-transform:uppercase;font-size:15px;color:var(--alive);margin:2px 0 10px}
+.team.out .left{color:var(--blood)}
+.team ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.team li{display:flex;gap:8px;align-items:center;background:var(--khaki);color:var(--ink);border-radius:6px;padding:6px 8px;font-weight:600;font-size:15.5px;position:relative}
+.team li .e{font-size:20px}
+.team li.lost{background:transparent;color:var(--muted);border:2px dashed var(--line);text-decoration:line-through;text-decoration-color:var(--blood);text-decoration-thickness:2px}
+.team li.lost::after{content:"LOST";margin-left:auto;text-decoration:none;font-family:var(--f-cond);font-weight:700;font-size:12px;letter-spacing:.1em;color:#fff;background:var(--blood);padding:1px 6px;border-radius:3px}
+.team li.fresh{animation:hit .9s ease-out}
+@keyframes hit{0%{transform:scale(1.06);background:var(--blood);color:#fff}100%{transform:none}}
+.team .eaten{position:absolute;right:-6px;bottom:14px;transform:rotate(-12deg);font-family:var(--f-display);font-size:30px;color:var(--blood);border:4px solid var(--blood);border-radius:6px;padding:0 10px;background:rgba(28,33,24,.85);pointer-events:none}
+.team.win{box-shadow:0 0 0 4px var(--caution)}
+
+.log{margin-top:18px}
+.log h4{font-family:var(--f-cond);font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-size:15px;color:var(--muted);margin:0 0 8px}
+.log ol{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.log li{background:var(--panel-2);border:2px solid var(--line);border-radius:999px;padding:3px 12px;font-size:14px}
+.log li b{font-family:var(--f-cond);color:var(--caution);margin-right:4px}
+
+/* ---------- winner overlay ---------- */
+.overlay{position:fixed;inset:0;z-index:20;background:rgba(15,18,12,.86);display:grid;place-items:center;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.win-card{background:var(--khaki);color:var(--ink);border-radius:16px;max-width:620px;width:100%;padding:30px;text-align:center;position:relative;overflow:hidden}
+.win-card::before{content:"";position:absolute;inset:0 0 auto;height:14px;background:repeating-linear-gradient(-45deg,var(--caution) 0 12px,var(--ink) 12px 24px)}
+.win-card .eyebrow{font-family:var(--f-cond);font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--blood);margin-top:8px}
+.win-card h2{font-family:var(--f-display);font-size:clamp(34px,6vw,58px);line-height:1;margin:10px 0}
+.win-card p{font-size:19px;margin:0 0 18px}
+.win-card .btn.sec{color:var(--fg)}
+
+@media (max-width:900px){
+  .story,.choose,.play{grid-template-columns:minmax(0,1fr)}
+  .teams-setup{position:static}
+  .card3d{margin:0 auto}
+}
+@media (prefers-reduced-motion:reduce){
+  .card3d{transition:none} .team li.fresh{animation:none} .timer .clock.done{animation:none}
+}
+
+.items{list-style:none;margin:0;padding:0}
+.tile{min-height:70px}
+.student-note{background:var(--caution);color:var(--ink);border-radius:10px;padding:14px 18px;font-size:19px;font-weight:600;margin:22px 0 16px}
+.student-note b{font-family:var(--f-cond);letter-spacing:.06em;text-transform:uppercase}
+footer{color:var(--muted);font-size:14px;padding-block:24px 40px;text-align:center}
+</style>
+<style>body{margin:0}img{max-width:100%}</style>
+</head>
+<body>
+<header class="bar"><div class="bar-in wrap">
+  <div class="brand"><span class="tape" aria-hidden="true"></span>Zombie Run · Antalya</div>
+  <div class="school"><svg class="crest" viewBox="0 0 40 46" aria-hidden="true"><path d="M20 2 L37 8 V22 C37 33 29 41 20 44 C11 41 3 33 3 22 V8 Z" fill="var(--khaki)" stroke="var(--caution)" stroke-width="2.5"/><text x="20" y="27" text-anchor="middle" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-weight="700" font-size="13" fill="#232818">ASC</text></svg><span><small>Antalya Sınav College</small><b>Zombie Drill 2026</b></span></div>
+  
+  
+</div></header>
+<main class="wrap">
+<h2 class="sec" style="margin-top:4px">Supply room</h2>
+<div class="story">
+    <div>
+      <article class="broadcast">
+        <div class="eyebrow">Emergency broadcast · Antalya Sınav College</div>
+        <h3>Zombies are in the city.</h3>
+        <p><span class="time">09:10</span> You are in class at <b>Antalya Sınav College</b> when the news breaks. The bell will not ring today. The army will rescue survivors at <b>Antalya Airport</b> in <b>3 days</b>.</p>
+        <p>The power is going off, the doors are locked, and the zombies are coming up the street. You have <b>5 minutes</b> to grab your supplies.</p>
+        <p><b>Choose wisely. Your life depends on it.</b></p>
+      </article>
+      </div>
+    <div>
+      <aside class="rumours">
+        <h4>Rumours on the radio</h4>
+        <ul>
+          <li><span>🌙</span><span>In the dark, they can see light from very far away.</span></li>
+          <li><span>👂</span><span>They hunt by sound.</span></li>
+          <li><span>🍯</span><span>They love the smell of sugar.</span></li>
+          <li><span>🌦️</span><span>Forecast: rain, storms, maybe a heat wave.</span></li>
+          <li><span>🌊</span><span>The bridge over the Aksu River may be damaged.</span></li>
+          <li><span>🦹</span><span>Some survivors have become thieves.</span></li>
+        </ul>
+      </aside>
+      <aside class="rules">
+        <h4>Rules</h4>
+        <ol>
+          <li>Each team chooses <b id="ruleN">6</b> items from the supply room.</li>
+          <li><b>First come, first served:</b> every item belongs to only one team.</li>
+          <li>Event cards will destroy items. When your team has nothing left, the zombies get you.</li>
+          <li>In the end, only <b>one item</b> survives. The team holding it is rescued!</li>
+        </ol>
+      </aside>
+    </div>
+  </div>
+
+
+
+<div class="student-note"><b>Your mission:</b> with your team, choose <b>6 items</b> and send the <b>6 numbers</b> to your teacher in the Zoom chat. Be quick: every item belongs to only one team!</div>
+<ul class="items">
+<li class="tile"><span class="no">#1</span><span class="em">🔦</span><span class="nm">Flashlight</span></li>
+<li class="tile"><span class="no">#2</span><span class="em">🔥</span><span class="nm">Lighter</span></li>
+<li class="tile"><span class="no">#3</span><span class="em">🎆</span><span class="nm">Box of fireworks</span></li>
+<li class="tile"><span class="no">#4</span><span class="em">⛺</span><span class="nm">Tent</span></li>
+<li class="tile"><span class="no">#5</span><span class="em">🧻</span><span class="nm">100 rolls of toilet paper</span></li>
+<li class="tile"><span class="no">#6</span><span class="em">🗺️</span><span class="nm">Map of Antalya</span></li>
+<li class="tile"><span class="no">#7</span><span class="em">🎸</span><span class="nm">Electric guitar</span></li>
+<li class="tile"><span class="no">#8</span><span class="em">🎤</span><span class="nm">Karaoke machine</span></li>
+<li class="tile"><span class="no">#9</span><span class="em">📢</span><span class="nm">Megaphone</span></li>
+<li class="tile"><span class="no">#10</span><span class="em">📯</span><span class="nm">Air horn</span></li>
+<li class="tile"><span class="no">#11</span><span class="em">🦆</span><span class="nm">Squeaky rubber duck</span></li>
+<li class="tile"><span class="no">#12</span><span class="em">🐈</span><span class="nm">Very angry cat</span></li>
+<li class="tile"><span class="no">#13</span><span class="em">🐕</span><span class="nm">Loyal dog</span></li>
+<li class="tile"><span class="no">#14</span><span class="em">🐎</span><span class="nm">Horse</span></li>
+<li class="tile"><span class="no">#15</span><span class="em">🦜</span><span class="nm">Talking parrot</span></li>
+<li class="tile"><span class="no">#16</span><span class="em">🍫</span><span class="nm">10 kg of chocolate</span></li>
+<li class="tile"><span class="no">#17</span><span class="em">🍯</span><span class="nm">Jar of honey</span></li>
+<li class="tile"><span class="no">#18</span><span class="em">🥫</span><span class="nm">20 tins of beans</span></li>
+<li class="tile"><span class="no">#19</span><span class="em">🍌</span><span class="nm">Bunch of bananas</span></li>
+<li class="tile"><span class="no">#20</span><span class="em">💧</span><span class="nm">5-litre bottle of water</span></li>
+<li class="tile"><span class="no">#21</span><span class="em">🚲</span><span class="nm">Bicycle</span></li>
+<li class="tile"><span class="no">#22</span><span class="em">🛹</span><span class="nm">Skateboard</span></li>
+<li class="tile"><span class="no">#23</span><span class="em">🛼</span><span class="nm">Roller skates</span></li>
+<li class="tile"><span class="no">#24</span><span class="em">🛒</span><span class="nm">Shopping trolley</span></li>
+<li class="tile"><span class="no">#25</span><span class="em">🛵</span><span class="nm">Pizza scooter</span></li>
+<li class="tile"><span class="no">#26</span><span class="em">🪜</span><span class="nm">Ladder</span></li>
+<li class="tile"><span class="no">#27</span><span class="em">🤸</span><span class="nm">Trampoline</span></li>
+<li class="tile"><span class="no">#28</span><span class="em">🎈</span><span class="nm">Hot-air balloon</span></li>
+<li class="tile"><span class="no">#29</span><span class="em">🦄</span><span class="nm">Giant inflatable unicorn</span></li>
+<li class="tile"><span class="no">#30</span><span class="em">🚁</span><span class="nm">Drone</span></li>
+<li class="tile"><span class="no">#31</span><span class="em">📱</span><span class="nm">Phone (3% battery)</span></li>
+<li class="tile"><span class="no">#32</span><span class="em">📻</span><span class="nm">Walkie-talkies</span></li>
+<li class="tile"><span class="no">#33</span><span class="em">💨</span><span class="nm">Hairdryer</span></li>
+<li class="tile"><span class="no">#34</span><span class="em">🪞</span><span class="nm">Big mirror</span></li>
+<li class="tile"><span class="no">#35</span><span class="em">🎱</span><span class="nm">Magic 8-Ball</span></li>
+<li class="tile"><span class="no">#36</span><span class="em">🔭</span><span class="nm">Binoculars</span></li>
+<li class="tile"><span class="no">#37</span><span class="em">🧴</span><span class="nm">Bucket of super glue</span></li>
+<li class="tile"><span class="no">#38</span><span class="em">🩹</span><span class="nm">Duct tape</span></li>
+<li class="tile"><span class="no">#39</span><span class="em">🪢</span><span class="nm">20 m of rope</span></li>
+<li class="tile"><span class="no">#40</span><span class="em">⚾</span><span class="nm">Baseball bat</span></li>
+<li class="tile"><span class="no">#41</span><span class="em">🍳</span><span class="nm">Frying pan</span></li>
+<li class="tile"><span class="no">#42</span><span class="em">🧯</span><span class="nm">Fire extinguisher</span></li>
+<li class="tile"><span class="no">#43</span><span class="em">⛑️</span><span class="nm">First-aid kit</span></li>
+<li class="tile"><span class="no">#44</span><span class="em">🧄</span><span class="nm">Garlic necklace</span></li>
+<li class="tile"><span class="no">#45</span><span class="em">🛌</span><span class="nm">Sleeping bag</span></li>
+<li class="tile"><span class="no">#46</span><span class="em">🗝️</span><span class="nm">Mysterious golden key</span></li>
+<li class="tile"><span class="no">#47</span><span class="em">☕</span><span class="nm">Flask of hot coffee</span></li>
+<li class="tile"><span class="no">#48</span><span class="em">🧑‍🏫</span><span class="nm">Aziz Hoca (English teacher)</span></li>
+<li class="tile"><span class="no">#49</span><span class="em">🎒</span><span class="nm">Backpack full of textbooks</span></li>
+<li class="tile"><span class="no">#50</span><span class="em">🥚</span><span class="nm">Box of 30 eggs</span></li>
+<li class="tile"><span class="no">#51</span><span class="em">👔</span><span class="nm">Ferhan Hoca (principal)</span></li>
+<li class="tile"><span class="no">#52</span><span class="em">📋</span><span class="nm">Erman Hoca (vice principal)</span></li>
+</ul>
+</main>
+<footer class="wrap">Antalya Sınav College · Zombie Drill 2026 · English class game</footer>
+</body>
+</html>

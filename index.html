@@ -1,0 +1,724 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Zombie Run Antalya</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Stencil+One&family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap">
+<style>
+/* Layout: a survival field-kit console. Header with phase steps, then one of three
+   views: emergency broadcast (story), supply depot (choose items), survival board (play). */
+:root{
+  --bg:#1c2118;        /* night olive */
+  --panel:#262d20;     /* kit panel */
+  --panel-2:#2f3728;
+  --line:#3e4834;
+  --fg:#eef0e4;
+  --muted:#a7af98;
+  --khaki:#e7ddc1;     /* index-card paper */
+  --khaki-2:#d8cca9;
+  --ink:#232818;       /* text on paper */
+  --caution:#f2902b;   /* hazard orange */
+  --blood:#c9342c;     /* LOST stamp */
+  --alive:#86b86f;
+  --t1:#5aa9e6; --t2:#e8c94a; --t3:#c47ad6; --t4:#4fc3a1; --t5:#ef7b9a; --t6:#b9d36a;
+  --f-display:"Saira Stencil One","Impact","Arial Black",sans-serif;
+  --f-body:"Barlow",system-ui,"Segoe UI",Arial,sans-serif;
+  --f-cond:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{background:var(--bg);color:var(--fg)}
+body{font-family:var(--f-body);font-size:16px;line-height:1.45}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--panel)}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--caution);outline-offset:2px}
+
+.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* ---------- header ---------- */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--panel);border-bottom:2px solid var(--line)}
+.bar-in{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;padding-block:10px;max-width:1400px;margin:0 auto}
+.brand{font-family:var(--f-display);font-size:26px;letter-spacing:.02em;line-height:1;color:var(--fg);display:flex;align-items:center;gap:10px}
+.brand .tape{display:inline-block;width:34px;height:20px;border-radius:2px;background:repeating-linear-gradient(-45deg,var(--caution) 0 7px,var(--ink) 7px 14px)}
+.steps{display:flex;gap:6px;flex-wrap:wrap}
+.step{border:2px solid var(--line);background:transparent;border-radius:6px;padding:6px 12px;font-family:var(--f-cond);font-weight:600;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.step[aria-current="true"]{border-color:var(--caution);color:var(--fg);background:var(--panel-2)}
+.step b{color:var(--caution);margin-right:6px}
+.bar .spacer{flex:1}
+.school{display:flex;align-items:center;gap:8px;padding:4px 12px 4px 6px;border:2px solid var(--line);border-radius:8px;background:var(--panel-2)}
+.school .crest{width:30px;height:35px;flex:none}
+.school span{display:grid;line-height:1.05}
+.school small{font-family:var(--f-cond);font-weight:600;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.school b{font-family:var(--f-cond);font-weight:700;font-size:17px;letter-spacing:.04em;color:var(--fg)}
+.back .school-mark{font-family:var(--f-cond);font-weight:700;font-size:15px;letter-spacing:.16em;text-transform:uppercase;color:var(--khaki);opacity:.8}
+.ghost{border:2px solid var(--line);background:transparent;border-radius:6px;padding:6px 12px;font-family:var(--f-cond);font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.ghost:hover{color:var(--fg);border-color:var(--muted)}
+.confirm-row{display:flex;gap:8px;align-items:center;font-family:var(--f-cond);font-size:16px}
+.danger{background:var(--blood);border:0;color:#fff;border-radius:6px;padding:7px 12px;font-family:var(--f-cond);font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+
+main{max-width:1400px;margin:0 auto;padding-block:24px 48px}
+.view{display:block}
+h2.sec{font-family:var(--f-display);font-size:clamp(28px,4vw,44px);line-height:1.05;margin:0 0 12px;text-wrap:balance}
+.lede{color:var(--muted);max-width:65ch;margin:0 0 20px}
+.btn{background:var(--caution);color:var(--ink);border:0;border-radius:8px;padding:12px 20px;font-family:var(--f-cond);font-weight:700;font-size:20px;letter-spacing:.06em;text-transform:uppercase}
+.btn:hover{filter:brightness(1.07)}
+.btn:disabled{opacity:.4;cursor:not-allowed;filter:none}
+.btn.sec{background:var(--panel-2);color:var(--fg);border:2px solid var(--line)}
+
+/* ---------- story ---------- */
+.story{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:24px;align-items:start}
+.broadcast{background:var(--khaki);color:var(--ink);border-radius:10px;padding:28px 30px;position:relative;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.broadcast::before{content:"";position:absolute;inset:0 0 auto;height:12px;border-radius:10px 10px 0 0;background:repeating-linear-gradient(-45deg,var(--caution) 0 12px,var(--ink) 12px 24px)}
+.broadcast .eyebrow{font-family:var(--f-cond);font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:15px;color:var(--blood);margin:8px 0 6px}
+.broadcast h3{font-family:var(--f-display);font-size:clamp(30px,4.6vw,54px);line-height:1;margin:0 0 16px}
+.broadcast p{font-size:21px;line-height:1.5;margin:0 0 12px;max-width:60ch}
+.broadcast .time{font-family:var(--f-cond);font-weight:700;font-size:22px;background:var(--ink);color:var(--khaki);padding:1px 8px;border-radius:4px}
+.rumours{background:var(--panel);border:2px solid var(--line);border-radius:10px;padding:22px 24px}
+.rumours h4,.rules h4{font-family:var(--f-cond);font-weight:700;font-size:18px;letter-spacing:.12em;text-transform:uppercase;color:var(--caution);margin:0 0 10px}
+.rumours ul{margin:0;padding:0;list-style:none;display:grid;gap:10px}
+.rumours li{display:flex;gap:12px;align-items:flex-start;font-size:19px}
+.rumours li span:first-child{font-size:24px;line-height:1.1}
+.rules{margin-top:18px;background:var(--panel);border:2px solid var(--line);border-radius:10px;padding:22px 24px}
+.rules ol{margin:0;padding-left:22px;display:grid;gap:8px;font-size:19px}
+.story-actions{margin-top:22px;display:flex;gap:12px;flex-wrap:wrap}
+
+/* ---------- choose ---------- */
+.choose-top{display:flex;flex-wrap:wrap;gap:16px;align-items:stretch;margin-bottom:18px}
+.timer{background:var(--panel);border:2px solid var(--line);border-radius:10px;padding:12px 18px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.timer .clock{font-family:var(--f-display);font-size:48px;line-height:1;font-variant-numeric:tabular-nums;min-width:4.2ch}
+.timer .clock.done{color:var(--blood);animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:.25}}
+.timer .tbtns{display:flex;gap:8px;flex-wrap:wrap}
+.settings{background:var(--panel);border:2px solid var(--line);border-radius:10px;padding:12px 18px;display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.settings label{font-family:var(--f-cond);font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:flex;gap:8px;align-items:center}
+.settings select{background:var(--panel-2);border:2px solid var(--line);border-radius:6px;padding:6px 10px;color:var(--fg);font-weight:600}
+
+.choose{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,380px);gap:20px;align-items:start}
+.items{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.tile{position:relative;background:var(--khaki);color:var(--ink);border:2px solid var(--khaki-2);border-radius:8px;padding:8px 10px 10px;text-align:left;display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:8px;align-items:center;min-height:74px}
+.tile:hover{border-color:var(--caution)}
+.tile .no{grid-column:1/-1;font-family:var(--f-cond);font-weight:700;font-size:15px;letter-spacing:.05em;color:#6b6450}
+.tile .em{font-size:28px;line-height:1}
+.tile .nm{font-weight:600;font-size:15.5px;line-height:1.15}
+.tile .dots{position:absolute;top:7px;right:8px;display:flex;gap:3px}
+.dot{width:12px;height:12px;border-radius:50%;border:2px solid var(--ink)}
+.tile.mine{border-color:var(--ink);box-shadow:0 0 0 3px var(--active-color,var(--caution))}
+.tile.taken{opacity:.4;cursor:not-allowed}
+.tile.taken:hover{border-color:var(--khaki-2)}
+.tile .owner{position:absolute;bottom:5px;right:8px;font-family:var(--f-cond);font-weight:700;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink)}
+.tile.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.status .note{color:var(--caution);font-size:14px;font-weight:500;letter-spacing:0}
+.front .lostlist li.nobody{opacity:.42}
+.win-card .wi{font-size:76px;line-height:1;margin:6px 0 0}
+.win-card .with{font-family:var(--f-cond);font-weight:700;font-size:22px;letter-spacing:.04em;margin:0 0 14px}
+.win-card .tale{text-align:left;font-size:20px;line-height:1.5;background:rgba(35,40,24,.07);border-left:5px solid var(--caution);padding:12px 16px;border-radius:4px;margin:0 0 18px}
+.win-card .tale b{display:block;font-family:var(--f-cond);letter-spacing:.12em;text-transform:uppercase;font-size:14px;color:var(--blood);margin-bottom:4px}
+
+.teams-setup{display:grid;gap:12px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 76px)}
+.tcard{background:var(--panel);border:2px solid var(--line);border-left:8px solid var(--tc);border-radius:10px;padding:12px 14px;display:grid;gap:8px}
+.tcard.active{border-color:var(--tc);border-left-width:8px;background:var(--panel-2)}
+.trow{display:flex;gap:8px;align-items:center}
+.tname{flex:1;min-width:0;background:transparent;border:0;border-bottom:2px dashed var(--line);font-family:var(--f-cond);font-weight:700;font-size:22px;padding:2px 0}
+.tname:focus{border-bottom-color:var(--tc);outline:none}
+.pickbtn{border:2px solid var(--tc);background:transparent;border-radius:6px;padding:4px 10px;font-family:var(--f-cond);font-weight:600;font-size:14px;letter-spacing:.05em;text-transform:uppercase;color:var(--fg);white-space:nowrap}
+.tcard.active .pickbtn{background:var(--tc);color:var(--ink)}
+.nums{width:100%;background:var(--bg);border:2px solid var(--line);border-radius:6px;padding:8px 10px;font-variant-numeric:tabular-nums;font-size:17px}
+.nums:focus{border-color:var(--tc);outline:none}
+.chips{display:flex;flex-wrap:wrap;gap:6px;min-height:28px}
+.chip{display:inline-flex;align-items:center;gap:5px;background:var(--khaki);color:var(--ink);border-radius:999px;padding:2px 10px 2px 6px;font-size:14px;font-weight:600}
+.chip .n{font-family:var(--f-cond);color:#6b6450}
+.status{font-family:var(--f-cond);font-weight:600;font-size:15px;letter-spacing:.04em;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.status .ok{color:var(--alive)} .status .warn{color:var(--caution)}
+.linkbtn{background:none;border:0;color:var(--muted);text-decoration:underline;font-size:14px;padding:0}
+.linkbtn:hover{color:var(--fg)}
+.start-box{background:var(--panel);border:2px solid var(--line);border-radius:10px;padding:14px;display:grid;gap:10px}
+.start-box .msg{font-size:15px;color:var(--muted)}
+
+/* ---------- play ---------- */
+.play{display:grid;grid-template-columns:minmax(320px,440px) minmax(0,1fr);gap:24px;align-items:start}
+.deckbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+.deckcount{font-family:var(--f-cond);font-weight:700;font-size:18px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.deckcount b{color:var(--fg);font-size:22px}
+.pick-card{background:var(--panel-2);border:2px solid var(--line);border-radius:6px;padding:8px 10px;color:var(--fg);max-width:100%}
+.stage{perspective:1400px}
+.card3d{position:relative;width:100%;aspect-ratio:3/4;max-width:440px;transform-style:preserve-3d;transition:transform .8s cubic-bezier(.2,.7,.2,1)}
+.card3d.flipped{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:16px;overflow:hidden;box-shadow:0 14px 40px rgba(0,0,0,.45)}
+.back{background:var(--ink);border:3px solid var(--caution);display:grid;place-items:center;text-align:center;padding:24px}
+.back .stripes{position:absolute;inset:0;background:repeating-linear-gradient(-45deg,rgba(242,144,43,.14) 0 22px,transparent 22px 44px)}
+.back .inner{position:relative;display:grid;gap:10px}
+.back .q{font-family:var(--f-display);font-size:120px;line-height:.9;color:var(--caution)}
+.back .lbl{font-family:var(--f-display);font-size:34px;color:var(--fg)}
+.back .hint{font-family:var(--f-cond);font-size:17px;letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+.front{transform:rotateY(180deg);background:var(--khaki);color:var(--ink);display:flex;flex-direction:column;padding:22px 22px 18px}
+.front .ctop{display:flex;justify-content:space-between;align-items:center;font-family:var(--f-cond);font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-size:14px;color:#6b6450}
+.front .cem{font-size:64px;line-height:1;margin:10px 0 6px}
+.front h3{font-family:var(--f-display);font-size:38px;line-height:1;margin:0 0 10px;text-wrap:balance}
+.front .ctext{font-size:19px;line-height:1.4;margin:0 0 12px}
+.front .losthdr{font-family:var(--f-cond);font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-size:15px;color:var(--blood);border-top:2px dashed #b9ad8b;padding-top:10px;margin-bottom:6px}
+.front .lostlist{list-style:none;margin:0;padding:0;display:grid;gap:8px;align-content:start;overflow:auto;min-height:0;flex:1}
+.front .lostlist li{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;font-size:16px;line-height:1.2}
+.front .lostlist .e{font-size:22px}
+.front .lostlist .why{display:block;font-size:14px;color:#5d5743;font-style:italic}
+.front .lostlist .who{display:flex;gap:3px}
+.front .phew{font-family:var(--f-display);font-size:30px;color:#3f6b2f;margin-top:8px}
+
+.board{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.team{background:var(--panel);border:2px solid var(--line);border-top:8px solid var(--tc);border-radius:10px;padding:12px 14px;position:relative;overflow:hidden}
+.team h3{font-family:var(--f-cond);font-weight:700;font-size:24px;margin:0;line-height:1.1;overflow-wrap:anywhere}
+.team .left{font-family:var(--f-cond);font-weight:600;letter-spacing:.05em;text-transform:uppercase;font-size:15px;color:var(--alive);margin:2px 0 10px}
+.team.out .left{color:var(--blood)}
+.team ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.team li{display:flex;gap:8px;align-items:center;background:var(--khaki);color:var(--ink);border-radius:6px;padding:6px 8px;font-weight:600;font-size:15.5px;position:relative}
+.team li .e{font-size:20px}
+.team li.lost{background:transparent;color:var(--muted);border:2px dashed var(--line);text-decoration:line-through;text-decoration-color:var(--blood);text-decoration-thickness:2px}
+.team li.lost::after{content:"LOST";margin-left:auto;text-decoration:none;font-family:var(--f-cond);font-weight:700;font-size:12px;letter-spacing:.1em;color:#fff;background:var(--blood);padding:1px 6px;border-radius:3px}
+.team li.fresh{animation:hit .9s ease-out}
+@keyframes hit{0%{transform:scale(1.06);background:var(--blood);color:#fff}100%{transform:none}}
+.team .eaten{position:absolute;right:-6px;bottom:14px;transform:rotate(-12deg);font-family:var(--f-display);font-size:30px;color:var(--blood);border:4px solid var(--blood);border-radius:6px;padding:0 10px;background:rgba(28,33,24,.85);pointer-events:none}
+.team.win{box-shadow:0 0 0 4px var(--caution)}
+
+.log{margin-top:18px}
+.log h4{font-family:var(--f-cond);font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-size:15px;color:var(--muted);margin:0 0 8px}
+.log ol{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.log li{background:var(--panel-2);border:2px solid var(--line);border-radius:999px;padding:3px 12px;font-size:14px}
+.log li b{font-family:var(--f-cond);color:var(--caution);margin-right:4px}
+
+/* ---------- winner overlay ---------- */
+.overlay{position:fixed;inset:0;z-index:20;background:rgba(15,18,12,.86);display:grid;place-items:center;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.win-card{background:var(--khaki);color:var(--ink);border-radius:16px;max-width:620px;width:100%;padding:30px;text-align:center;position:relative;overflow:hidden}
+.win-card::before{content:"";position:absolute;inset:0 0 auto;height:14px;background:repeating-linear-gradient(-45deg,var(--caution) 0 12px,var(--ink) 12px 24px)}
+.win-card .eyebrow{font-family:var(--f-cond);font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--blood);margin-top:8px}
+.win-card h2{font-family:var(--f-display);font-size:clamp(34px,6vw,58px);line-height:1;margin:10px 0}
+.win-card p{font-size:19px;margin:0 0 18px}
+.win-card .btn.sec{color:var(--fg)}
+
+@media (max-width:900px){
+  .story,.choose,.play{grid-template-columns:minmax(0,1fr)}
+  .teams-setup{position:static}
+  .card3d{margin:0 auto}
+}
+@media (prefers-reduced-motion:reduce){
+  .card3d{transition:none} .team li.fresh{animation:none} .timer .clock.done{animation:none}
+}
+</style>
+<style>body{margin:0}img{max-width:100%}</style>
+</head>
+<body>
+
+
+<header class="bar"><div class="bar-in wrap">
+  <div class="brand"><span class="tape" aria-hidden="true"></span>Zombie Run · Antalya</div>
+  <div class="school"><svg class="crest" viewBox="0 0 40 46" aria-hidden="true"><path d="M20 2 L37 8 V22 C37 33 29 41 20 44 C11 41 3 33 3 22 V8 Z" fill="var(--khaki)" stroke="var(--caution)" stroke-width="2.5"/><text x="20" y="27" text-anchor="middle" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-weight="700" font-size="13" fill="#232818">ASC</text></svg><span><small>Antalya Sınav College</small><b>Zombie Drill 2026</b></span></div>
+  <nav class="steps" aria-label="Game phases">
+    <button class="step" data-go="story"><b>1</b>Story</button>
+    <button class="step" data-go="choose"><b>2</b>Choose items</button>
+    <button class="step" data-go="play"><b>3</b>Survive</button>
+  </nav>
+  <span class="spacer"></span>
+  <div id="resetArea"><button class="ghost" id="resetBtn">New game</button></div>
+</div></header>
+
+<main class="wrap">
+
+<!-- ================= STORY ================= -->
+<section class="view" id="v-story">
+  <div class="story">
+    <div>
+      <article class="broadcast">
+        <div class="eyebrow">Emergency broadcast · Antalya Sınav College</div>
+        <h3>Zombies are in the city.</h3>
+        <p><span class="time">09:10</span> You are in class at <b>Antalya Sınav College</b> when the news breaks. The bell will not ring today. The army will rescue survivors at <b>Antalya Airport</b> in <b>3 days</b>.</p>
+        <p>The power is going off, the doors are locked, and the zombies are coming up the street. You have <b>5 minutes</b> to grab your supplies.</p>
+        <p><b>Choose wisely. Your life depends on it.</b></p>
+      </article>
+      <div class="story-actions">
+        <button class="btn" data-go="choose">Open the supply room →</button>
+      </div>
+    </div>
+    <div>
+      <aside class="rumours">
+        <h4>Rumours on the radio</h4>
+        <ul>
+          <li><span>🌙</span><span>In the dark, they can see light from very far away.</span></li>
+          <li><span>👂</span><span>They hunt by sound.</span></li>
+          <li><span>🍯</span><span>They love the smell of sugar.</span></li>
+          <li><span>🌦️</span><span>Forecast: rain, storms, maybe a heat wave.</span></li>
+          <li><span>🌊</span><span>The bridge over the Aksu River may be damaged.</span></li>
+          <li><span>🦹</span><span>Some survivors have become thieves.</span></li>
+        </ul>
+      </aside>
+      <aside class="rules">
+        <h4>Rules</h4>
+        <ol>
+          <li>Each team chooses <b id="ruleN">6</b> items from the supply room.</li>
+          <li><b>First come, first served:</b> every item belongs to only one team.</li>
+          <li>Event cards will destroy items. When your team has nothing left, the zombies get you.</li>
+          <li>In the end, only <b>one item</b> survives. The team holding it is rescued!</li>
+        </ol>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CHOOSE ================= -->
+<section class="view" id="v-choose" hidden>
+  <h2 class="sec">Supply room</h2>
+  <p class="lede">Students see the list at <b>stziza.github.io/zombie-run/items.html</b>. Teams send you their item numbers: type them into each team's box, or select a team and click the items.</p>
+  <div class="choose-top">
+    <div class="timer" aria-live="polite">
+      <div class="clock" id="clock">05:00</div>
+      <div class="tbtns">
+        <button class="btn" id="tStart" style="font-size:17px;padding:8px 14px">Start</button>
+        <button class="btn sec" id="tPlus" style="font-size:17px;padding:8px 14px">+1 min</button>
+        <button class="btn sec" id="tReset" style="font-size:17px;padding:8px 14px">Reset</button>
+      </div>
+    </div>
+    <div class="settings">
+      <label for="teamCount">Teams
+        <select id="teamCount"><option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option></select>
+      </label>
+      <label for="perTeam">Items per team
+        <select id="perTeam"><option>3</option><option>4</option><option>5</option><option selected>6</option><option>7</option><option>8</option></select>
+      </label>
+    </div>
+  </div>
+  <div class="choose">
+    <div class="items" id="items"></div>
+    <div class="teams-setup">
+      <div id="teamCards" style="display:grid;gap:12px"></div>
+      <div class="start-box">
+        <button class="btn" id="startBtn">Start survival →</button>
+        <div class="msg" id="startMsg"></div>
+        <button class="linkbtn" id="startAnyway" hidden>Start anyway</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PLAY ================= -->
+<section class="view" id="v-play" hidden>
+  <div class="deckbar">
+    <button class="btn" id="flipBtn">Flip next card</button>
+    <span class="deckcount">Items still alive: <b id="aliveTotal">0</b></span>
+    <button class="ghost" id="undoBtn">Undo last card</button>
+  </div>
+  <div class="play">
+    <div>
+      <div class="stage">
+        <div class="card3d" id="card3d">
+          <div class="face back"><div class="stripes"></div><div class="inner">
+            <div class="q">?</div><div class="lbl">Event card</div><div class="school-mark">Antalya Sınav College · Zombie Drill</div><div class="hint" id="backHint">Press “Flip next card” or Space</div>
+          </div></div>
+          <div class="face front" id="cardFront"></div>
+        </div>
+      </div>
+      <div class="log"><h4>Cards played</h4><ol id="log"></ol></div>
+    </div>
+    <div class="board" id="board"></div>
+  </div>
+</section>
+</main>
+
+<div class="overlay" id="overlay" hidden>
+  <div class="win-card" role="dialog" aria-modal="true" aria-labelledby="winTitle">
+    <div class="eyebrow" id="winEyebrow">Rescue helicopter has landed</div>
+    <div class="wi" id="winEmoji">🔦</div>
+    <h2 id="winTitle">Team 1 survives!</h2>
+    <p class="with" id="winWith"></p>
+    <div class="tale"><b>How they survived</b><span id="winStory"></span></div>
+    <p id="winText"></p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <button class="btn sec" id="winClose">Back to the board</button>
+      <button class="btn" id="winNew">New game</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+const ITEMS = [
+ [1,"🔦","Flashlight"],[2,"🔥","Lighter"],[3,"🎆","Box of fireworks"],[4,"⛺","Tent"],[5,"🧻","100 rolls of toilet paper"],
+ [6,"🗺️","Map of Antalya"],[7,"🎸","Electric guitar"],[8,"🎤","Karaoke machine"],[9,"📢","Megaphone"],[10,"📯","Air horn"],
+ [11,"🦆","Squeaky rubber duck"],[12,"🐈","Very angry cat"],[13,"🐕","Loyal dog"],[14,"🐎","Horse"],[15,"🦜","Talking parrot"],
+ [16,"🍫","10 kg of chocolate"],[17,"🍯","Jar of honey"],[18,"🥫","20 tins of beans"],[19,"🍌","Bunch of bananas"],[20,"💧","5-litre bottle of water"],
+ [21,"🚲","Bicycle"],[22,"🛹","Skateboard"],[23,"🛼","Roller skates"],[24,"🛒","Shopping trolley"],[25,"🛵","Pizza scooter"],
+ [26,"🪜","Ladder"],[27,"🤸","Trampoline"],[28,"🎈","Hot-air balloon"],[29,"🦄","Giant inflatable unicorn"],[30,"🚁","Drone"],
+ [31,"📱","Phone (3% battery)"],[32,"📻","Walkie-talkies"],[33,"💨","Hairdryer"],[34,"🪞","Big mirror"],[35,"🎱","Magic 8-Ball"],
+ [36,"🔭","Binoculars"],[37,"🧴","Bucket of super glue"],[38,"🩹","Duct tape"],[39,"🪢","20 m of rope"],[40,"⚾","Baseball bat"],
+ [41,"🍳","Frying pan"],[42,"🧯","Fire extinguisher"],[43,"⛑️","First-aid kit"],[44,"🧄","Garlic necklace"],[45,"🛌","Sleeping bag"],
+ [46,"🗝️","Mysterious golden key"],[47,"☕","Flask of hot coffee"],[48,"🧑‍🏫","Aziz Hoca (English teacher)"],[49,"🎒","Backpack full of textbooks"],[50,"🥚","Box of 30 eggs"],
+ [51,"👔","Ferhan Hoca (principal)"],[52,"📋","Erman Hoca (vice principal)"]
+];
+const ITEM = Object.fromEntries(ITEMS.map(([id,e,n])=>[id,{id,e,n}]));
+
+const STORIES = {
+ 1:"On the last night, you flashed the light from the school roof: three short, three long, three short. SOS! A rescue helicopter saw the signal and landed right next to you. The pilot said, “Nice Morse code!”",
+ 2:"You lit a small fire on a rooftop far away from your hideout. While every zombie in Antalya walked slowly towards the smoke, you quietly walked the other way, all the way to the airport.",
+ 3:"At the airport fence, you fired all the fireworks into the sky at once. The zombies stopped and stared at the colours, and the soldiers pulled you over the fence. The best New Year's party ever, in November!",
+ 4:"You put the tent on the roof of a tall bus shelter and hid inside for three days. Zombies can't climb bus shelters. On day three, the army truck stopped right below you.",
+ 5:"You wrapped yourselves from head to toe in toilet paper. The zombies thought you were mummies, a different kind of monster, and left you alone. You walked to the airport like a slow, silly parade.",
+ 6:"The map showed an old tunnel under the city that nobody remembered. You walked through it for three hours and came out right next to the airport runway.",
+ 7:"At the airport gate, you took the six strong guitar strings and tied the gate shut behind you. The zombies pushed and pushed, but the strings held. Rock and roll saved your life!",
+ 8:"You put the karaoke machine on a car roof, pressed play and ran. Every zombie in the city came to listen to “We Will Rock You”. There was nobody waiting for you at the airport.",
+ 9:"You heard the rescue helicopter, but it was flying away. You shouted into the megaphone: “WE ARE HERE! COME BACK!” The pilot heard you and turned around.",
+ 10:"When the zombies surrounded you, you pressed the air horn. They were so scared that they fell over each other like dominoes. You ran through the gap to the airport.",
+ 11:"You threw the squeaky duck into the river. SQUEAK! SQUEAK! Every zombie jumped into the water to catch it. Zombies can't swim. Ducks can.",
+ 12:"Nobody, not even a zombie, wants to fight a very angry cat. Every time a zombie came close, the cat hissed and showed its claws, and the zombie ran away. The cat is now an army sergeant.",
+ 13:"Your dog smelled zombies from 500 metres away and barked to warn you every time. It even found the secret back entrance of the airport. Good dog!",
+ 14:"Zombies are slow. Horses are not. You rode along Konyaaltı Beach at full speed and arrived at the airport a whole day early.",
+ 15:"The parrot flew to the airport and repeated your words to the soldiers: “HELP! SCHOOL! ROOF!” The soldiers followed the parrot back to you.",
+ 16:"You left a long trail of chocolate pieces from your hideout to the sea. The zombies followed it all the way into the Mediterranean. You ate the last piece on the helicopter.",
+ 17:"You poured the honey all over the stairs. The zombies got stuck like flies on a sticky trap, and you walked out of the back door.",
+ 18:"You never found a can opener, so you rolled the 20 tins down the street like bowling balls. STRIKE! All the zombies fell over, and you ran past them to the airport.",
+ 19:"You threw banana skins all over the street. The zombies slipped, fell and couldn't get up again. It looked like a comedy film, and you survived.",
+ 20:"On day three, every survivor was terribly thirsty except you. Fresh and strong, you walked the last 15 km to the airport while the others had to stop and rest.",
+ 21:"You cycled through the empty streets at night. Zombies are very slow, and a bicycle is very quiet. You were at the airport before they even noticed you.",
+ 22:"You skated down the long hill from your school to the airport at 50 km/h. The zombies only saw a blur.",
+ 23:"You skated through the airport terminal on the shiny floor, faster than any zombie. The soldiers gave you 10 out of 10 for style.",
+ 24:"You filled the trolley with pillows, jumped in and rolled down the hill like a race car, straight through the airport gate.",
+ 25:"You put on the delivery helmet and rode to the airport. When a soldier stopped you, you said, “Pizza delivery!” He let you in immediately.",
+ 26:"You climbed onto the school roof and pulled the ladder up after you. Zombies can't climb walls. After three days of sunbathing on the roof, the helicopter came.",
+ 27:"When the zombies broke into the school yard, you jumped on the trampoline: up, over the wall and into the back of an army truck.",
+ 28:"Nobody knew how to fly it, but you found out: hot air goes up! You floated over the zombies and landed softly next to the airport.",
+ 29:"You sat on the giant unicorn and floated along the coast to the airport. The zombies on the beach couldn't swim after you.",
+ 30:"You flew the drone to the airport with a message: “We are at the school. Send help!” Twenty minutes later, the helicopter was on your roof.",
+ 31:"With your last 3% battery, you sent one message to the army: your location. 2%… 1%… SENT! The phone died, but the rescue team was already on its way.",
+ 32:"You found the army's radio channel. A soldier guided you street by street, away from every zombie, all the way to the airport.",
+ 33:"You found a petrol generator and plugged in the hairdryer. It turns out zombies hate hot air in their faces. They ran away screaming.",
+ 34:"You used the mirror to flash sunlight at the rescue helicopter. The pilot saw the bright signal from 10 km away and came straight to you.",
+ 35:"Every time you asked “Is this way safe?”, the Magic 8-Ball answered, and it was always right. Its last answer was: “Signs point to yes. Airport.”",
+ 36:"From the roof, you watched the city through the binoculars and found the one street with no zombies in it. You walked down it all the way to the airport.",
+ 37:"You poured the super glue on the floor of the school entrance. The zombies walked in, and they are still standing there today.",
+ 38:"Duct tape fixes everything. You taped the doors shut, taped a broken bicycle together and taped a giant “HELP!” sign on the roof. The helicopter saw it.",
+ 39:"You tied the rope between two buildings and crossed high above the zombie-filled street, like a circus star.",
+ 40:"You used the bat to break the glass and press the fire alarm in a building across the street. Every zombie went there, and you went the other way.",
+ 41:"You banged the frying pan like a drum on one side of the building, then ran out of the other side. The zombies are still looking for the drummer.",
+ 42:"You sprayed a huge white cloud. The zombies couldn't see anything, and you walked through the cloud to freedom.",
+ 43:"On the way, you helped an injured soldier with your first-aid kit. To say thank you, he drove you to the airport in his army jeep.",
+ 44:"Garlic doesn't work on zombies, but it smells SO bad that even zombies didn't want to come near you.",
+ 45:"You zipped yourself into the sleeping bag and lay very still in the street. The zombies thought you were a giant sausage and walked past. Zombies don't eat sausages.",
+ 46:"The mysterious key opened a secret door in the school basement: a tunnel straight to the airport. Nobody knows who built it.",
+ 47:"Thanks to the coffee, you stayed awake for three days and nights, always one step ahead of the zombies. You slept for 20 hours on the helicopter.",
+ 48:"Aziz Hoca is an astronomer. On the second night, he went up to the school observatory, found the North Star and led you through the dark, away from every zombie, all the way to the airport. Astronomy saves lives!",
+ 51:"Ferhan Hoca made one announcement over the school speakers: “All zombies to the principal's office, NOW!” Every zombie went straight there, and the door locked behind them.",
+ 52:"Erman Hoca had already written an evacuation plan, timed to the minute. You followed it exactly, and the school bus left for the airport at 08:45 sharp.",
+ 49:"You built a wall with the heavy textbooks in front of the door. Finally, the textbooks were useful! The zombies couldn't get through.",
+ 50:"You threw 30 eggs at the zombies. They were so confused by the mess that they started fighting each other while you escaped."
+};
+
+const CARDS = [
+ {id:"night",e:"🌙",t:"Night falls",x:"It's dark, and the zombies can see light from far away. Anything that shines gives you away.",
+  lose:{1:"The beam is like a lighthouse.",2:"Even a tiny flame is seen.",3:"One spark and the whole box lights up the sky.",34:"It reflects the moonlight."}},
+ {id:"silence",e:"🤫",t:"Total silence",x:"The zombies hunt by sound. Anything that makes noise has to go.",
+  lose:{9:"Someone switched it on by accident.",10:"HOOONK!",11:"SQUEAK!",13:"It won't stop barking.",15:"It keeps shouting “HELLO!”"}},
+ {id:"music",e:"🎶",t:"Party's over",x:"The zombies are following music and engines all over the city.",
+  lose:{8:"Someone pressed play.",24:"The wheels rattle down the whole street.",25:"The engine is far too loud."}},
+ {id:"rain",e:"🌧️",t:"Three days of rain",x:"It rains for three days without stopping. Everything gets soaking wet.",
+  lose:{3:"Wet fireworks don't work.",5:"100 rolls of wet mush.",6:"The ink washes away.",38:"It won't stick to anything wet.",45:"Soaked and freezing.",49:"The textbooks turn into paste."}},
+ {id:"power",e:"🔌",t:"Power cut",x:"The electricity goes off across the whole city. Nothing can be charged.",
+  lose:{7:"An electric guitar with no electricity…",30:"Battery dead, no way to charge it.",33:"No socket, no hairdryer."}},
+ {id:"bridge",e:"🌊",t:"The broken bridge",x:"The bridge over the Aksu River has collapsed. You must swim across. Heavy things and wheels sink.",
+  lose:{18:"Far too heavy to swim with.",20:"5 kilos of water pulls you down.",21:"It sinks.",22:"It sinks.",23:"They sink.",42:"It sinks like a rock."}},
+ {id:"mud",e:"🟫",t:"The mud road",x:"The only road to the airport is deep mud. Anything with wheels gets stuck.",
+  lose:{21:"Stuck.",22:"Stuck.",23:"Stuck.",24:"Very stuck.",25:"Stuck, and out of fuel."}},
+ {id:"climb",e:"🧗",t:"Climbing zombies",x:"Bad news: the zombies have learned to climb. They are coming up the walls to the terrace!",
+  lose:{26:"They use it to climb up to you.",27:"They bounce right over your wall."}},
+ {id:"dogs",e:"🐺",t:"Zombie dogs!",x:"A pack of zombie dogs runs through the streets. Your animals panic and run away.",
+  lose:{12:"Gone over the rooftops.",13:"It ran after the pack.",14:"It galloped away.",15:"It flew off."}},
+ {id:"starving",e:"🍽️",t:"Starving",x:"The cafeteria on floor -1 and the canteen on the top floor are both empty. You haven't eaten for a whole day, so you eat every bit of food you have.",
+  lose:{16:"All 10 kilos… in one night.",17:"Licked clean.",19:"Gone in seconds.",44:"It tasted terrible.",50:"Raw. Yuck."}},
+ {id:"sugar",e:"🍭",t:"Sweet smell",x:"Zombies can smell sugar from a kilometre away. Throw away anything sweet, NOW!",
+  lose:{16:"Thrown out of the window.",17:"Thrown out of the window.",19:"Thrown out of the window."}},
+ {id:"fire",e:"🔥",t:"Fire!",x:"The observatory on the top floor catches fire! You escape, but some things burn or get used up.",
+  lose:{3:"BOOM!",28:"The balloon melts.",29:"It melts into a pink puddle.",39:"It burns.",42:"You used all of it to escape.",45:"Burnt."}},
+ {id:"horde",e:"🧟",t:"The horde breaks in",x:"200 zombies smash the main entrance next to the front lobby desk. RUN! You can only carry small things.",
+  lose:{4:"Too big to carry.",8:"Too heavy.",24:"Too slow.",26:"Too long to run with.",27:"You can't run with a trampoline."}},
+ {id:"storm",e:"🌪️",t:"Storm",x:"A huge storm hits the coast. The wind blows away anything big or light.",
+  lose:{4:"Blown into the sea.",27:"Flying over Konyaaltı.",28:"Gone with the wind.",29:"Last seen over Kemer.",30:"Blown out of the sky."}},
+ {id:"battery",e:"🪫",t:"Dead batteries",x:"Day three. Every battery is empty.",
+  lose:{1:"Click… nothing.",8:"Silent forever.",9:"Not a sound.",31:"3%… 2%… 0%.",32:"Only static."}},
+ {id:"gulls",e:"🐦",t:"Zombie seagulls",x:"Zombie seagulls attack from the sea! Anything in the air is in danger.",
+  lose:{15:"The seagulls chase it away.",28:"POP!",29:"POP!",30:"Knocked out of the sky."}},
+ {id:"quake",e:"🌋",t:"Earthquake",x:"The ground shakes. Anything fragile breaks.",
+  lose:{17:"The glass jar smashes.",34:"Seven years of bad luck.",35:"“Outlook not so good.”",36:"Cracked lenses.",50:"Thirty broken eggs."}},
+ {id:"thieves",e:"🦹",t:"Thieves",x:"A gang of survivors robs you. They take anything shiny or valuable.",
+  lose:{31:"Taken.",32:"Taken.",36:"Taken.",41:"Shiny! Taken.",43:"Taken.",46:"Taken. Nobody knows what it opens."}},
+ {id:"freeze",e:"🥶",t:"Freezing night",x:"The ice rink on floor -1 goes crazy and the whole school drops below zero. You burn things to stay warm.",
+  lose:{5:"It burns very well.",6:"Burnt for warmth.",7:"It's made of wood.",40:"Wood burns.",49:"Textbooks burn surprisingly well."}},
+ {id:"heat",e:"☀️",t:"Heat wave",x:"Antalya, 42°C. Everything melts, dries out or goes bad.",
+  lose:{16:"Chocolate soup.",19:"Black and rotten.",20:"You drank all of it.",37:"Dried into a rock.",50:"Cooked on the pavement."}},
+ {id:"scratch",e:"🩸",t:"Scratched!",x:"A zombie scratches someone on your team. The nurse's room is on the 1st floor, but there is only one nurse! Quick, do something!",
+  lose:{43:"You used all of it.",44:"It doesn't work. Wrong monster!"}},
+ {id:"teacher",e:"🧑‍🏫",t:"Grammar emergency",x:"Aziz Hoca stops to correct a zombie: “It's ‘I am hungry’, not ‘me hungry’!”",
+  lose:{48:"Goodbye, Aziz Hoca.",47:"He took the coffee with him."}},
+ {id:"oyss",e:"📝",t:"OYSS exam day",x:"Zombies or no zombies, the OYSS English exam is today! Exam rules: no phones, no devices, no cheating.",
+  lose:{31:"Phones go in the box.",32:"No communication devices in the exam!",35:"Obviously a cheating device."}},
+ {id:"corridor",e:"🚸",t:"Corridor rules",x:"Erman Hoca catches you in the corridor: “No skating in the corridors! No toys in class!”",
+  lose:{22:"Confiscated.",23:"Confiscated.",11:"Confiscated. SQUEAK."}},
+ {id:"meeting",e:"🗂️",t:"Emergency staff meeting",x:"Ferhan Hoca calls an emergency staff meeting in the middle of the zombie attack. All teachers must attend!",
+  lose:{51:"He is running the meeting.",52:"He is taking the notes.",48:"Aziz Hoca has to attend too."}},
+ {id:"parents",e:"👨‍👩‍👧",t:"Parent conference",x:"200 parents arrive at school for the veli toplantısı. Somebody has to talk to all of them!",
+  lose:{51:"Greeting every parent.",52:"Answering every question.",47:"The parents drank all the coffee."}},
+ {id:"quiet",e:"😮‍💨",t:"Quiet night",x:"Nothing happens. Everyone gets some sleep. Phew!",lose:{}}
+];
+const BASE = Object.fromEntries(CARDS.map(c=>[c.id,c]));
+const TEAM_COLORS = ["var(--t1)","var(--t2)","var(--t3)","var(--t4)","var(--t5)","var(--t6)"];
+const KEY = "zombie-run-antalya-v2";
+
+let state;
+function freshState(){
+  return {v:2,phase:"story",teamCount:4,perTeam:6,active:0,
+    teams:Array.from({length:6},(_,i)=>({name:"Team "+(i+1),picks:[]})),
+    plan:null,deck:[],played:[],special:null,overlayDismissed:false};
+}
+function save(){ try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){} }
+function load(){ try{const s=JSON.parse(localStorage.getItem(KEY)); if(s&&s.teams&&s.v===2) return s;}catch(e){} return null; }
+const CARD = id => id==="last" ? state.special : BASE[id];
+
+const $ = s=>document.querySelector(s);
+const esc = s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const teams = ()=>state.teams.slice(0,state.teamCount);
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function ownerOf(id){ return teams().findIndex(t=>t.picks.includes(id)); }
+
+/* ---------- planner: exactly one item survives ---------- */
+function killers(item){ return CARDS.filter(c=>c.lose[item]).map(c=>c.id); }
+function buildPlan(){
+  const T=teams();
+  const picked=[]; T.forEach((t,i)=>t.picks.forEach(p=>picked.push({p,i})));
+  const ids=picked.map(x=>x.p);
+  // a survivor x is valid if every other picked item can be destroyed by a card that spares x
+  const valid=ids.filter(x=>ids.every(y=>y===x||killers(y).some(c=>!BASE[c].lose[x])));
+  let pool = valid.length?valid:ids;
+  const minK=Math.min(...pool.map(x=>killers(x).length));
+  const x = shuffle(pool.filter(v=>killers(v).length===minK))[0];   // the "wisest" pick wins
+  const allowed=CARDS.filter(c=>c.id!=="quiet"&&!c.lose[x]);
+  const need=new Set(ids.filter(v=>v!==x)); const chosen=[];
+  while(need.size){
+    let best=null,bestHit=0;
+    shuffle(allowed).forEach(c=>{ if(chosen.includes(c.id)) return; const h=Object.keys(c.lose).filter(k=>need.has(+k)).length; if(h>bestHit){best=c;bestHit=h;} });
+    if(!best) break;
+    chosen.push(best.id); Object.keys(best.lose).forEach(k=>need.delete(+k));
+  }
+  state.special=null;
+  if(need.size){ // safety net, almost never needed
+    const lose={}; need.forEach(k=>lose[k]="The zombies found it.");
+    state.special={id:"last",e:"🧟‍♀️",t:"The last stand",x:"The zombies surround you on the final night. Only one thing can save you now.",lose};
+    chosen.push("last");
+  }
+  // order the cards for maximum suspense
+  let bestOrder=chosen, bestScore=-1e9;
+  for(let it=0;it<600;it++){
+    let o=shuffle(chosen);
+    if(o.length>=4 && Math.random()<.7){ const pos=1+Math.floor(Math.random()*(o.length-2)); o.splice(pos,0,"quiet"); }
+    const sc=scoreOrder(o,x,T); if(sc>bestScore){bestScore=sc;bestOrder=o;}
+  }
+  state.plan={survivor:x,team:ownerOf(x)}; state.deck=bestOrder; state.played=[];
+}
+function scoreOrder(order,x,T){
+  const lost=new Set(); const win=ownerOf(x); let firstOut=-1, alone=-1, wasted=0, score=0;
+  const aliveOf=t=>t.picks.filter(p=>!lost.has(p)).length;
+  for(let k=0;k<order.length;k++){
+    const c=CARD(order[k]); const before=lost.size;
+    Object.keys(c.lose).forEach(id=>{ if(ownerOf(+id)>=0) lost.add(+id); });
+    if(order[k]!=="quiet" && lost.size===before) wasted++;
+    const al=T.map(aliveOf);
+    if(firstOut<0 && al.some(v=>v===0)) firstOut=k;
+    if(alone<0 && al.filter((v,i)=>i!==win && v>0).length===0) alone=k;
+    if(al.reduce((a,b)=>a+b,0)===1){ score -= (order.length-1-k)*4; break; } // cards after the end are useless
+  }
+  score += alone*10 + Math.min(firstOut,3)*4 - wasted*8;
+  if(order[0]==="quiet") score-=20;
+  return score;
+}
+
+/* ---------- state helpers ---------- */
+function lostSet(upTo){ const s=new Set(); state.played.slice(0,upTo).forEach(id=>Object.keys(CARD(id).lose).forEach(k=>s.add(+k))); return s; }
+function aliveCount(team,upTo){ const L=lostSet(upTo); return team.picks.filter(p=>!L.has(p)).length; }
+function totalAlive(upTo){ return teams().reduce((a,t)=>a+aliveCount(t,upTo),0); }
+function finished(){ return state.plan && state.played.length>0 && totalAlive(state.played.length)<=1; }
+function eatenOn(team){ for(let k=1;k<=state.played.length;k++){ if(aliveCount(team,k)===0) return k; } return 0; }
+
+/* ---------- rendering ---------- */
+function setPhase(p){ state.phase=p; save(); render(); window.scrollTo({top:0}); }
+function render(){
+  ["story","choose","play"].forEach(v=>{$("#v-"+v).hidden = state.phase!==v;});
+  document.querySelectorAll(".step").forEach(b=>b.setAttribute("aria-current",String(b.dataset.go===state.phase)));
+  $("#ruleN").textContent=state.perTeam;
+  $("#teamCount").value=state.teamCount; $("#perTeam").value=state.perTeam;
+  if(state.active>=state.teamCount) state.active=0;
+  renderItems(); renderTeamCards(); renderStart(); renderPlay();
+}
+function renderItems(){
+  const T=teams();
+  $("#items").style.setProperty("--active-color",TEAM_COLORS[state.active]);
+  $("#items").innerHTML=ITEMS.map(([id,e,n])=>{
+    const o=ownerOf(id), mine=o===state.active, taken=o>=0&&!mine;
+    return `<button class="tile${mine?" mine":""}${taken?" taken":""}" data-item="${id}" aria-pressed="${mine}" title="${esc(n)}${taken?" (taken by "+esc(T[o].name)+")":""}">
+      <span class="no">#${id}</span><span class="em">${e}</span><span class="nm">${esc(n)}</span>
+      ${o>=0?`<span class="dots"><span class="dot" style="background:${TEAM_COLORS[o]}"></span></span>${taken?`<span class="owner">${esc(T[o].name)}</span>`:""}`:""}</button>`;
+  }).join("");
+}
+function chipsHTML(t){ return t.picks.map(p=>`<span class="chip"><span>${ITEM[p].e}</span><span class="n">${p}</span>${esc(ITEM[p].n)}</span>`).join(""); }
+function statusHTML(i,note){ const t=state.teams[i], ok=t.picks.length===state.perTeam;
+  return `<span class="${ok?"ok":"warn"}">${t.picks.length} / ${state.perTeam} items${ok?" ✓":""}</span>${note?`<span class="note">${esc(note)}</span>`:""}`; }
+function renderTeamCards(){
+  const box=$("#teamCards"); const focused=document.activeElement&&document.activeElement.id;
+  box.innerHTML=teams().map((t,i)=>`<div class="tcard${i===state.active?" active":""}" style="--tc:${TEAM_COLORS[i]}">
+      <div class="trow"><input class="tname" id="tname${i}" data-name="${i}" value="${esc(t.name)}" aria-label="Team ${i+1} name">
+        <button class="pickbtn" data-active="${i}">${i===state.active?"Clicking for this team":"Click items"}</button></div>
+      <input class="nums" id="tnums${i}" data-nums="${i}" inputmode="numeric" placeholder="e.g. 2 11 18 40 46 48" value="${esc(t.picks.join(" "))}" aria-label="${esc(t.name)} item numbers">
+      <div class="chips" id="tchips${i}">${chipsHTML(t)}</div>
+      <div class="status"><span id="tstat${i}" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">${statusHTML(i)}</span>
+        <span style="display:flex;gap:10px"><button class="linkbtn" data-rand="${i}">Random</button><button class="linkbtn" data-clear="${i}">Clear</button></span></div>
+    </div>`).join("");
+  if(focused&&document.getElementById(focused)){const el=document.getElementById(focused); el.focus(); if(el.setSelectionRange){const L=el.value.length; el.setSelectionRange(L,L);} }
+}
+function renderStart(){
+  const T=teams(); const bad=T.filter(t=>t.picks.length!==state.perTeam);
+  $("#startBtn").disabled=bad.length>0;
+  $("#startMsg").textContent = bad.length ? `Waiting for: ${bad.map(t=>`${t.name} (${t.picks.length}/${state.perTeam})`).join(", ")}` : `All ${T.length} teams are ready.`;
+  $("#startAnyway").hidden = true;
+}
+function renderPlay(){
+  const T=teams(), n=state.played.length, last=n?CARD(state.played[n-1]):null, done=finished();
+  $("#aliveTotal").textContent = state.plan? totalAlive(n) : 0;
+  $("#undoBtn").disabled=n===0;
+  $("#flipBtn").disabled = !done && !state.deck.length;
+  $("#flipBtn").textContent = done ? "Show the rescue 🚁" : "Flip next card";
+  const c3=$("#card3d");
+  if(last){
+    const entries=Object.entries(last.lose).sort((a,b)=>(ownerOf(+b[0])>=0)-(ownerOf(+a[0])>=0));
+    $("#cardFront").innerHTML=`<div class="ctop"><span>Event ${n}</span><span>Day ${Math.min(3,1+Math.floor((n-1)/3))}</span></div>
+      <div class="cem">${last.e}</div><h3>${esc(last.t)}</h3><p class="ctext">${esc(last.x)}</p>
+      ${entries.length?`<div class="losthdr">Everyone loses</div><ul class="lostlist">${entries.map(([id,why])=>{const o=ownerOf(+id);
+        return `<li class="${o<0?"nobody":""}"><span class="e">${ITEM[id].e}</span><span><b>#${id} ${esc(ITEM[id].n)}</b><span class="why">${esc(why)}</span></span><span class="who">${o>=0?`<span class="dot" style="background:${TEAM_COLORS[o]}"></span>`:""}</span></li>`;}).join("")}</ul>`:`<div class="phew">No items lost!</div>`}`;
+    c3.classList.add("flipped");
+  } else { c3.classList.remove("flipped"); $("#cardFront").innerHTML=""; }
+  $("#backHint").textContent = done? "The rescue has arrived" : "Press “Flip next card” or Space";
+  const L=lostSet(n), Lprev=lostSet(n-1), win=done&&state.plan?state.plan.team:-1;
+  $("#board").innerHTML=T.map((t,i)=>{
+    const alive=t.picks.filter(p=>!L.has(p)).length, ate=alive===0?eatenOn(t):0;
+    return `<div class="team${alive===0?" out":""}${i===win?" win":""}" style="--tc:${TEAM_COLORS[i]}">
+      <h3>${esc(t.name)}</h3>
+      <div class="left">${alive===0?`Eaten on card ${ate}`:i===win?"Rescued!":`${alive} item${alive===1?"":"s"} left`}</div>
+      <ul>${t.picks.map(p=>{const lost=L.has(p), fresh=lost&&!Lprev.has(p)&&state.justFlipped;
+        return `<li class="${lost?"lost":""}${fresh?" fresh":""}"><span class="e">${ITEM[p].e}</span>${esc(ITEM[p].n)}</li>`;}).join("")}</ul>
+      ${alive===0?`<div class="eaten">EATEN</div>`:""}
+    </div>`;
+  }).join("");
+  $("#log").innerHTML = n? state.played.map((id,k)=>`<li><b>${k+1}</b>${CARD(id).e} ${esc(CARD(id).t)}</li>`).join("") : `<li>None yet</li>`;
+  if(done && !state.overlayDismissed && state.phase==="play"){
+    const x=state.plan.survivor, it=ITEM[x], tm=T[state.plan.team];
+    $("#winEmoji").textContent=it.e;
+    $("#winTitle").textContent=`${tm.name} survives!`;
+    $("#winWith").textContent=`The last item standing: #${x} ${it.n}`;
+    $("#winStory").textContent=STORIES[x];
+    $("#winText").textContent=`Rescued after ${n} event cards.`;
+    if(state.justFlipped){ $("#overlay").hidden=true; clearTimeout(window.__zrWin); window.__zrWin=setTimeout(()=>{ if(finished()&&!state.overlayDismissed) $("#overlay").hidden=false; },2600); }
+    else $("#overlay").hidden=false;
+  } else $("#overlay").hidden=true;
+  state.justFlipped=false;
+}
+
+/* ---------- actions ---------- */
+function setPicks(i,str){
+  const out=[], blocked=[];
+  (str.match(/\d+/g)||[]).forEach(v=>{ v=+v; if(v<1||v>52||out.includes(v)) return; const o=ownerOf(v); if(o>=0&&o!==i){ blocked.push(`#${v} → ${state.teams[o].name}`); return; } out.push(v); });
+  state.teams[i].picks=out.slice(0,state.perTeam);
+  const over=out.length>state.perTeam;
+  return blocked.length? `Taken: ${blocked.join(", ")}` : over? `Only ${state.perTeam} items allowed` : "";
+}
+function flip(){
+  if(finished()||!state.deck.length) return;
+  state.played.push(state.deck.shift()); state.justFlipped=true; state.overlayDismissed=false;
+  const c3=$("#card3d"); c3.classList.remove("flipped"); void c3.offsetWidth;
+  save(); setTimeout(render, state.played.length>1?250:0);
+}
+function startGame(){ buildPlan(); state.overlayDismissed=false; setPhase("play"); }
+
+document.addEventListener("click",e=>{
+  const go=e.target.closest("[data-go]"); if(go){ if(go.dataset.go==="play"&&!state.plan){ setPhase("choose"); return;} setPhase(go.dataset.go); return; }
+  const tile=e.target.closest("[data-item]");
+  if(tile){ if(state.plan&&state.played.length){ return; }
+    const id=+tile.dataset.item, t=state.teams[state.active], o=ownerOf(id);
+    if(o>=0&&o!==state.active){ tile.classList.remove("shake"); void tile.offsetWidth; tile.classList.add("shake"); return; }
+    const k=t.picks.indexOf(id); if(k>=0) t.picks.splice(k,1); else if(t.picks.length<state.perTeam) t.picks.push(id);
+    else { tile.classList.remove("shake"); void tile.offsetWidth; tile.classList.add("shake"); return; }
+    state.plan=null; save(); renderItems(); renderTeamCards(); renderStart(); return; }
+  const act=e.target.closest("[data-active]"); if(act){ state.active=+act.dataset.active; save(); renderItems(); renderTeamCards(); return; }
+  const rnd=e.target.closest("[data-rand]"); if(rnd){ const i=+rnd.dataset.rand;
+    const free=ITEMS.map(x=>x[0]).filter(id=>{const o=ownerOf(id); return o<0||o===i;});
+    state.teams[i].picks=shuffle(free).slice(0,state.perTeam); state.plan=null; save(); render(); return; }
+  const clr=e.target.closest("[data-clear]"); if(clr){ state.teams[+clr.dataset.clear].picks=[]; state.plan=null; save(); render(); return; }
+});
+document.addEventListener("input",e=>{
+  if(e.target.dataset.name!==undefined){ state.teams[+e.target.dataset.name].name=e.target.value||("Team "+(+e.target.dataset.name+1)); save(); renderStart(); renderItems(); return; }
+  if(e.target.dataset.nums!==undefined){ const i=+e.target.dataset.nums; const note=setPicks(i,e.target.value); state.active=i; state.plan=null; save(); renderItems();
+    document.querySelectorAll(".tcard").forEach((c,k)=>{ c.classList.toggle("active",k===i); const b=c.querySelector(".pickbtn"); if(b) b.textContent=k===i?"Clicking for this team":"Click items"; });
+    $("#tchips"+i).innerHTML=chipsHTML(state.teams[i]); $("#tstat"+i).innerHTML=statusHTML(i,note);
+    renderStart(); }
+});
+document.addEventListener("change",e=>{ // tidy the typed list once the box loses focus
+  if(e.target.dataset&&e.target.dataset.nums!==undefined){ e.target.value=state.teams[+e.target.dataset.nums].picks.join(" "); }
+});
+$("#teamCount").addEventListener("change",e=>{ const n=+e.target.value; state.teams.forEach((t,i)=>{ if(i>=n) t.picks=[]; }); state.teamCount=n; state.plan=null; save(); render();});
+$("#perTeam").addEventListener("change",e=>{ state.perTeam=+e.target.value; state.teams.forEach(t=>t.picks=t.picks.slice(0,state.perTeam)); state.plan=null; save(); render();});
+$("#startBtn").addEventListener("click",startGame);
+$("#flipBtn").addEventListener("click",()=>{ if(finished()){ state.overlayDismissed=false; save(); render(); } else flip(); });
+$("#undoBtn").addEventListener("click",()=>{ if(!state.played.length) return; state.deck.unshift(state.played.pop()); state.overlayDismissed=false; save(); render(); });
+$("#winClose").addEventListener("click",()=>{ state.overlayDismissed=true; save(); render(); });
+$("#winNew").addEventListener("click",()=>{ newGame(); });
+document.addEventListener("keydown",e=>{
+  if(state.phase!=="play"||e.code!=="Space") return;
+  const tag=(document.activeElement&&document.activeElement.tagName)||""; if(/INPUT|SELECT|TEXTAREA|BUTTON/.test(tag)) return;
+  e.preventDefault(); flip();
+});
+
+function newGame(){
+  const old=state; state=freshState();
+  state.teamCount=old.teamCount; state.perTeam=old.perTeam; state.teams.forEach((t,i)=>t.name=old.teams[i].name);
+  stopTimer(); resetTimer(); save(); render();
+}
+function bindReset(){
+  $("#resetBtn").addEventListener("click",()=>{
+    $("#resetArea").innerHTML=`<span class="confirm-row">Clear all picks and cards? <button class="danger" id="rsYes">Yes, reset</button><button class="ghost" id="rsNo">Cancel</button></span>`;
+    $("#rsYes").addEventListener("click",()=>{ newGame(); restoreReset(); });
+    $("#rsNo").addEventListener("click",restoreReset);
+  });
+}
+function restoreReset(){ $("#resetArea").innerHTML=`<button class="ghost" id="resetBtn">New game</button>`; bindReset(); }
+bindReset();
+
+/* ---------- timer ---------- */
+let tLeft=300, tInt=null;
+function drawClock(){ const m=Math.floor(tLeft/60), s=tLeft%60; const c=$("#clock"); c.textContent=tLeft>0?`${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`:"TIME!"; c.classList.toggle("done",tLeft<=0); $("#tStart").textContent=tInt?"Pause":"Start"; }
+function stopTimer(){ clearInterval(tInt); tInt=null; drawClock(); }
+function resetTimer(){ tLeft=300; drawClock(); }
+$("#tStart").addEventListener("click",()=>{ if(tInt){stopTimer();return;} if(tLeft<=0) tLeft=300; tInt=setInterval(()=>{ tLeft--; if(tLeft<=0){ tLeft=0; clearInterval(tInt); tInt=null; } drawClock(); },1000); drawClock(); });
+$("#tPlus").addEventListener("click",()=>{ tLeft+=60; drawClock(); });
+$("#tReset").addEventListener("click",()=>{ stopTimer(); resetTimer(); });
+
+/* ---------- boot ---------- */
+function start(data){
+  const carried = data&&data.state&&data.state.v===2 ? data.state : null;
+  state = carried || load() || freshState();
+  state.justFlipped=false;
+  drawClock(); render();
+}
+try{ window.claude?.hot?.snapshot?.(()=>({state})); }catch(e){}
+window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
+})();
+
+</script>
+
+</body>
+</html>
