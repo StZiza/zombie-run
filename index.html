@@ -116,6 +116,18 @@ h2.sec{font-family:var(--f-display);font-size:clamp(28px,4vw,44px);line-height:1
 @keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
 .status .note{color:var(--caution);font-size:14px;font-weight:500;letter-spacing:0}
 .front .lostlist li.nobody{opacity:.42}
+.front.bonus{background:#dbe7c9}
+.front .gainhdr{font-family:var(--f-cond);font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-size:15px;color:#2f6b25;border-top:2px dashed #9fb38a;padding-top:10px;margin-bottom:8px}
+.front .gainbox{display:flex;align-items:center;gap:14px;background:#f3f7ea;border:2px solid #7fa86b;border-radius:10px;padding:12px 14px;font-size:18px;line-height:1.25}
+.front .gainbox .ge{font-size:46px;line-height:1}
+.front .gainbox .gi{font-family:var(--f-cond);font-size:24px}
+.front .gainbox .dot{margin-left:auto;width:18px;height:18px}
+.front .gnote{font-size:15px;color:#4d5a3e;margin:8px 0 0}
+.team li.found{box-shadow:inset 0 0 0 2px #7fa86b}
+.team li.found:not(.lost)::after{content:"FOUND";margin-left:auto;font-family:var(--f-cond);font-weight:700;font-size:12px;letter-spacing:.1em;color:#fff;background:#4f8a3c;padding:1px 6px;border-radius:3px}
+.team li.gained{animation:gain 1.2s ease-out}
+@keyframes gain{0%{transform:scale(1.08);background:#9fd486}100%{transform:none}}
+.log li.lucky{border-color:#7fa86b}
 .win-card .wi{font-size:76px;line-height:1;margin:6px 0 0}
 .win-card .with{font-family:var(--f-cond);font-weight:700;font-size:22px;letter-spacing:.04em;margin:0 0 14px}
 .win-card .tale{text-align:left;font-size:20px;line-height:1.5;background:rgba(35,40,24,.07);border-left:5px solid var(--caution);padding:12px 16px;border-radius:4px;margin:0 0 18px}
@@ -206,7 +218,7 @@ h2.sec{font-family:var(--f-display);font-size:clamp(28px,4vw,44px);line-height:1
   .card3d{margin:0 auto}
 }
 @media (prefers-reduced-motion:reduce){
-  .card3d{transition:none} .team li.fresh{animation:none} .timer .clock.done{animation:none}
+  .card3d{transition:none} .team li.fresh,.team li.gained{animation:none} .timer .clock.done{animation:none}
 }
 </style>
 <style>body{margin:0}img{max-width:100%}</style>
@@ -260,7 +272,7 @@ h2.sec{font-family:var(--f-display);font-size:clamp(28px,4vw,44px);line-height:1
         <ol>
           <li>Each team chooses <b id="ruleN">6</b> items from the supply room.</li>
           <li><b>First come, first served:</b> every item belongs to only one team.</li>
-          <li>Event cards will destroy items. When your team has nothing left, the zombies get you.</li>
+          <li>Event cards will destroy items, but some items can help you find <b>new</b> ones. When your team has nothing left, the zombies get you.</li>
           <li>In the end, only <b>one item</b> survives. The team holding it is rescued!</li>
         </ol>
       </aside>
@@ -355,9 +367,13 @@ const ITEMS = [
  [36,"🔭","Binoculars"],[37,"🧴","Bucket of super glue"],[38,"🩹","Duct tape"],[39,"🪢","20 m of rope"],[40,"⚾","Baseball bat"],
  [41,"🍳","Frying pan"],[42,"🧯","Fire extinguisher"],[43,"⛑️","First-aid kit"],[44,"🧄","Garlic necklace"],[45,"🛌","Sleeping bag"],
  [46,"🗝️","Mysterious golden key"],[47,"☕","Flask of hot coffee"],[48,"🧑‍🏫","Aziz Hoca (English teacher)"],[49,"🎒","Backpack full of textbooks"],[50,"🥚","Box of 30 eggs"],
- [51,"👔","Ferhan Hoca (principal)"],[52,"📋","Erman Hoca (vice principal)"]
+ [51,"👔","Ferhan Hoca (principal)"],[52,"📋","Erman Hoca (vice principal)"],
+ [53,"🎣","Fishing rod"],[54,"🪓","Axe"],[55,"🛠️","Swiss Army knife"]
 ];
 const ITEM = Object.fromEntries(ITEMS.map(([id,e,n])=>[id,{id,e,n}]));
+const FOUND = [[101,"🍱","Army ration pack"],[102,"🥽","Night-vision goggles"],[103,"🔑","Jeep keys"],[104,"📡","Army radio"],
+ [105,"🛶","Rubber boat"],[106,"🧥","Warm army jacket"],[107,"🐟","Bucket of fresh fish"],[108,"🪵","Pile of firewood"]];
+FOUND.forEach(([id,e,n])=>{ ITEM[id]={id,e,n,found:true}; });
 
 const STORIES = {
  1:"On the last night, you flashed the light from the school roof: three short, three long, three short. SOS! A rescue helicopter saw the signal and landed right next to you. The pilot said, “Nice Morse code!”",
@@ -410,6 +426,9 @@ const STORIES = {
  48:"Aziz Hoca is an astronomer. On the second night, he went up to the school observatory, found the North Star and led you through the dark, away from every zombie, all the way to the airport. Astronomy saves lives!",
  51:"Ferhan Hoca made one announcement over the school speakers: “All zombies to the principal's office, NOW!” Every zombie went straight there, and the door locked behind them.",
  52:"Erman Hoca had already written an evacuation plan, timed to the minute. You followed it exactly, and the school bus left for the airport at 08:45 sharp.",
+ 53:"You sat at the end of the pier and fished for three days. Zombies hate water, so they never came near you. On day three, the coast guard boat picked you up.",
+ 54:"You chopped down a tree and made a bridge over the Aksu River. After you crossed, you chopped the bridge too. The zombies were left on the other side.",
+ 55:"The Swiss Army knife had everything: a screwdriver, scissors, a saw and a tiny spoon. You fixed an old car with it and drove all the way to the airport.",
  49:"You built a wall with the heavy textbooks in front of the door. Finally, the textbooks were useful! The zombies couldn't get through.",
  50:"You threw 30 eggs at the zombies. They were so confused by the mess that they started fighting each other while you escaped."
 };
@@ -422,11 +441,11 @@ const CARDS = [
  {id:"music",e:"🎶",t:"Party's over",x:"The zombies are following music and engines all over the city.",
   lose:{8:"Someone pressed play.",24:"The wheels rattle down the whole street.",25:"The engine is far too loud."}},
  {id:"rain",e:"🌧️",t:"Three days of rain",x:"It rains for three days without stopping. Everything gets soaking wet.",
-  lose:{3:"Wet fireworks don't work.",5:"100 rolls of wet mush.",6:"The ink washes away.",38:"It won't stick to anything wet.",45:"Soaked and freezing.",49:"The textbooks turn into paste."}},
+  lose:{3:"Wet fireworks don't work.",5:"100 rolls of wet mush.",6:"The ink washes away.",38:"It won't stick to anything wet.",45:"Soaked and freezing.",49:"The textbooks turn into paste.",106:"Soaked.",108:"Too wet to burn."}},
  {id:"power",e:"🔌",t:"Power cut",x:"The electricity goes off across the whole city. Nothing can be charged.",
   lose:{7:"An electric guitar with no electricity…",30:"Battery dead, no way to charge it.",33:"No socket, no hairdryer."}},
  {id:"bridge",e:"🌊",t:"The broken bridge",x:"The bridge over the Aksu River has collapsed. You must swim across. Heavy things and wheels sink.",
-  lose:{18:"Far too heavy to swim with.",20:"5 kilos of water pulls you down.",21:"It sinks.",22:"It sinks.",23:"They sink.",42:"It sinks like a rock."}},
+  lose:{18:"Far too heavy to swim with.",20:"5 kilos of water pulls you down.",21:"It sinks.",22:"It sinks.",23:"They sink.",42:"It sinks like a rock.",103:"They fell into the river."}},
  {id:"mud",e:"🟫",t:"The mud road",x:"The only road to the airport is deep mud. Anything with wheels gets stuck.",
   lose:{21:"Stuck.",22:"Stuck.",23:"Stuck.",24:"Very stuck.",25:"Stuck, and out of fuel."}},
  {id:"climb",e:"🧗",t:"Climbing zombies",x:"Bad news: the zombies have learned to climb. They are coming up the walls to the terrace!",
@@ -434,53 +453,63 @@ const CARDS = [
  {id:"dogs",e:"🐺",t:"Zombie dogs!",x:"A pack of zombie dogs runs through the streets. Your animals panic and run away.",
   lose:{12:"Gone over the rooftops.",13:"It ran after the pack.",14:"It galloped away.",15:"It flew off."}},
  {id:"starving",e:"🍽️",t:"Starving",x:"The cafeteria on floor -1 and the canteen on the top floor are both empty. You haven't eaten for a whole day, so you eat every bit of food you have.",
-  lose:{16:"All 10 kilos… in one night.",17:"Licked clean.",19:"Gone in seconds.",44:"It tasted terrible.",50:"Raw. Yuck."}},
+  lose:{16:"All 10 kilos… in one night.",17:"Licked clean.",19:"Gone in seconds.",44:"It tasted terrible.",50:"Raw. Yuck.",101:"Delicious. All gone.",107:"Grilled and eaten."}},
  {id:"sugar",e:"🍭",t:"Sweet smell",x:"Zombies can smell sugar from a kilometre away. Throw away anything sweet, NOW!",
   lose:{16:"Thrown out of the window.",17:"Thrown out of the window.",19:"Thrown out of the window."}},
  {id:"fire",e:"🔥",t:"Fire!",x:"The observatory on the top floor catches fire! You escape, but some things burn or get used up.",
-  lose:{3:"BOOM!",28:"The balloon melts.",29:"It melts into a pink puddle.",39:"It burns.",42:"You used all of it to escape.",45:"Burnt."}},
+  lose:{3:"BOOM!",28:"The balloon melts.",29:"It melts into a pink puddle.",39:"It burns.",42:"You used all of it to escape.",45:"Burnt.",105:"Melted.",106:"Burnt.",108:"It all burned."}},
  {id:"horde",e:"🧟",t:"The horde breaks in",x:"200 zombies smash the main entrance next to the front lobby desk. RUN! You can only carry small things.",
-  lose:{4:"Too big to carry.",8:"Too heavy.",24:"Too slow.",26:"Too long to run with.",27:"You can't run with a trampoline."}},
+  lose:{4:"Too big to carry.",8:"Too heavy.",24:"Too slow.",26:"Too long to run with.",27:"You can't run with a trampoline.",54:"Too heavy to run with."}},
  {id:"storm",e:"🌪️",t:"Storm",x:"A huge storm hits the coast. The wind blows away anything big or light.",
-  lose:{4:"Blown into the sea.",27:"Flying over Konyaaltı.",28:"Gone with the wind.",29:"Last seen over Kemer.",30:"Blown out of the sky."}},
+  lose:{4:"Blown into the sea.",27:"Flying over Konyaaltı.",28:"Gone with the wind.",29:"Last seen over Kemer.",30:"Blown out of the sky.",53:"Blown into the sea.",105:"Blown away."}},
  {id:"battery",e:"🪫",t:"Dead batteries",x:"Day three. Every battery is empty.",
-  lose:{1:"Click… nothing.",8:"Silent forever.",9:"Not a sound.",31:"3%… 2%… 0%.",32:"Only static."}},
+  lose:{1:"Click… nothing.",8:"Silent forever.",9:"Not a sound.",31:"3%… 2%… 0%.",32:"Only static.",102:"Battery dead.",104:"Battery dead."}},
  {id:"gulls",e:"🐦",t:"Zombie seagulls",x:"Zombie seagulls attack from the sea! Anything in the air is in danger.",
-  lose:{15:"The seagulls chase it away.",28:"POP!",29:"POP!",30:"Knocked out of the sky."}},
+  lose:{15:"The seagulls chase it away.",28:"POP!",29:"POP!",30:"Knocked out of the sky.",53:"The seagulls stole it.",105:"POP!",107:"The seagulls ate all the fish."}},
  {id:"quake",e:"🌋",t:"Earthquake",x:"The ground shakes. Anything fragile breaks.",
-  lose:{17:"The glass jar smashes.",34:"Seven years of bad luck.",35:"“Outlook not so good.”",36:"Cracked lenses.",50:"Thirty broken eggs."}},
+  lose:{17:"The glass jar smashes.",34:"Seven years of bad luck.",35:"“Outlook not so good.”",36:"Cracked lenses.",50:"Thirty broken eggs.",102:"Cracked lenses.",104:"Smashed."}},
  {id:"thieves",e:"🦹",t:"Thieves",x:"A gang of survivors robs you. They take anything shiny or valuable.",
-  lose:{31:"Taken.",32:"Taken.",36:"Taken.",41:"Shiny! Taken.",43:"Taken.",46:"Taken. Nobody knows what it opens."}},
+  lose:{31:"Taken.",32:"Taken.",36:"Taken.",41:"Shiny! Taken.",43:"Taken.",46:"Taken. Nobody knows what it opens.",55:"Taken.",101:"Taken.",103:"Taken."}},
  {id:"freeze",e:"🥶",t:"Freezing night",x:"The ice rink on floor -1 goes crazy and the whole school drops below zero. You burn things to stay warm.",
-  lose:{5:"It burns very well.",6:"Burnt for warmth.",7:"It's made of wood.",40:"Wood burns.",49:"Textbooks burn surprisingly well."}},
+  lose:{5:"It burns very well.",6:"Burnt for warmth.",7:"It's made of wood.",40:"Wood burns.",49:"Textbooks burn surprisingly well.",108:"You burned all of it."}},
  {id:"heat",e:"☀️",t:"Heat wave",x:"Antalya, 42°C. Everything melts, dries out or goes bad.",
-  lose:{16:"Chocolate soup.",19:"Black and rotten.",20:"You drank all of it.",37:"Dried into a rock.",50:"Cooked on the pavement."}},
+  lose:{16:"Chocolate soup.",19:"Black and rotten.",20:"You drank all of it.",37:"Dried into a rock.",50:"Cooked on the pavement.",107:"The fish went bad."}},
  {id:"scratch",e:"🩸",t:"Scratched!",x:"A zombie scratches someone on your team. The nurse's room is on the 1st floor, but there is only one nurse! Quick, do something!",
   lose:{43:"You used all of it.",44:"It doesn't work. Wrong monster!"}},
  {id:"teacher",e:"🧑‍🏫",t:"Grammar emergency",x:"Aziz Hoca stops to correct a zombie: “It's ‘I am hungry’, not ‘me hungry’!”",
   lose:{48:"Goodbye, Aziz Hoca.",47:"He took the coffee with him."}},
  {id:"oyss",e:"📝",t:"OYSS exam day",x:"Zombies or no zombies, the OYSS English exam is today! Exam rules: no phones, no devices, no cheating.",
-  lose:{31:"Phones go in the box.",32:"No communication devices in the exam!",35:"Obviously a cheating device."}},
+  lose:{31:"Phones go in the box.",32:"No communication devices in the exam!",35:"Obviously a cheating device.",55:"No sharp objects in the exam room!"}},
  {id:"corridor",e:"🚸",t:"Corridor rules",x:"Erman Hoca catches you in the corridor: “No skating in the corridors! No toys in class!”",
-  lose:{22:"Confiscated.",23:"Confiscated.",11:"Confiscated. SQUEAK."}},
+  lose:{22:"Confiscated.",23:"Confiscated.",11:"Confiscated. SQUEAK.",54:"No axes in school!"}},
  {id:"meeting",e:"🗂️",t:"Emergency staff meeting",x:"Ferhan Hoca calls an emergency staff meeting in the middle of the zombie attack. All teachers must attend!",
   lose:{51:"He is running the meeting.",52:"He is taking the notes.",48:"Aziz Hoca has to attend too."}},
  {id:"parents",e:"👨‍👩‍👧",t:"Parent conference",x:"200 parents arrive at school for the veli toplantısı. Somebody has to talk to all of them!",
   lose:{51:"Greeting every parent.",52:"Answering every question.",47:"The parents drank all the coffee."}},
  {id:"quiet",e:"😮‍💨",t:"Quiet night",x:"Nothing happens. Everyone gets some sleep. Phew!",lose:{}}
 ];
-const BASE = Object.fromEntries(CARDS.map(c=>[c.id,c]));
+const BONUS = [
+ {id:"b_8ball",bonus:true,e:"🎱",t:"Ask the Magic 8-Ball",trigger:35,found:102,x:"The team with the Magic 8-Ball shakes it: “Where can we find help?” The answer: “The abandoned lab on floor -2.” Inside, they find something useful!"},
+ {id:"b_rod",bonus:true,e:"🎣",t:"Fishing time",trigger:53,found:107,x:"The team with the fishing rod sits on the pier at Konyaaltı and catches dinner."},
+ {id:"b_axe",bonus:true,e:"🪓",t:"Fallen tree",trigger:54,found:108,x:"A tree falls across the road. The team with the axe chops it into firewood."},
+ {id:"b_knife",bonus:true,e:"🛠️",t:"The locked army box",trigger:55,found:104,x:"There is a locked army box next to the swimming pool on floor -2. The team with the Swiss Army knife opens it!"},
+ {id:"b_binoc",bonus:true,e:"🔭",t:"Spotted!",trigger:36,found:103,x:"Through the binoculars, the team spots an abandoned army jeep near the school. The keys are still inside!"},
+ {id:"b_dog",bonus:true,e:"🐕",t:"Good dog!",trigger:13,found:101,x:"The loyal dog starts digging in the school garden and finds a hidden box of army food!"},
+ {id:"b_key",bonus:true,e:"🗝️",t:"The golden key",trigger:46,found:105,x:"The mysterious golden key opens a secret locker in the conference hall on floor -2…"},
+ {id:"b_aziz",bonus:true,e:"🔭",t:"Eyes on the sky",trigger:48,found:106,x:"Aziz Hoca looks through the telescope in the observatory and spots an army supply drop on the terrace!"}
+];
+const BASE = Object.fromEntries(CARDS.concat(BONUS).map(c=>[c.id,c]));
 const TEAM_COLORS = ["var(--t1)","var(--t2)","var(--t3)","var(--t4)","var(--t5)","var(--t6)"];
 const KEY = "zombie-run-antalya-v2";
 
 let state;
 function freshState(){
-  return {v:2,phase:"story",teamCount:4,perTeam:6,active:0,
+  return {v:3,phase:"story",teamCount:4,perTeam:6,active:0,
     teams:Array.from({length:6},(_,i)=>({name:"Team "+(i+1),picks:[]})),
     plan:null,deck:[],played:[],special:null,overlayDismissed:false};
 }
 function save(){ try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){} }
-function load(){ try{const s=JSON.parse(localStorage.getItem(KEY)); if(s&&s.teams&&s.v===2) return s;}catch(e){} return null; }
+function load(){ try{const s=JSON.parse(localStorage.getItem(KEY)); if(s&&s.teams&&s.v===3) return s;}catch(e){} return null; }
 const CARD = id => id==="last" ? state.special : BASE[id];
 
 const $ = s=>document.querySelector(s);
@@ -489,63 +518,90 @@ const teams = ()=>state.teams.slice(0,state.teamCount);
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function ownerOf(id){ return teams().findIndex(t=>t.picks.includes(id)); }
 
+/* ---------- simulation: what each team holds after a list of cards ---------- */
+function simulate(order,T){
+  const inv=T.map(t=>t.picks.map(id=>({id,found:false,got:0,lost:0})));
+  const steps=[];
+  order.forEach((cid,k)=>{
+    const c=CARD(cid), step={hits:[],gains:[],fail:false};
+    if(c.bonus){
+      let ti=-1; inv.forEach((L,i)=>{ if(L.some(it=>it.id===c.trigger&&!it.lost)) ti=i; });
+      if(ti>=0){ inv[ti].push({id:c.found,found:true,got:k+1,lost:0}); step.gains.push({team:ti,id:c.found}); } else step.fail=true;
+    } else {
+      inv.forEach((L,i)=>L.forEach(it=>{ if(!it.lost&&c.lose[it.id]){ it.lost=k+1; step.hits.push({team:i,id:it.id}); } }));
+    }
+    step.alive=inv.map(L=>L.filter(it=>!it.lost).length);
+    steps.push(step);
+  });
+  return {inv,steps};
+}
+
 /* ---------- planner: exactly one item survives ---------- */
 function killers(item){ return CARDS.filter(c=>c.lose[item]).map(c=>c.id); }
 function buildPlan(){
   const T=teams();
-  const picked=[]; T.forEach((t,i)=>t.picks.forEach(p=>picked.push({p,i})));
-  const ids=picked.map(x=>x.p);
-  // a survivor x is valid if every other picked item can be destroyed by a card that spares x
+  const ids=[]; T.forEach(t=>t.picks.forEach(p=>ids.push(p)));
   const valid=ids.filter(x=>ids.every(y=>y===x||killers(y).some(c=>!BASE[c].lose[x])));
-  let pool = valid.length?valid:ids;
+  const pool=valid.length?valid:ids;
   const minK=Math.min(...pool.map(x=>killers(x).length));
-  const x = shuffle(pool.filter(v=>killers(v).length===minK))[0];   // the "wisest" pick wins
-  const allowed=CARDS.filter(c=>c.id!=="quiet"&&!c.lose[x]);
-  const need=new Set(ids.filter(v=>v!==x)); const chosen=[];
+  const x=shuffle(pool.filter(v=>killers(v).length===minK))[0];    // the "wisest" pick wins
+  const win=ownerOf(x);
+  // lucky finds: 2–3 per game, mostly for the other teams (comebacks)
+  const cands=shuffle(BONUS.filter(b=>ownerOf(b.trigger)>=0));
+  const others=cands.filter(b=>ownerOf(b.trigger)!==win), mine=cands.filter(b=>ownerOf(b.trigger)===win);
+  const nB=Math.min(cands.length, T.length===4?3:2);
+  let bonus=others.slice(0,nB);
+  if(mine.length && (bonus.length<nB || Math.random()<.35)){ if(bonus.length>=nB) bonus.pop(); bonus.push(mine[0]); }
+  // cards that destroy everything except x
+  const need=new Set(ids.filter(v=>v!==x).concat(bonus.map(b=>b.found)));
+  const allowed=CARDS.filter(c=>c.id!=="quiet"&&!c.lose[x]); const chosen=[];
   while(need.size){
     let best=null,bestHit=0;
     shuffle(allowed).forEach(c=>{ if(chosen.includes(c.id)) return; const h=Object.keys(c.lose).filter(k=>need.has(+k)).length; if(h>bestHit){best=c;bestHit=h;} });
     if(!best) break;
     chosen.push(best.id); Object.keys(best.lose).forEach(k=>need.delete(+k));
   }
+  const base=chosen.concat(bonus.map(b=>b.id));
   state.special=null;
-  if(need.size){ // safety net, almost never needed
-    const lose={}; need.forEach(k=>lose[k]="The zombies found it.");
-    state.special={id:"last",e:"🧟‍♀️",t:"The last stand",x:"The zombies surround you on the final night. Only one thing can save you now.",lose};
-    chosen.push("last");
+  let bestOrder=base, bestScore=-1e9;
+  for(let it=0;it<900;it++){
+    const o=shuffle(base);
+    if(o.length>=5 && Math.random()<.5){ o.splice(1+Math.floor(Math.random()*(o.length-2)),0,"quiet"); }
+    const sc=scoreOrder(o,x,T,win); if(sc>bestScore){bestScore=sc;bestOrder=o;}
   }
-  // order the cards for maximum suspense
-  let bestOrder=chosen, bestScore=-1e9;
-  for(let it=0;it<600;it++){
-    let o=shuffle(chosen);
-    if(o.length>=4 && Math.random()<.7){ const pos=1+Math.floor(Math.random()*(o.length-2)); o.splice(pos,0,"quiet"); }
-    const sc=scoreOrder(o,x,T); if(sc>bestScore){bestScore=sc;bestOrder=o;}
+  // safety net: anything still alive apart from x is taken by one final card
+  const sim=simulate(bestOrder,T); const left={};
+  sim.inv.forEach(L=>L.forEach(it=>{ if(!it.lost&&it.id!==x) left[it.id]="The zombies found it."; }));
+  if(Object.keys(left).length){
+    state.special={id:"last",e:"🧟‍♀️",t:"The last stand",x:"The zombies surround you on the final night. Only one thing can save you now.",lose:left};
+    bestOrder=bestOrder.concat("last");
   }
-  state.plan={survivor:x,team:ownerOf(x)}; state.deck=bestOrder; state.played=[];
+  state.plan={survivor:x,team:win}; state.deck=bestOrder; state.played=[];
 }
-function scoreOrder(order,x,T){
-  const lost=new Set(); const win=ownerOf(x); let firstOut=-1, alone=-1, wasted=0, score=0;
-  const aliveOf=t=>t.picks.filter(p=>!lost.has(p)).length;
-  for(let k=0;k<order.length;k++){
-    const c=CARD(order[k]); const before=lost.size;
-    Object.keys(c.lose).forEach(id=>{ if(ownerOf(+id)>=0) lost.add(+id); });
-    if(order[k]!=="quiet" && lost.size===before) wasted++;
-    const al=T.map(aliveOf);
-    if(firstOut<0 && al.some(v=>v===0)) firstOut=k;
-    if(alone<0 && al.filter((v,i)=>i!==win && v>0).length===0) alone=k;
-    if(al.reduce((a,b)=>a+b,0)===1){ score -= (order.length-1-k)*4; break; } // cards after the end are useless
-  }
-  score += alone*10 + Math.min(firstOut,3)*4 - wasted*8;
-  if(order[0]==="quiet") score-=20;
+function scoreOrder(o,x,T,win){
+  const {inv,steps}=simulate(o,T);
+  let firstOut=-1, alone=-1, wasted=0, fails=0, end=-1, comeback=0, score=0;
+  steps.forEach((s,k)=>{
+    const c=CARD(o[k]);
+    if(c.bonus){ if(s.fail) fails++; else { const t=s.gains[0].team; if(k>0 && steps[k-1].alive[t]<=2) comeback++; if(k===0) score-=10; } }
+    else if(o[k]!=="quiet" && !s.hits.length && end<0) wasted++;
+    if(firstOut<0 && s.alive.some(v=>v===0)) firstOut=k;
+    if(alone<0 && s.alive.every((v,i)=>i===win||v===0)) alone=k;
+    if(end<0 && s.alive.reduce((a,b)=>a+b,0)===1) end=k;
+  });
+  const leftover=inv.reduce((a,L)=>a+L.filter(it=>!it.lost&&it.id!==x).length,0);
+  const len = end>=0 ? end+1 : o.length+1;
+  score += alone*10 + Math.min(firstOut,3)*4 - wasted*8 - fails*60 + comeback*4 - leftover*30;
+  if(end>=0) score -= (o.length-1-end)*4;
+  if(len>14) score -= (len-14)*10;
+  if(o[0]==="quiet") score-=20;
   return score;
 }
 
 /* ---------- state helpers ---------- */
-function lostSet(upTo){ const s=new Set(); state.played.slice(0,upTo).forEach(id=>Object.keys(CARD(id).lose).forEach(k=>s.add(+k))); return s; }
-function aliveCount(team,upTo){ const L=lostSet(upTo); return team.picks.filter(p=>!L.has(p)).length; }
-function totalAlive(upTo){ return teams().reduce((a,t)=>a+aliveCount(t,upTo),0); }
-function finished(){ return state.plan && state.played.length>0 && totalAlive(state.played.length)<=1; }
-function eatenOn(team){ for(let k=1;k<=state.played.length;k++){ if(aliveCount(team,k)===0) return k; } return 0; }
+function current(){ return simulate(state.played,teams()); }
+function totalAlive(sim){ return sim.inv.reduce((a,L)=>a+L.filter(it=>!it.lost).length,0); }
+function finished(){ return !!state.plan && state.played.length>0 && totalAlive(current())<=1; }
 
 /* ---------- rendering ---------- */
 function setPhase(p){ state.phase=p; save(); render(); window.scrollTo({top:0}); }
@@ -589,33 +645,50 @@ function renderStart(){
   $("#startAnyway").hidden = true;
 }
 function renderPlay(){
-  const T=teams(), n=state.played.length, last=n?CARD(state.played[n-1]):null, done=finished();
-  $("#aliveTotal").textContent = state.plan? totalAlive(n) : 0;
+  const T=teams(), n=state.played.length, last=n?CARD(state.played[n-1]):null;
+  const sim=state.plan?current():null, done=finished();
+  $("#aliveTotal").textContent = sim? totalAlive(sim) : 0;
   $("#undoBtn").disabled=n===0;
   $("#flipBtn").disabled = !done && !state.deck.length;
   $("#flipBtn").textContent = done ? "Show the rescue 🚁" : "Flip next card";
-  const c3=$("#card3d");
+  const c3=$("#card3d"), front=$("#cardFront");
   if(last){
-    const entries=Object.entries(last.lose).sort((a,b)=>(ownerOf(+b[0])>=0)-(ownerOf(+a[0])>=0));
-    $("#cardFront").innerHTML=`<div class="ctop"><span>Event ${n}</span><span>Day ${Math.min(3,1+Math.floor((n-1)/3))}</span></div>
-      <div class="cem">${last.e}</div><h3>${esc(last.t)}</h3><p class="ctext">${esc(last.x)}</p>
-      ${entries.length?`<div class="losthdr">Everyone loses</div><ul class="lostlist">${entries.map(([id,why])=>{const o=ownerOf(+id);
-        return `<li class="${o<0?"nobody":""}"><span class="e">${ITEM[id].e}</span><span><b>#${id} ${esc(ITEM[id].n)}</b><span class="why">${esc(why)}</span></span><span class="who">${o>=0?`<span class="dot" style="background:${TEAM_COLORS[o]}"></span>`:""}</span></li>`;}).join("")}</ul>`:`<div class="phew">No items lost!</div>`}`;
+    const step=sim.steps[n-1];
+    front.classList.toggle("bonus",!!last.bonus);
+    const dot=i=>`<span class="dot" style="background:${TEAM_COLORS[i]}"></span>`;
+    let body;
+    if(last.bonus){
+      const trig=ITEM[last.trigger], f=ITEM[last.found];
+      body = step.gains.length
+        ? `<div class="gainhdr">Lucky find!</div><div class="gainbox"><span class="ge">${f.e}</span><span><b>${esc(T[step.gains[0].team].name)}</b> gets<br><b class="gi">${esc(f.n)}</b></span>${dot(step.gains[0].team)}</div><p class="gnote">Thanks to: ${trig.e} ${esc(trig.n)}</p>`
+        : `<div class="gainhdr">No luck</div><p class="ctext">Nobody has the ${esc(trig.n)} any more. Nothing happens.</p>`;
+    } else {
+      const hitBy={}; step.hits.forEach(h=>{ (hitBy[h.id]=hitBy[h.id]||[]).push(h.team); });
+      const entries=Object.entries(last.lose).sort((a,b)=>(hitBy[b[0]]?1:0)-(hitBy[a[0]]?1:0));
+      body = entries.length
+        ? `<div class="losthdr">Everyone loses</div><ul class="lostlist">${entries.map(([id,why])=>{const it=ITEM[id], hs=hitBy[id]||[];
+            return `<li class="${hs.length?"":"nobody"}"><span class="e">${it.e}</span><span><b>${+id<100?"#"+id+" ":""}${esc(it.n)}</b><span class="why">${esc(why)}</span></span><span class="who">${hs.map(dot).join("")}</span></li>`;}).join("")}</ul>`
+        : `<div class="phew">No items lost!</div>`;
+    }
+    front.innerHTML=`<div class="ctop"><span>Event ${n}</span><span>Day ${Math.min(3,1+Math.floor((n-1)/4))}</span></div>
+      <div class="cem">${last.e}</div><h3>${esc(last.t)}</h3><p class="ctext">${esc(last.x)}</p>${body}`;
     c3.classList.add("flipped");
-  } else { c3.classList.remove("flipped"); $("#cardFront").innerHTML=""; }
+  } else { c3.classList.remove("flipped"); front.innerHTML=""; front.classList.remove("bonus"); }
   $("#backHint").textContent = done? "The rescue has arrived" : "Press “Flip next card” or Space";
-  const L=lostSet(n), Lprev=lostSet(n-1), win=done&&state.plan?state.plan.team:-1;
+  const win=done&&state.plan?state.plan.team:-1;
   $("#board").innerHTML=T.map((t,i)=>{
-    const alive=t.picks.filter(p=>!L.has(p)).length, ate=alive===0?eatenOn(t):0;
+    const L=sim?sim.inv[i]:t.picks.map(id=>({id,found:false,got:0,lost:0}));
+    const alive=L.filter(it=>!it.lost).length;
+    const ate = alive===0&&sim ? Math.max(...L.map(it=>it.lost)) : 0;
     return `<div class="team${alive===0?" out":""}${i===win?" win":""}" style="--tc:${TEAM_COLORS[i]}">
       <h3>${esc(t.name)}</h3>
       <div class="left">${alive===0?`Eaten on card ${ate}`:i===win?"Rescued!":`${alive} item${alive===1?"":"s"} left`}</div>
-      <ul>${t.picks.map(p=>{const lost=L.has(p), fresh=lost&&!Lprev.has(p)&&state.justFlipped;
-        return `<li class="${lost?"lost":""}${fresh?" fresh":""}"><span class="e">${ITEM[p].e}</span>${esc(ITEM[p].n)}</li>`;}).join("")}</ul>
+      <ul>${L.map(it=>{const fresh=state.justFlipped&&it.lost===n, got=state.justFlipped&&it.got===n&&it.found;
+        return `<li class="${it.lost?"lost":""}${it.found?" found":""}${fresh?" fresh":""}${got?" gained":""}"><span class="e">${ITEM[it.id].e}</span>${esc(ITEM[it.id].n)}</li>`;}).join("")}</ul>
       ${alive===0?`<div class="eaten">EATEN</div>`:""}
     </div>`;
   }).join("");
-  $("#log").innerHTML = n? state.played.map((id,k)=>`<li><b>${k+1}</b>${CARD(id).e} ${esc(CARD(id).t)}</li>`).join("") : `<li>None yet</li>`;
+  $("#log").innerHTML = n? state.played.map((id,k)=>`<li${CARD(id).bonus?' class="lucky"':""}><b>${k+1}</b>${CARD(id).e} ${esc(CARD(id).t)}</li>`).join("") : `<li>None yet</li>`;
   if(done && !state.overlayDismissed && state.phase==="play"){
     const x=state.plan.survivor, it=ITEM[x], tm=T[state.plan.team];
     $("#winEmoji").textContent=it.e;
@@ -632,7 +705,7 @@ function renderPlay(){
 /* ---------- actions ---------- */
 function setPicks(i,str){
   const out=[], blocked=[];
-  (str.match(/\d+/g)||[]).forEach(v=>{ v=+v; if(v<1||v>52||out.includes(v)) return; const o=ownerOf(v); if(o>=0&&o!==i){ blocked.push(`#${v} → ${state.teams[o].name}`); return; } out.push(v); });
+  (str.match(/\d+/g)||[]).forEach(v=>{ v=+v; if(v<1||v>55||out.includes(v)) return; const o=ownerOf(v); if(o>=0&&o!==i){ blocked.push(`#${v} → ${state.teams[o].name}`); return; } out.push(v); });
   state.teams[i].picks=out.slice(0,state.perTeam);
   const over=out.length>state.perTeam;
   return blocked.length? `Taken: ${blocked.join(", ")}` : over? `Only ${state.perTeam} items allowed` : "";
@@ -709,7 +782,7 @@ $("#tReset").addEventListener("click",()=>{ stopTimer(); resetTimer(); });
 
 /* ---------- boot ---------- */
 function start(data){
-  const carried = data&&data.state&&data.state.v===2 ? data.state : null;
+  const carried = data&&data.state&&data.state.v===3 ? data.state : null;
   state = carried || load() || freshState();
   state.justFlipped=false;
   drawClock(); render();
