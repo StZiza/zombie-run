@@ -211,6 +211,66 @@ h2.sec{font-family:var(--f-display);font-size:clamp(28px,4vw,44px);line-height:1
 .win-card p{font-size:19px;margin:0 0 18px}
 .win-card .btn.sec{color:var(--fg)}
 
+
+/* ---------- screen effects ---------- */
+#fx{position:fixed;inset:0;z-index:15;pointer-events:none;overflow:hidden}
+#fx .tint{position:absolute;inset:0;opacity:0;transition:opacity .7s ease,background .7s ease}
+#fx canvas{position:absolute;inset:0;width:100%;height:100%}
+#fx .flash{position:absolute;inset:0;background:#fff;opacity:0}
+#fx .flash.on{animation:flashon .45s ease-out}
+@keyframes flashon{0%{opacity:var(--fl,.8)}100%{opacity:0}}
+#fx[data-mood="suspense"] .tint{opacity:1;background:radial-gradient(ellipse at 25% 50%,transparent 20%,rgba(0,0,0,.82) 75%)}
+#fx[data-mood="night"] .tint{opacity:1;background:rgba(3,5,14,.86)}
+#fx[data-mood="calm"] .tint{opacity:1;background:linear-gradient(180deg,rgba(6,14,38,.88),rgba(22,32,60,.78));transition-duration:1.6s}
+#fx[data-mood="storm"] .tint{opacity:1;background:rgba(14,18,34,.62)}
+#fx[data-mood="blue"] .tint{opacity:1;background:rgba(20,40,70,.45)}
+#fx[data-mood="fire"] .tint{opacity:1;background:radial-gradient(ellipse at 50% 110%,rgba(255,110,20,.7),rgba(160,30,0,.25) 50%,transparent 75%)}
+#fx[data-mood="frost"] .tint{opacity:1;background:radial-gradient(ellipse at center,transparent 35%,rgba(205,232,255,.85) 100%)}
+#fx[data-mood="heat"] .tint{opacity:1;background:radial-gradient(circle at 85% 8%,rgba(255,230,140,.75),rgba(255,140,40,.3) 35%,rgba(255,120,30,.12) 70%)}
+#fx[data-mood="lucky"] .tint{opacity:1;background:radial-gradient(circle at 50% 45%,rgba(160,240,120,.45),transparent 65%)}
+#fx[data-mood="red"] .tint{opacity:1;background:radial-gradient(ellipse at center,transparent 30%,rgba(170,0,0,.6) 100%)}
+#fx[data-mood="water"] .tint{opacity:1;background:linear-gradient(to top,rgba(30,110,200,.75),rgba(30,110,200,.15) 55%,transparent 75%)}
+#fx[data-mood="mud"] .tint{opacity:1;background:linear-gradient(to top,rgba(95,62,28,.8),rgba(95,62,28,.2) 50%,transparent 70%)}
+#fx[data-mood="gray"] .tint{opacity:1;background:rgba(30,30,30,.55)}
+#fx[data-mood="dark"] .tint{opacity:1;background:rgba(0,0,0,.8)}
+#fx .beam{position:absolute;top:50%;left:-30vw;width:44vmin;height:44vmin;margin-top:-22vmin;border-radius:50%;opacity:0;background:radial-gradient(circle,rgba(255,244,200,.55),rgba(255,244,200,.12) 45%,transparent 70%);mix-blend-mode:screen}
+#fx .beam.on{opacity:1;animation:beam 3.6s ease-in-out}
+@keyframes beam{0%{transform:translate(0,-10vh)}35%{transform:translate(55vw,12vh)}65%{transform:translate(85vw,-14vh)}100%{transform:translate(135vw,4vh)}}
+.fx-e{position:absolute;font-size:var(--s,60px);line-height:1;will-change:transform,opacity;animation-duration:var(--d,3s);animation-delay:var(--dl,0s);animation-fill-mode:both;animation-timing-function:linear}
+.fx-e.rise{left:var(--x);bottom:-120px;animation-name:rise}
+@keyframes rise{0%{transform:translateY(0);opacity:0}15%{opacity:1}100%{transform:translateY(-115vh);opacity:.9}}
+.fx-e.fall{left:var(--x);top:-100px;animation-name:fall}
+@keyframes fall{0%{transform:translateY(0) rotate(0);opacity:0}10%{opacity:1}100%{transform:translateY(118vh) rotate(260deg);opacity:1}}
+.fx-e.cross{top:var(--y);left:-160px;animation-name:cross}
+@keyframes cross{0%{transform:translateX(0)}100%{transform:translateX(calc(100vw + 320px))}}
+.fx-e.cross-r{top:var(--y);right:-160px;animation-name:crossr}
+@keyframes crossr{0%{transform:translateX(0) scaleX(-1)}100%{transform:translateX(calc(-100vw - 320px)) scaleX(-1)}}
+.fx-e.climb{left:var(--x);bottom:-130px;animation-name:climb;animation-timing-function:ease-out}
+@keyframes climb{0%{transform:translateY(0) rotate(-6deg)}25%{transform:translateY(-14vh) rotate(5deg)}50%{transform:translateY(-22vh) rotate(-5deg)}80%{transform:translateY(-26vh) rotate(4deg);opacity:1}100%{transform:translateY(10vh);opacity:0}}
+.fx-e.heli{top:18vh;left:-200px;animation-name:heli;animation-timing-function:ease-in-out;animation-delay:0s}
+@keyframes heli{0%{transform:translate(0,0) rotate(-8deg)}50%{transform:translate(calc(50vw + 140px),12vh) rotate(0)}100%{transform:translate(calc(100vw + 420px),-6vh) rotate(-8deg)}}
+.fx-stamp{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);font-size:min(30vw,220px);line-height:1;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) both;filter:drop-shadow(0 10px 30px rgba(0,0,0,.5))}
+.fx-stamp.word{font-family:var(--f-display);font-size:min(13vw,130px);color:#fff;white-space:nowrap;-webkit-text-stroke:3px var(--blood)}
+.fx-stamp.blink{animation:stamp .5s cubic-bezier(.2,1.6,.4,1) both,blinky .35s steps(2) .5s 3}
+.fx-stamp.slow{animation:stamp 1.2s ease-out both}
+.fx-stamp.lucky{animation:stamp .6s cubic-bezier(.2,1.6,.4,1) both,glow 1.2s ease-in-out .6s infinite alternate}
+.fx-stamp.campfire{top:auto;bottom:6vh;font-size:min(16vw,120px);animation:fadein 1.6s ease both,flicker .25s ease-in-out 1.6s infinite alternate}
+@keyframes stamp{0%{transform:translate(-50%,-50%) scale(2.4);opacity:0}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
+@keyframes blinky{50%{opacity:.15}}
+@keyframes glow{to{filter:drop-shadow(0 0 40px rgba(170,255,120,.9))}}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+@keyframes flicker{from{transform:translate(-50%,0) scale(1)}to{transform:translate(-50%,-4px) scale(1.06)}}
+main.fx-shake-hard{animation:shakeh .09s linear infinite}
+main.fx-shake-soft{animation:shakes .14s linear infinite}
+@keyframes shakeh{0%{transform:translate(0,0)}25%{transform:translate(-9px,5px) rotate(-.4deg)}50%{transform:translate(8px,-6px) rotate(.4deg)}75%{transform:translate(-6px,-4px)}100%{transform:translate(0,0)}}
+@keyframes shakes{0%,100%{transform:translate(0,0)}50%{transform:translate(3px,-2px)}}
+.card3d.charge{animation:charge 1.25s ease-in both}
+@keyframes charge{0%{transform:none}20%{transform:translateX(-2px) rotate(-.5deg)}35%{transform:translateX(3px) rotate(.6deg)}50%{transform:translateX(-5px) rotate(-1deg) scale(1.01)}62%{transform:translateX(6px) rotate(1.2deg) scale(1.02)}74%{transform:translateX(-8px) rotate(-1.6deg) scale(1.03)}86%{transform:translateX(9px) rotate(2deg) scale(1.05)}100%{transform:scale(1.07)}}
+.card3d.charge .back{box-shadow:0 0 0 4px var(--caution),0 0 60px 10px rgba(242,144,43,.55)}
+.toggles{display:flex;gap:6px}
+.toggles .ghost{font-size:18px;padding:4px 10px;line-height:1.2}
+.toggles .ghost[aria-pressed="false"]{opacity:.45}
+@media (prefers-reduced-motion:reduce){ .fx-e,.fx-stamp,.card3d.charge,main.fx-shake-hard,main.fx-shake-soft{animation:none!important} }
 @media (max-width:900px){
   .story,.choose,.play{grid-template-columns:minmax(0,1fr)}
   .teams-setup{position:static}
@@ -234,7 +294,9 @@ footer{color:var(--muted);font-size:14px;padding-block:24px 40px;text-align:cent
   <div class="brand"><span class="tape" aria-hidden="true"></span>Zombie Run · Antalya</div>
   <div class="school"><svg class="crest" viewBox="0 0 40 46" aria-hidden="true"><path d="M20 2 L37 8 V22 C37 33 29 41 20 44 C11 41 3 33 3 22 V8 Z" fill="var(--khaki)" stroke="var(--caution)" stroke-width="2.5"/><text x="20" y="27" text-anchor="middle" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-weight="700" font-size="13" fill="#232818">ASC</text></svg><span><small>Antalya Sınav College</small><b>Zombie Drill 2026</b></span></div>
   
-  
+  <span class="spacer"></span>
+  <div class="toggles"><button class="ghost" id="fxBtn" aria-pressed="true" title="Screen effects on/off" aria-label="Screen effects">✨</button><button class="ghost" id="sndBtn" aria-pressed="true" title="Sound on/off" aria-label="Sound">🔊</button></div>
+  <div id="resetArea"><button class="ghost" id="resetBtn">New game</button></div>
 </div></header>
 <main class="wrap">
 <h2 class="sec" style="margin-top:4px">Supply room</h2>
@@ -277,7 +339,7 @@ footer{color:var(--muted);font-size:14px;padding-block:24px 40px;text-align:cent
 <li class="tile"><span class="no">#27</span><span class="em">🤸</span><span class="nm">Trampoline</span></li>
 <li class="tile"><span class="no">#28</span><span class="em">🎈</span><span class="nm">Hot-air balloon</span></li>
 <li class="tile"><span class="no">#29</span><span class="em">🦄</span><span class="nm">Giant inflatable unicorn</span></li>
-<li class="tile"><span class="no">#30</span><span class="em">🚁</span><span class="nm">Drone</span></li>
+<li class="tile"><span class="no">#30</span><span class="em">🕹️</span><span class="nm">Drone (with remote)</span></li>
 <li class="tile"><span class="no">#31</span><span class="em">📱</span><span class="nm">Phone (3% battery)</span></li>
 <li class="tile"><span class="no">#32</span><span class="em">📻</span><span class="nm">Walkie-talkies</span></li>
 <li class="tile"><span class="no">#33</span><span class="em">💨</span><span class="nm">Hairdryer</span></li>
@@ -303,6 +365,7 @@ footer{color:var(--muted);font-size:14px;padding-block:24px 40px;text-align:cent
 <li class="tile"><span class="no">#53</span><span class="em">🎣</span><span class="nm">Fishing rod</span></li>
 <li class="tile"><span class="no">#54</span><span class="em">🪓</span><span class="nm">Axe</span></li>
 <li class="tile"><span class="no">#55</span><span class="em">🛠️</span><span class="nm">Swiss Army knife</span></li>
+<li class="tile"><span class="no">#56</span><span class="em">🚁</span><span class="nm">Helicopter (no pilot)</span></li>
 </ul>
 </main>
 <footer class="wrap">Antalya Sınav College · Zombie Drill 2026 · English class game</footer>

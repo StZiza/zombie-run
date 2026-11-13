@@ -212,6 +212,66 @@ h2.sec{font-family:var(--f-display);font-size:clamp(28px,4vw,44px);line-height:1
 .win-card p{font-size:19px;margin:0 0 18px}
 .win-card .btn.sec{color:var(--fg)}
 
+
+/* ---------- screen effects ---------- */
+#fx{position:fixed;inset:0;z-index:15;pointer-events:none;overflow:hidden}
+#fx .tint{position:absolute;inset:0;opacity:0;transition:opacity .7s ease,background .7s ease}
+#fx canvas{position:absolute;inset:0;width:100%;height:100%}
+#fx .flash{position:absolute;inset:0;background:#fff;opacity:0}
+#fx .flash.on{animation:flashon .45s ease-out}
+@keyframes flashon{0%{opacity:var(--fl,.8)}100%{opacity:0}}
+#fx[data-mood="suspense"] .tint{opacity:1;background:radial-gradient(ellipse at 25% 50%,transparent 20%,rgba(0,0,0,.82) 75%)}
+#fx[data-mood="night"] .tint{opacity:1;background:rgba(3,5,14,.86)}
+#fx[data-mood="calm"] .tint{opacity:1;background:linear-gradient(180deg,rgba(6,14,38,.88),rgba(22,32,60,.78));transition-duration:1.6s}
+#fx[data-mood="storm"] .tint{opacity:1;background:rgba(14,18,34,.62)}
+#fx[data-mood="blue"] .tint{opacity:1;background:rgba(20,40,70,.45)}
+#fx[data-mood="fire"] .tint{opacity:1;background:radial-gradient(ellipse at 50% 110%,rgba(255,110,20,.7),rgba(160,30,0,.25) 50%,transparent 75%)}
+#fx[data-mood="frost"] .tint{opacity:1;background:radial-gradient(ellipse at center,transparent 35%,rgba(205,232,255,.85) 100%)}
+#fx[data-mood="heat"] .tint{opacity:1;background:radial-gradient(circle at 85% 8%,rgba(255,230,140,.75),rgba(255,140,40,.3) 35%,rgba(255,120,30,.12) 70%)}
+#fx[data-mood="lucky"] .tint{opacity:1;background:radial-gradient(circle at 50% 45%,rgba(160,240,120,.45),transparent 65%)}
+#fx[data-mood="red"] .tint{opacity:1;background:radial-gradient(ellipse at center,transparent 30%,rgba(170,0,0,.6) 100%)}
+#fx[data-mood="water"] .tint{opacity:1;background:linear-gradient(to top,rgba(30,110,200,.75),rgba(30,110,200,.15) 55%,transparent 75%)}
+#fx[data-mood="mud"] .tint{opacity:1;background:linear-gradient(to top,rgba(95,62,28,.8),rgba(95,62,28,.2) 50%,transparent 70%)}
+#fx[data-mood="gray"] .tint{opacity:1;background:rgba(30,30,30,.55)}
+#fx[data-mood="dark"] .tint{opacity:1;background:rgba(0,0,0,.8)}
+#fx .beam{position:absolute;top:50%;left:-30vw;width:44vmin;height:44vmin;margin-top:-22vmin;border-radius:50%;opacity:0;background:radial-gradient(circle,rgba(255,244,200,.55),rgba(255,244,200,.12) 45%,transparent 70%);mix-blend-mode:screen}
+#fx .beam.on{opacity:1;animation:beam 3.6s ease-in-out}
+@keyframes beam{0%{transform:translate(0,-10vh)}35%{transform:translate(55vw,12vh)}65%{transform:translate(85vw,-14vh)}100%{transform:translate(135vw,4vh)}}
+.fx-e{position:absolute;font-size:var(--s,60px);line-height:1;will-change:transform,opacity;animation-duration:var(--d,3s);animation-delay:var(--dl,0s);animation-fill-mode:both;animation-timing-function:linear}
+.fx-e.rise{left:var(--x);bottom:-120px;animation-name:rise}
+@keyframes rise{0%{transform:translateY(0);opacity:0}15%{opacity:1}100%{transform:translateY(-115vh);opacity:.9}}
+.fx-e.fall{left:var(--x);top:-100px;animation-name:fall}
+@keyframes fall{0%{transform:translateY(0) rotate(0);opacity:0}10%{opacity:1}100%{transform:translateY(118vh) rotate(260deg);opacity:1}}
+.fx-e.cross{top:var(--y);left:-160px;animation-name:cross}
+@keyframes cross{0%{transform:translateX(0)}100%{transform:translateX(calc(100vw + 320px))}}
+.fx-e.cross-r{top:var(--y);right:-160px;animation-name:crossr}
+@keyframes crossr{0%{transform:translateX(0) scaleX(-1)}100%{transform:translateX(calc(-100vw - 320px)) scaleX(-1)}}
+.fx-e.climb{left:var(--x);bottom:-130px;animation-name:climb;animation-timing-function:ease-out}
+@keyframes climb{0%{transform:translateY(0) rotate(-6deg)}25%{transform:translateY(-14vh) rotate(5deg)}50%{transform:translateY(-22vh) rotate(-5deg)}80%{transform:translateY(-26vh) rotate(4deg);opacity:1}100%{transform:translateY(10vh);opacity:0}}
+.fx-e.heli{top:18vh;left:-200px;animation-name:heli;animation-timing-function:ease-in-out;animation-delay:0s}
+@keyframes heli{0%{transform:translate(0,0) rotate(-8deg)}50%{transform:translate(calc(50vw + 140px),12vh) rotate(0)}100%{transform:translate(calc(100vw + 420px),-6vh) rotate(-8deg)}}
+.fx-stamp{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);font-size:min(30vw,220px);line-height:1;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) both;filter:drop-shadow(0 10px 30px rgba(0,0,0,.5))}
+.fx-stamp.word{font-family:var(--f-display);font-size:min(13vw,130px);color:#fff;white-space:nowrap;-webkit-text-stroke:3px var(--blood)}
+.fx-stamp.blink{animation:stamp .5s cubic-bezier(.2,1.6,.4,1) both,blinky .35s steps(2) .5s 3}
+.fx-stamp.slow{animation:stamp 1.2s ease-out both}
+.fx-stamp.lucky{animation:stamp .6s cubic-bezier(.2,1.6,.4,1) both,glow 1.2s ease-in-out .6s infinite alternate}
+.fx-stamp.campfire{top:auto;bottom:6vh;font-size:min(16vw,120px);animation:fadein 1.6s ease both,flicker .25s ease-in-out 1.6s infinite alternate}
+@keyframes stamp{0%{transform:translate(-50%,-50%) scale(2.4);opacity:0}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
+@keyframes blinky{50%{opacity:.15}}
+@keyframes glow{to{filter:drop-shadow(0 0 40px rgba(170,255,120,.9))}}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+@keyframes flicker{from{transform:translate(-50%,0) scale(1)}to{transform:translate(-50%,-4px) scale(1.06)}}
+main.fx-shake-hard{animation:shakeh .09s linear infinite}
+main.fx-shake-soft{animation:shakes .14s linear infinite}
+@keyframes shakeh{0%{transform:translate(0,0)}25%{transform:translate(-9px,5px) rotate(-.4deg)}50%{transform:translate(8px,-6px) rotate(.4deg)}75%{transform:translate(-6px,-4px)}100%{transform:translate(0,0)}}
+@keyframes shakes{0%,100%{transform:translate(0,0)}50%{transform:translate(3px,-2px)}}
+.card3d.charge{animation:charge 1.25s ease-in both}
+@keyframes charge{0%{transform:none}20%{transform:translateX(-2px) rotate(-.5deg)}35%{transform:translateX(3px) rotate(.6deg)}50%{transform:translateX(-5px) rotate(-1deg) scale(1.01)}62%{transform:translateX(6px) rotate(1.2deg) scale(1.02)}74%{transform:translateX(-8px) rotate(-1.6deg) scale(1.03)}86%{transform:translateX(9px) rotate(2deg) scale(1.05)}100%{transform:scale(1.07)}}
+.card3d.charge .back{box-shadow:0 0 0 4px var(--caution),0 0 60px 10px rgba(242,144,43,.55)}
+.toggles{display:flex;gap:6px}
+.toggles .ghost{font-size:18px;padding:4px 10px;line-height:1.2}
+.toggles .ghost[aria-pressed="false"]{opacity:.45}
+@media (prefers-reduced-motion:reduce){ .fx-e,.fx-stamp,.card3d.charge,main.fx-shake-hard,main.fx-shake-soft{animation:none!important} }
 @media (max-width:900px){
   .story,.choose,.play{grid-template-columns:minmax(0,1fr)}
   .teams-setup{position:static}
@@ -225,6 +285,7 @@ h2.sec{font-family:var(--f-display);font-size:clamp(28px,4vw,44px);line-height:1
 </head>
 <body>
 
+<div id="fx" aria-hidden="true"><div class="tint"></div><div class="beam"></div><canvas id="fxc"></canvas><div class="flash"></div></div>
 
 <header class="bar"><div class="bar-in wrap">
   <div class="brand"><span class="tape" aria-hidden="true"></span>Zombie Run · Antalya</div>
@@ -235,6 +296,7 @@ h2.sec{font-family:var(--f-display);font-size:clamp(28px,4vw,44px);line-height:1
     <button class="step" data-go="play"><b>3</b>Survive</button>
   </nav>
   <span class="spacer"></span>
+  <div class="toggles"><button class="ghost" id="fxBtn" aria-pressed="true" title="Screen effects on/off" aria-label="Screen effects">✨</button><button class="ghost" id="sndBtn" aria-pressed="true" title="Sound on/off" aria-label="Sound">🔊</button></div>
   <div id="resetArea"><button class="ghost" id="resetBtn">New game</button></div>
 </div></header>
 
@@ -362,17 +424,19 @@ const ITEMS = [
  [11,"🦆","Squeaky rubber duck"],[12,"🐈","Very angry cat"],[13,"🐕","Loyal dog"],[14,"🐎","Horse"],[15,"🦜","Talking parrot"],
  [16,"🍫","10 kg of chocolate"],[17,"🍯","Jar of honey"],[18,"🥫","20 tins of beans"],[19,"🍌","Bunch of bananas"],[20,"💧","5-litre bottle of water"],
  [21,"🚲","Bicycle"],[22,"🛹","Skateboard"],[23,"🛼","Roller skates"],[24,"🛒","Shopping trolley"],[25,"🛵","Pizza scooter"],
- [26,"🪜","Ladder"],[27,"🤸","Trampoline"],[28,"🎈","Hot-air balloon"],[29,"🦄","Giant inflatable unicorn"],[30,"🚁","Drone"],
+ [26,"🪜","Ladder"],[27,"🤸","Trampoline"],[28,"🎈","Hot-air balloon"],[29,"🦄","Giant inflatable unicorn"],[30,"🕹️","Drone (with remote)"],
  [31,"📱","Phone (3% battery)"],[32,"📻","Walkie-talkies"],[33,"💨","Hairdryer"],[34,"🪞","Big mirror"],[35,"🎱","Magic 8-Ball"],
  [36,"🔭","Binoculars"],[37,"🧴","Bucket of super glue"],[38,"🩹","Duct tape"],[39,"🪢","20 m of rope"],[40,"⚾","Baseball bat"],
  [41,"🍳","Frying pan"],[42,"🧯","Fire extinguisher"],[43,"⛑️","First-aid kit"],[44,"🧄","Garlic necklace"],[45,"🛌","Sleeping bag"],
  [46,"🗝️","Mysterious golden key"],[47,"☕","Flask of hot coffee"],[48,"🧑‍🏫","Aziz Hoca (English teacher)"],[49,"🎒","Backpack full of textbooks"],[50,"🥚","Box of 30 eggs"],
  [51,"👔","Ferhan Hoca (principal)"],[52,"📋","Erman Hoca (vice principal)"],
- [53,"🎣","Fishing rod"],[54,"🪓","Axe"],[55,"🛠️","Swiss Army knife"]
+ [53,"🎣","Fishing rod"],[54,"🪓","Axe"],[55,"🛠️","Swiss Army knife"],[56,"🚁","Helicopter (no pilot)"]
 ];
 const ITEM = Object.fromEntries(ITEMS.map(([id,e,n])=>[id,{id,e,n}]));
 const FOUND = [[101,"🍱","Army ration pack"],[102,"🥽","Night-vision goggles"],[103,"🔑","Jeep keys"],[104,"📡","Army radio"],
- [105,"🛶","Rubber boat"],[106,"🧥","Warm army jacket"],[107,"🐟","Bucket of fresh fish"],[108,"🪵","Pile of firewood"]];
+ [105,"🛶","Rubber boat"],[106,"🧥","Warm army jacket"],[107,"🐟","Bucket of fresh fish"],[108,"🪵","Pile of firewood"],
+ [109,"🎫","Antalya Kart (100 TL)"],[110,"🧭","Old compass"],[112,"🥞","Pile of hot pancakes"],[113,"📦","Army supply crate"],
+ [114,"🚑","Ambulance keys"],[115,"🚌","School bus keys"],[116,"🔐","Master key to the school"]];
 FOUND.forEach(([id,e,n])=>{ ITEM[id]={id,e,n,found:true}; });
 
 const STORIES = {
@@ -428,6 +492,22 @@ const STORIES = {
  52:"Erman Hoca had already written an evacuation plan, timed to the minute. You followed it exactly, and the school bus left for the airport at 08:45 sharp.",
  53:"You sat at the end of the pier and fished for three days. Zombies hate water, so they never came near you. On day three, the coast guard boat picked you up.",
  54:"You chopped down a tree and made a bridge over the Aksu River. After you crossed, you chopped the bridge too. The zombies were left on the other side.",
+ 56:"Nobody knew how to fly a helicopter, but you found the instruction book under the seat. Page 1: “How to take off.” It was a bumpy ride, but you landed safely at the airport.",
+ 101:"The army rations kept you strong for three days. While other survivors were too weak to walk, you marched all the way to the airport.",
+ 102:"With the night-vision goggles, you walked through the dark city and saw every zombie before it saw you.",
+ 103:"You jumped into the army jeep and drove straight across the city. Zombies are slow. Army jeeps are not.",
+ 104:"You called on the army radio: “Survivors at Antalya Sınav College!” Ten minutes later, a helicopter landed on the school terrace.",
+ 105:"You rowed the rubber boat along the coast from Konyaaltı to Lara. Zombies can't swim, so nobody followed you.",
+ 106:"The warm army jacket kept you alive on the freezing night. In the morning, a soldier saw the jacket, thought you were in his team and took you straight to the airport.",
+ 107:"You grilled the fresh fish on a small fire. The smell brought a hungry soldier, not a zombie! He shared your dinner and drove you to the airport.",
+ 108:"You built a huge fire on the school terrace. The rescue helicopter saw the smoke from 20 kilometres away.",
+ 109:"You tapped your Antalya Kart at the stop and jumped on the last tram. The driver didn't stop for anything: not for zombies on the tracks, not for zombies at the stops. Next stop: Antalya Airport!",
+ 110:"The compass pointed east. You walked east through orange gardens and empty fields, far away from every road full of zombies, until you reached the airport fence.",
+ 112:"Hot pancakes for breakfast gave you so much energy that you ran 15 kilometres to the airport without stopping once.",
+ 113:"Inside the army crate there was a flare gun. You fired it into the sky, and the rescue helicopter came straight to you.",
+ 114:"You drove the ambulance with the siren on. Every zombie jumped out of the way, and the soldiers opened the airport gate for you.",
+ 115:"Ferhan Hoca's keys started the school bus. You picked up survivors on the way and drove everyone to the airport. The best school trip ever!",
+ 116:"With the master key, you locked every door behind you on your way out of the school. All the zombies were locked inside.",
  55:"The Swiss Army knife had everything: a screwdriver, scissors, a saw and a tiny spoon. You fixed an old car with it and drove all the way to the airport.",
  49:"You built a wall with the heavy textbooks in front of the door. Finally, the textbooks were useful! The zombies couldn't get through.",
  50:"You threw 30 eggs at the zombies. They were so confused by the mess that they started fighting each other while you escaped."
@@ -445,31 +525,31 @@ const CARDS = [
  {id:"power",e:"🔌",t:"Power cut",x:"The electricity goes off across the whole city. Nothing can be charged.",
   lose:{7:"An electric guitar with no electricity…",30:"Battery dead, no way to charge it.",33:"No socket, no hairdryer."}},
  {id:"bridge",e:"🌊",t:"The broken bridge",x:"The bridge over the Aksu River has collapsed. You must swim across. Heavy things and wheels sink.",
-  lose:{18:"Far too heavy to swim with.",20:"5 kilos of water pulls you down.",21:"It sinks.",22:"It sinks.",23:"They sink.",42:"It sinks like a rock.",103:"They fell into the river."}},
+  lose:{18:"Far too heavy to swim with.",20:"5 kilos of water pulls you down.",21:"It sinks.",22:"It sinks.",23:"They sink.",42:"It sinks like a rock.",103:"They fell into the river.",110:"Lost in the river.",114:"They fell into the river."}},
  {id:"mud",e:"🟫",t:"The mud road",x:"The only road to the airport is deep mud. Anything with wheels gets stuck.",
-  lose:{21:"Stuck.",22:"Stuck.",23:"Stuck.",24:"Very stuck.",25:"Stuck, and out of fuel."}},
+  lose:{21:"Stuck.",22:"Stuck.",23:"Stuck.",24:"Very stuck.",25:"Stuck, and out of fuel.",115:"The bus is stuck in the mud anyway."}},
  {id:"climb",e:"🧗",t:"Climbing zombies",x:"Bad news: the zombies have learned to climb. They are coming up the walls to the terrace!",
   lose:{26:"They use it to climb up to you.",27:"They bounce right over your wall."}},
  {id:"dogs",e:"🐺",t:"Zombie dogs!",x:"A pack of zombie dogs runs through the streets. Your animals panic and run away.",
   lose:{12:"Gone over the rooftops.",13:"It ran after the pack.",14:"It galloped away.",15:"It flew off."}},
  {id:"starving",e:"🍽️",t:"Starving",x:"The cafeteria on floor -1 and the canteen on the top floor are both empty. You haven't eaten for a whole day, so you eat every bit of food you have.",
-  lose:{16:"All 10 kilos… in one night.",17:"Licked clean.",19:"Gone in seconds.",44:"It tasted terrible.",50:"Raw. Yuck.",101:"Delicious. All gone.",107:"Grilled and eaten."}},
+  lose:{16:"All 10 kilos… in one night.",17:"Licked clean.",19:"Gone in seconds.",44:"It tasted terrible.",50:"Raw. Yuck.",101:"Delicious. All gone.",107:"Grilled and eaten.",112:"Gone in ten seconds."}},
  {id:"sugar",e:"🍭",t:"Sweet smell",x:"Zombies can smell sugar from a kilometre away. Throw away anything sweet, NOW!",
-  lose:{16:"Thrown out of the window.",17:"Thrown out of the window.",19:"Thrown out of the window."}},
+  lose:{16:"Thrown out of the window.",17:"Thrown out of the window.",19:"Thrown out of the window.",112:"Pancakes with syrup? Out of the window!"}},
  {id:"fire",e:"🔥",t:"Fire!",x:"The observatory on the top floor catches fire! You escape, but some things burn or get used up.",
-  lose:{3:"BOOM!",28:"The balloon melts.",29:"It melts into a pink puddle.",39:"It burns.",42:"You used all of it to escape.",45:"Burnt.",105:"Melted.",106:"Burnt.",108:"It all burned."}},
+  lose:{3:"BOOM!",28:"The balloon melts.",29:"It melts into a pink puddle.",39:"It burns.",42:"You used all of it to escape.",45:"Burnt.",105:"Melted.",106:"Burnt.",108:"It all burned.",113:"Burnt.",109:"Melted."}},
  {id:"horde",e:"🧟",t:"The horde breaks in",x:"200 zombies smash the main entrance next to the front lobby desk. RUN! You can only carry small things.",
-  lose:{4:"Too big to carry.",8:"Too heavy.",24:"Too slow.",26:"Too long to run with.",27:"You can't run with a trampoline.",54:"Too heavy to run with."}},
+  lose:{4:"Too big to carry.",8:"Too heavy.",24:"Too slow.",26:"Too long to run with.",27:"You can't run with a trampoline.",54:"Too heavy to run with.",113:"Far too heavy to run with."}},
  {id:"storm",e:"🌪️",t:"Storm",x:"A huge storm hits the coast. The wind blows away anything big or light.",
-  lose:{4:"Blown into the sea.",27:"Flying over Konyaaltı.",28:"Gone with the wind.",29:"Last seen over Kemer.",30:"Blown out of the sky.",53:"Blown into the sea.",105:"Blown away."}},
+  lose:{4:"Blown into the sea.",27:"Flying over Konyaaltı.",28:"Gone with the wind.",29:"Last seen over Kemer.",30:"Blown out of the sky.",53:"Blown into the sea.",105:"Blown away.",56:"Far too windy to fly."}},
  {id:"battery",e:"🪫",t:"Dead batteries",x:"Day three. Every battery is empty.",
   lose:{1:"Click… nothing.",8:"Silent forever.",9:"Not a sound.",31:"3%… 2%… 0%.",32:"Only static.",102:"Battery dead.",104:"Battery dead."}},
  {id:"gulls",e:"🐦",t:"Zombie seagulls",x:"Zombie seagulls attack from the sea! Anything in the air is in danger.",
-  lose:{15:"The seagulls chase it away.",28:"POP!",29:"POP!",30:"Knocked out of the sky.",53:"The seagulls stole it.",105:"POP!",107:"The seagulls ate all the fish."}},
+  lose:{15:"The seagulls chase it away.",28:"POP!",29:"POP!",30:"Knocked out of the sky.",53:"The seagulls stole it.",105:"POP!",107:"The seagulls ate all the fish.",56:"Seagulls in the rotor!"}},
  {id:"quake",e:"🌋",t:"Earthquake",x:"The ground shakes. Anything fragile breaks.",
-  lose:{17:"The glass jar smashes.",34:"Seven years of bad luck.",35:"“Outlook not so good.”",36:"Cracked lenses.",50:"Thirty broken eggs.",102:"Cracked lenses.",104:"Smashed."}},
+  lose:{17:"The glass jar smashes.",34:"Seven years of bad luck.",35:"“Outlook not so good.”",36:"Cracked lenses.",50:"Thirty broken eggs.",102:"Cracked lenses.",104:"Smashed.",110:"The needle broke."}},
  {id:"thieves",e:"🦹",t:"Thieves",x:"A gang of survivors robs you. They take anything shiny or valuable.",
-  lose:{31:"Taken.",32:"Taken.",36:"Taken.",41:"Shiny! Taken.",43:"Taken.",46:"Taken. Nobody knows what it opens.",55:"Taken.",101:"Taken.",103:"Taken."}},
+  lose:{31:"Taken.",32:"Taken.",36:"Taken.",41:"Shiny! Taken.",43:"Taken.",46:"Taken. Nobody knows what it opens.",55:"Taken.",101:"Taken."}},
  {id:"freeze",e:"🥶",t:"Freezing night",x:"The ice rink on floor -1 goes crazy and the whole school drops below zero. You burn things to stay warm.",
   lose:{5:"It burns very well.",6:"Burnt for warmth.",7:"It's made of wood.",40:"Wood burns.",49:"Textbooks burn surprisingly well.",108:"You burned all of it."}},
  {id:"heat",e:"☀️",t:"Heat wave",x:"Antalya, 42°C. Everything melts, dries out or goes bad.",
@@ -486,6 +566,8 @@ const CARDS = [
   lose:{51:"He is running the meeting.",52:"He is taking the notes.",48:"Aziz Hoca has to attend too."}},
  {id:"parents",e:"👨‍👩‍👧",t:"Parent conference",x:"200 parents arrive at school for the veli toplantısı. Somebody has to talk to all of them!",
   lose:{51:"Greeting every parent.",52:"Answering every question.",47:"The parents drank all the coffee."}},
+ {id:"pickpockets",e:"👛",t:"Pickpockets",x:"At the tram stop, zombie pickpockets (yes, they exist) grab anything small from your pockets.",
+  lose:{31:"Gone from your pocket.",46:"Gone from your pocket.",103:"Gone.",109:"Gone. 100 TL!",114:"Gone.",115:"Gone.",116:"Gone."}},
  {id:"quiet",e:"😮‍💨",t:"Quiet night",x:"Nothing happens. Everyone gets some sleep. Phew!",lose:{}}
 ];
 const BONUS = [
@@ -496,6 +578,13 @@ const BONUS = [
  {id:"b_binoc",bonus:true,e:"🔭",t:"Spotted!",trigger:36,found:103,x:"Through the binoculars, the team spots an abandoned army jeep near the school. The keys are still inside!"},
  {id:"b_dog",bonus:true,e:"🐕",t:"Good dog!",trigger:13,found:101,x:"The loyal dog starts digging in the school garden and finds a hidden box of army food!"},
  {id:"b_key",bonus:true,e:"🗝️",t:"The golden key",trigger:46,found:105,x:"The mysterious golden key opens a secret locker in the conference hall on floor -2…"},
+ {id:"b_kart",bonus:true,e:"🎫",t:"Check the front pocket",trigger:49,found:109,x:"In the front pocket of the backpack: an Antalya Kart with 100 TL on it! Is the tram to the airport still running?"},
+ {id:"b_map",bonus:true,e:"🗺️",t:"X marks the spot",trigger:6,found:110,x:"The map shows a hidden storeroom under the ice rink on floor -1. Inside, there's an old compass."},
+ {id:"b_pan",bonus:true,e:"🍳",t:"Breakfast time",trigger:41,found:112,x:"The team with the frying pan finds flour and eggs in the school cafeteria on floor -1 and cooks a mountain of pancakes!"},
+ {id:"b_radio",bonus:true,e:"📻",t:"Message received",trigger:32,found:113,x:"The walkie-talkies pick up an army message: “Supply drop on the basketball courts, floor -2.” The team runs down and grabs it!"},
+ {id:"b_nurse",bonus:true,e:"⛑️",t:"Thank you, nurse!",trigger:43,found:114,x:"The team with the first-aid kit helps the school nurse on the 1st floor. To say thank you, she gives them the keys to her brother's ambulance!"},
+ {id:"b_ferhan",bonus:true,e:"👔",t:"The principal's safe",trigger:51,found:115,x:"Ferhan Hoca opens the safe in his office on the 4th floor. Inside: the keys to the school bus!"},
+ {id:"b_erman",bonus:true,e:"📋",t:"Erman Hoca's drawer",trigger:52,found:116,x:"Erman Hoca opens his desk drawer: “I always keep a spare.” It's the master key to every door in the school!"},
  {id:"b_aziz",bonus:true,e:"🔭",t:"Eyes on the sky",trigger:48,found:106,x:"Aziz Hoca looks through the telescope in the observatory and spots an army supply drop on the terrace!"}
 ];
 const BASE = Object.fromEntries(CARDS.concat(BONUS).map(c=>[c.id,c]));
@@ -504,17 +593,171 @@ const KEY = "zombie-run-antalya-v2";
 
 let state;
 function freshState(){
-  return {v:3,phase:"story",teamCount:4,perTeam:6,active:0,
+  return {v:4,phase:"story",teamCount:4,perTeam:6,active:0,
     teams:Array.from({length:6},(_,i)=>({name:"Team "+(i+1),picks:[]})),
     plan:null,deck:[],played:[],special:null,overlayDismissed:false};
 }
 function save(){ try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){} }
-function load(){ try{const s=JSON.parse(localStorage.getItem(KEY)); if(s&&s.teams&&s.v===3) return s;}catch(e){} return null; }
+function load(){ try{const s=JSON.parse(localStorage.getItem(KEY)); if(s&&s.teams&&s.v===4) return s;}catch(e){} return null; }
 const CARD = id => id==="last" ? state.special : BASE[id];
 
 const $ = s=>document.querySelector(s);
 const esc = s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const teams = ()=>state.teams.slice(0,state.teamCount);
+/* ---------- sound: generated in the browser, no files ---------- */
+const SND=(()=>{
+  let ac=null, master=null, nb=null;
+  function A(){
+    if(!ac){ try{ ac=new (window.AudioContext||window.webkitAudioContext)(); master=ac.createGain(); master.gain.value=.8; master.connect(ac.destination);
+      nb=ac.createBuffer(1,ac.sampleRate*2,ac.sampleRate); const d=nb.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1; }catch(e){ ac=null; } }
+    if(ac&&ac.state==="suspended") ac.resume();
+    return ac;
+  }
+  function env(g,t,a,peak,dur,rel){ g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(peak,t+a); g.gain.setValueAtTime(peak,t+Math.max(a,dur-rel)); g.gain.exponentialRampToValueAtTime(0.0001,t+dur); }
+  function noise(o){ const c=A(); if(!c) return; const t=c.currentTime+(o.delay||0), dur=o.dur||1;
+    const src=c.createBufferSource(); src.buffer=nb; src.loop=true;
+    const f=c.createBiquadFilter(); f.type=o.type||"lowpass"; f.frequency.setValueAtTime(o.freq||800,t); if(o.freqTo) f.frequency.exponentialRampToValueAtTime(o.freqTo,t+dur); f.Q.value=o.q||1;
+    const g=c.createGain(); env(g,t,o.attack||.02,o.gain||.3,dur,o.release||Math.min(.5,dur*.6));
+    src.connect(f); f.connect(g); g.connect(master); src.start(t,Math.random()); src.stop(t+dur+.05); }
+  function tone(o){ const c=A(); if(!c) return; const t=c.currentTime+(o.delay||0), dur=o.dur||.3;
+    const osc=c.createOscillator(); osc.type=o.wave||"sine"; osc.frequency.setValueAtTime(o.freq||440,t); if(o.freqTo) osc.frequency.exponentialRampToValueAtTime(o.freqTo,t+dur);
+    const g=c.createGain(); env(g,t,o.attack||.005,o.gain||.15,dur,o.release||dur*.8);
+    if(o.vib){ const l=c.createOscillator(), lg=c.createGain(); l.frequency.value=o.vib; lg.gain.value=o.vibDepth||8; l.connect(lg); lg.connect(osc.frequency); l.start(t); l.stop(t+dur); }
+    osc.connect(g); g.connect(master); osc.start(t); osc.stop(t+dur+.05); }
+  const S={
+    heartbeat(d=0){ [0,.18].forEach(x=>tone({freq:62,freqTo:40,dur:.22,gain:.6,delay:d+x})); },
+    whoosh(){ noise({type:"bandpass",freq:300,freqTo:3000,q:.8,dur:.45,gain:.35,attack:.25,release:.2}); },
+    thunder(d=0){ noise({type:"lowpass",freq:900,freqTo:80,dur:2.8,gain:.9,attack:.01,release:2.5,delay:d}); },
+    rain(d=3.5){ noise({type:"highpass",freq:1500,dur:d,gain:.18,attack:.4,release:1}); noise({type:"lowpass",freq:600,dur:d,gain:.12,attack:.4,release:1}); },
+    rumble(d=2.4){ noise({type:"lowpass",freq:120,dur:d,gain:.9,attack:.1,release:1}); tone({freq:38,dur:d,gain:.35,vib:7,vibDepth:6}); },
+    wind(d=3){ noise({type:"bandpass",freq:400,freqTo:1400,q:2,dur:d,gain:.3,attack:.8,release:1.2}); },
+    crackle(d=3,vol=1){ const c=A(); if(!c) return; noise({type:"lowpass",freq:500,dur:d,gain:.05*vol,attack:.6,release:1});
+      for(let i=0;i<d*14;i++){ noise({type:"highpass",freq:1200+Math.random()*2500,dur:.012+Math.random()*.03,gain:(.08+Math.random()*.25)*vol,attack:.002,release:.01,delay:Math.random()*d}); } },
+    crickets(d=7){ for(let v=0;v<2;v++){ const f=v?4700:4250; let t=v*.35; while(t<d-.4){ for(let p=0;p<3;p++) tone({freq:f,dur:.03,gain:.035,attack:.003,release:.02,delay:t+p*.05}); t+=.55+Math.random()*.45; } } },
+    chime(){ [784,988,1175,1568].forEach((f,i)=>tone({freq:f,dur:.9,gain:.14,delay:i*.09})); },
+    bell(){ for(let i=0;i<8;i++) tone({freq:i%2?1250:1050,dur:.12,gain:.12,delay:i*.11,wave:"triangle"}); },
+    ding(){ tone({freq:1320,dur:1.2,gain:.18}); tone({freq:2640,dur:.8,gain:.05}); },
+    whistle(){ tone({freq:2300,dur:.9,gain:.12,vib:28,vibDepth:120}); },
+    squawks(){ for(let i=0;i<6;i++) tone({freq:1400+Math.random()*600,freqTo:700,dur:.22,gain:.08,wave:"sawtooth",delay:i*.25+Math.random()*.1}); },
+    growl(){ tone({freq:85,dur:1.4,gain:.35,wave:"sawtooth",vib:22,vibDepth:18}); noise({type:"lowpass",freq:300,dur:1.4,gain:.2}); },
+    groan(){ for(let i=0;i<3;i++) tone({freq:110+i*25,freqTo:70,dur:1.6,gain:.14,wave:"sawtooth",vib:5,vibDepth:6,delay:i*.4}); },
+    buzz(){ tone({freq:120,dur:.7,gain:.15,wave:"square"}); },
+    powerdown(d=0){ tone({freq:900,freqTo:60,dur:1.1,gain:.2,wave:"triangle",delay:d}); },
+    swish(){ noise({type:"bandpass",freq:1800,freqTo:500,q:1.5,dur:.35,gain:.35,attack:.05,release:.25}); },
+    shh(){ noise({type:"highpass",freq:3000,dur:1.4,gain:.18,attack:.2,release:1}); },
+    splash(){ noise({type:"lowpass",freq:3000,freqTo:200,dur:1.4,gain:.6,attack:.01,release:1.2}); },
+    squelch(){ tone({freq:180,freqTo:60,dur:.35,gain:.35,wave:"sawtooth"}); noise({type:"lowpass",freq:400,dur:.4,gain:.3}); },
+    stomach(){ tone({freq:70,dur:1.6,gain:.4,wave:"sawtooth",vib:9,vibDepth:25}); },
+    notes(){ [523,659,784,1047,784,659].forEach((f,i)=>tone({freq:f,dur:.22,gain:.12,wave:"square",delay:i*.13})); },
+    murmur(){ for(let i=0;i<5;i++) noise({type:"bandpass",freq:300+Math.random()*400,q:3,dur:2,gain:.12,delay:i*.15}); },
+    hoot(){ tone({freq:420,freqTo:360,dur:.45,gain:.12}); tone({freq:420,freqTo:340,dur:.7,gain:.12,delay:.6}); },
+    helicopter(d=3){ const c=A(); if(!c) return; for(let t=0;t<d;t+=.075) noise({type:"lowpass",freq:260,dur:.06,gain:.5*Math.min(1,t/1,(d-t)/1),attack:.005,release:.04,delay:t}); }
+  };
+  return S;
+})();
+
+/* ---------- screen effects ---------- */
+const FX=(()=>{
+  const reduced = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const pref=(k,d)=>{ try{ const v=localStorage.getItem("zr-"+k); return v===null?d:v==="1"; }catch(e){ return d; } };
+  let fxOn=pref("fx",!reduced), sndOn=pref("snd",true);
+  const layer=$("#fx"), tint=layer.querySelector(".tint"), beam=layer.querySelector(".beam"), flashEl=layer.querySelector(".flash"), cv=$("#fxc"), cx=cv.getContext("2d");
+  let parts=[], raf=0, timers=[];
+  const later=(fn,ms)=>{ timers.push(setTimeout(fn,ms)); };
+  const sound=(name,...a)=>{ if(sndOn&&SND[name]) try{ SND[name](...a); }catch(e){} };
+  function size(){ const r=Math.min(window.devicePixelRatio||1,1.5); cv.width=innerWidth*r; cv.height=innerHeight*r; cx.setTransform(r,0,0,r,0,0); }
+  addEventListener("resize",size); size();
+  function loop(){
+    const W=innerWidth,H=innerHeight; cx.clearRect(0,0,W,H); const now=performance.now();
+    parts=parts.filter(p=>now<p.end);
+    parts.forEach(p=>{
+      const age=(now-p.born)/1000, life=(p.end-p.born)/1000, fade=Math.min(1,age*3,(life-age)*2);
+      if(p.k==="rain"){ p.y+=p.v; p.x+=p.w; if(p.y>H){p.y=-20;p.x=Math.random()*W;} cx.strokeStyle=`rgba(190,215,255,${.55*fade})`; cx.lineWidth=1.4; cx.beginPath(); cx.moveTo(p.x,p.y); cx.lineTo(p.x-p.w*2,p.y-p.v*1.6); cx.stroke(); }
+      else if(p.k==="snow"){ p.y+=p.v; p.x+=Math.sin(now/600+p.s)*.6; if(p.y>H){p.y=-10;} cx.fillStyle=`rgba(255,255,255,${.85*fade})`; cx.beginPath(); cx.arc(p.x,p.y,p.r,0,7); cx.fill(); }
+      else if(p.k==="spark"){ p.y-=p.v; p.x+=Math.sin(now/200+p.s)*.8; cx.fillStyle=`rgba(255,${120+Math.random()*90|0},40,${fade*(.5+Math.random()*.5)})`; cx.beginPath(); cx.arc(p.x,p.y,p.r,0,7); cx.fill(); }
+      else if(p.k==="star"){ const tw=.35+.65*Math.abs(Math.sin(now/700+p.s)); cx.fillStyle=`rgba(255,250,225,${tw*fade})`; cx.beginPath(); cx.arc(p.x,p.y,p.r,0,7); cx.fill(); }
+      else if(p.k==="fly"){ p.x+=Math.sin(now/900+p.s)*.7; p.y+=Math.cos(now/1100+p.s*2)*.5; const g=.3+.7*Math.max(0,Math.sin(now/400+p.s));
+        const gr=cx.createRadialGradient(p.x,p.y,0,p.x,p.y,10); gr.addColorStop(0,`rgba(220,255,140,${g*fade})`); gr.addColorStop(1,"rgba(220,255,140,0)"); cx.fillStyle=gr; cx.beginPath(); cx.arc(p.x,p.y,10,0,7); cx.fill(); }
+      else if(p.k==="spk"){ p.x+=p.vx; p.y+=p.vy; p.vy+=.06; cx.fillStyle=p.c.replace("A",String(fade)); const r=p.r*(1-age/life*.5); cx.fillRect(p.x-r/2,p.y-r/2,r,r); }
+    });
+    if(parts.length) raf=requestAnimationFrame(loop); else { raf=0; cx.clearRect(0,0,W,H); }
+  }
+  function add(k,n,ms,make){ const now=performance.now(), W=innerWidth, H=innerHeight; for(let i=0;i<n;i++) parts.push(Object.assign({k,born:now,end:now+ms,s:Math.random()*10},make(W,H,i))); if(!raf) raf=requestAnimationFrame(loop); }
+  const P={
+    rain:(ms=3500,n=220)=>add("rain",n,ms,(W,H)=>({x:Math.random()*W,y:Math.random()*H-H,v:14+Math.random()*8,w:-2})),
+    snow:(ms=4000,n=160)=>add("snow",n,ms,(W,H)=>({x:Math.random()*W,y:Math.random()*H-H*.6,v:.8+Math.random()*1.6,r:1.5+Math.random()*3})),
+    sparks:(ms=3500,n=140)=>add("spark",n,ms,(W,H)=>({x:Math.random()*W,y:H+Math.random()*H*.6,v:1.5+Math.random()*3.5,r:1+Math.random()*2.6})),
+    stars:(ms=7000,n=120)=>add("star",n,ms,(W,H)=>({x:Math.random()*W,y:Math.random()*H*.75,r:.6+Math.random()*1.8})),
+    flies:(ms=7000,n=26)=>add("fly",n,ms,(W,H)=>({x:Math.random()*W,y:H*.35+Math.random()*H*.6})),
+    burst:(ms=2200,n=110,colors=["rgba(255,214,90,A)","rgba(150,230,110,A)","rgba(255,255,255,A)"])=>add("spk",n,ms,(W,H,i)=>{ const a=Math.random()*6.28, v=3+Math.random()*7; return {x:W/2,y:H*.45,vx:Math.cos(a)*v,vy:Math.sin(a)*v-3,r:4+Math.random()*6,c:colors[i%colors.length]}; })
+  };
+  function mood(m,ms){ layer.dataset.mood=m||""; if(ms) later(()=>{ if(layer.dataset.mood===m) layer.dataset.mood=""; },ms); }
+  function flash(times=1,gap=260,strong=.9){ for(let i=0;i<times;i++) later(()=>{ flashEl.style.setProperty("--fl",strong); flashEl.classList.remove("on"); void flashEl.offsetWidth; flashEl.classList.add("on"); },i*gap); }
+  function shake(kind="hard",ms=1200){ if(reduced) return; const m=$("main"); m.classList.remove("fx-shake-hard","fx-shake-soft"); void m.offsetWidth; m.classList.add("fx-shake-"+kind); later(()=>m.classList.remove("fx-shake-"+kind),ms); }
+  function emojis(list,mode,n,ms=3200,size=64){
+    for(let i=0;i<n;i++){ const e=document.createElement("span"); e.className="fx-e "+mode; e.textContent=list[i%list.length];
+      e.style.setProperty("--x",(Math.random()*92+2)+"vw"); e.style.setProperty("--y",(Math.random()*70+10)+"vh");
+      e.style.setProperty("--d",(ms/1000*(.65+Math.random()*.35))+"s"); e.style.setProperty("--dl",(Math.random()*ms/1000*.35)+"s");
+      e.style.setProperty("--s",(size*(.7+Math.random()*.6))+"px"); e.style.setProperty("--tx",((Math.random()-.5)*80)+"vw"); e.style.setProperty("--ty",((Math.random()-.5)*70)+"vh");
+      layer.appendChild(e); later(()=>e.remove(),ms+600); }
+  }
+  function stamp(text,ms=1600,cls=""){ const e=document.createElement("div"); e.className="fx-stamp "+cls; e.textContent=text; layer.appendChild(e); later(()=>e.remove(),ms); }
+  function clear(){ timers.forEach(clearTimeout); timers=[]; parts=[]; layer.dataset.mood=""; beam.classList.remove("on"); layer.querySelectorAll(".fx-e,.fx-stamp").forEach(e=>e.remove()); $("main").classList.remove("fx-shake-hard","fx-shake-soft"); }
+
+  const RUN={
+    night(){ mood("night",3800); beam.classList.add("on"); later(()=>beam.classList.remove("on"),3800); sound("hoot"); },
+    silence(){ mood("gray",3000); stamp("🤫",1800); sound("shh"); },
+    music(){ emojis(["🎵","🎶","🎸","🎤"],"rise",18,3200,54); sound("notes"); },
+    rain(){ mood("blue",3800); P.rain(3800); sound("rain",3.8); },
+    power(){ mood("dark",2600); flash(3,180,.35); sound("buzz"); sound("powerdown",.6); },
+    bridge(){ mood("water",3200); emojis(["🌊"],"rise",14,3000,80); sound("splash"); },
+    mud(){ mood("mud",3000); emojis(["🟤","🟫"],"fall",16,2600,48); sound("squelch"); },
+    climb(){ emojis(["🧟","🧟‍♂️","🧟‍♀️"],"climb",8,3400,84); sound("groan"); },
+    dogs(){ emojis(["🐺"],"cross",6,3000,80); sound("growl"); },
+    starving(){ shake("soft",900); stamp("🍽️",1600); sound("stomach"); },
+    sugar(){ emojis(["🍭","🍫","🍯","🍌","🥞"],"fall",18,3000,54); sound("swish"); },
+    fire(){ mood("fire",3800); P.sparks(3800); sound("crackle",3.5,1.6); sound("whoosh"); },
+    horde(){ mood("red",3400); emojis(["🧟","🧟‍♂️","🧟‍♀️"],"climb",16,3400,90); shake("soft",1400); sound("groan"); sound("rumble",1.6); },
+    storm(){ mood("storm",4000); P.rain(4000,260); flash(3,520); emojis(["🍃","📄","🧢"],"cross",10,2600,44); sound("thunder"); sound("thunder",1.1); sound("wind",3.5); },
+    battery(){ stamp("🪫",1800,"blink"); sound("powerdown"); },
+    gulls(){ emojis(["🐦","🕊️"],"cross-r",14,3000,58); sound("squawks"); },
+    quake(){ shake("hard",1700); emojis(["🪨"],"fall",10,2400,48); sound("rumble",2.4); },
+    thieves(){ emojis(["🦹"],"cross",3,2400,90); sound("swish"); },
+    pickpockets(){ emojis(["👛","🔑","🎫","📱"],"cross",8,2400,52); sound("swish"); },
+    freeze(){ mood("frost",4000); P.snow(4000); sound("wind",3.8); },
+    heat(){ mood("heat",3800); stamp("☀️",1900,"slow"); sound("wind",2.5); },
+    scratch(){ mood("red",1600); stamp("🩸",1300); sound("swish"); },
+    teacher(){ stamp("✏️ GRAMMAR!",1900,"word"); sound("ding"); },
+    oyss(){ emojis(["📝","📄"],"fall",16,2800,52); stamp("🔔",1300); sound("bell"); },
+    corridor(){ stamp("🚸 STOP!",1700,"word"); sound("whistle"); },
+    meeting(){ emojis(["📋","📄","🗂️"],"fall",14,2800,52); sound("ding"); },
+    parents(){ emojis(["👨‍👩‍👧","👩‍👦","👨‍👧","🧑‍🦳"],"cross",10,3200,56); sound("murmur"); },
+    last(){ mood("dark",3800); emojis(["🧟","🧟‍♂️","🧟‍♀️"],"climb",20,3600,90); sound("groan"); sound("rumble",2.5); },
+    quiet(){ mood("calm",7600); P.stars(7600); P.flies(7600); stamp("🔥",7000,"campfire"); sound("crickets",7.2); sound("crackle",7,.5); }
+  };
+  function suspense(id,cb){
+    if(!fxOn&&!sndOn){ cb(); return; }
+    const c=CARD(id), c3=$("#card3d");
+    if(id==="quiet"){ if(fxOn) mood("calm",9000); later(cb,900); return; }   // a calm build-up for a calm card
+    if(fxOn){ mood("suspense",1400); c3.classList.add("charge"); }
+    sound("heartbeat",0); sound("heartbeat",.55);
+    later(()=>{ c3.classList.remove("charge"); cb(); }, fxOn?1250:800);
+  }
+  function reveal(id){
+    const c=CARD(id);
+    if(id!=="quiet"){ if(fxOn) flash(1,0,c.bonus?.5:.75); sound("whoosh"); }
+    if(c.bonus){ if(fxOn){ mood("lucky",2600); P.burst(); stamp(ITEM[c.found].e,1800,"lucky"); } sound("chime"); return; }
+    if(!fxOn){ // sound only
+      const s={night:"hoot",silence:"shh",music:"notes",rain:"rain",power:"powerdown",bridge:"splash",mud:"squelch",climb:"groan",dogs:"growl",starving:"stomach",sugar:"swish",fire:"crackle",horde:"groan",storm:"thunder",battery:"powerdown",gulls:"squawks",quake:"rumble",thieves:"swish",pickpockets:"swish",freeze:"wind",heat:"wind",scratch:"swish",teacher:"ding",oyss:"bell",corridor:"whistle",meeting:"ding",parents:"murmur",last:"groan",quiet:"crickets"}[id];
+      if(s) sound(s); if(id==="quiet") sound("crackle",7,.5); return; }
+    (RUN[id]||(()=>flash()))();
+  }
+  function rescue(){ if(fxOn){ mood("lucky",3200); emojis(["🚁"],"heli",1,3200,120); } sound("helicopter",3); }
+  function setFx(v){ fxOn=v; try{localStorage.setItem("zr-fx",v?"1":"0");}catch(e){} if(!v) clear(); }
+  function setSnd(v){ sndOn=v; try{localStorage.setItem("zr-snd",v?"1":"0");}catch(e){} if(v) SND.ding(); }
+  return {suspense,reveal,rescue,clear,setFx,setSnd,get fx(){return fxOn;},get snd(){return sndOn;},shakePre:()=>fxOn};
+})();
+
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function ownerOf(id){ return teams().findIndex(t=>t.picks.includes(id)); }
 
@@ -541,10 +784,11 @@ function killers(item){ return CARDS.filter(c=>c.lose[item]).map(c=>c.id); }
 function buildPlan(){
   const T=teams();
   const ids=[]; T.forEach(t=>t.picks.forEach(p=>ids.push(p)));
-  const valid=ids.filter(x=>ids.every(y=>y===x||killers(y).some(c=>!BASE[c].lose[x])));
+  const sparesAll=(x,list)=>list.every(y=>y===x||killers(y).some(c=>!BASE[c].lose[x]));
+  const valid=ids.filter(x=>sparesAll(x,ids));
   const pool=valid.length?valid:ids;
   const minK=Math.min(...pool.map(x=>killers(x).length));
-  const x=shuffle(pool.filter(v=>killers(v).length===minK))[0];    // the "wisest" pick wins
+  let x=shuffle(pool.filter(v=>killers(v).length===minK))[0];    // the "wisest" pick wins
   const win=ownerOf(x);
   // lucky finds: 2–3 per game, mostly for the other teams (comebacks)
   const cands=shuffle(BONUS.filter(b=>ownerOf(b.trigger)>=0));
@@ -552,8 +796,12 @@ function buildPlan(){
   const nB=Math.min(cands.length, T.length===4?3:2);
   let bonus=others.slice(0,nB);
   if(mine.length && (bonus.length<nB || Math.random()<.35)){ if(bonus.length>=nB) bonus.pop(); bonus.push(mine[0]); }
+  // sometimes the winners' own lucky find becomes the winning item
+  const allIds=ids.concat(bonus.map(b=>b.found));
+  const wb=bonus.find(b=>ownerOf(b.trigger)===win);
+  if(wb && Math.random()<.5 && sparesAll(wb.found,allIds)) x=wb.found;
   // cards that destroy everything except x
-  const need=new Set(ids.filter(v=>v!==x).concat(bonus.map(b=>b.found)));
+  const need=new Set(allIds.filter(v=>v!==x));
   const allowed=CARDS.filter(c=>c.id!=="quiet"&&!c.lose[x]); const chosen=[];
   while(need.size){
     let best=null,bestHit=0;
@@ -569,6 +817,8 @@ function buildPlan(){
     if(o.length>=5 && Math.random()<.5){ o.splice(1+Math.floor(Math.random()*(o.length-2)),0,"quiet"); }
     const sc=scoreOrder(o,x,T,win); if(sc>bestScore){bestScore=sc;bestOrder=o;}
   }
+  // make sure a winning lucky find really happens
+  if(x>100){ const k=bestOrder.indexOf(wb.id); if(simulate(bestOrder,T).steps[k].fail){ bestOrder=bestOrder.filter(id=>id!==wb.id); bestOrder.unshift(wb.id); } }
   // safety net: anything still alive apart from x is taken by one final card
   const sim=simulate(bestOrder,T); const left={};
   sim.inv.forEach(L=>L.forEach(it=>{ if(!it.lost&&it.id!==x) left[it.id]="The zombies found it."; }));
@@ -693,10 +943,12 @@ function renderPlay(){
     const x=state.plan.survivor, it=ITEM[x], tm=T[state.plan.team];
     $("#winEmoji").textContent=it.e;
     $("#winTitle").textContent=`${tm.name} survives!`;
-    $("#winWith").textContent=`The last item standing: #${x} ${it.n}`;
+    $("#winWith").textContent= x<100 ? `The last item standing: #${x} ${it.n}` : `The last item standing: ${it.n} (a lucky find!)`;
     $("#winStory").textContent=STORIES[x];
     $("#winText").textContent=`Rescued after ${n} event cards.`;
-    if(state.justFlipped){ $("#overlay").hidden=true; clearTimeout(window.__zrWin); window.__zrWin=setTimeout(()=>{ if(finished()&&!state.overlayDismissed) $("#overlay").hidden=false; },2600); }
+    if(state.justFlipped){ $("#overlay").hidden=true; clearTimeout(window.__zrWin); clearTimeout(window.__zrHeli);
+      window.__zrHeli=setTimeout(()=>{ if(finished()) FX.rescue(); },2600);
+      window.__zrWin=setTimeout(()=>{ if(finished()&&!state.overlayDismissed) $("#overlay").hidden=false; },5200); }
     else $("#overlay").hidden=false;
   } else $("#overlay").hidden=true;
   state.justFlipped=false;
@@ -705,16 +957,21 @@ function renderPlay(){
 /* ---------- actions ---------- */
 function setPicks(i,str){
   const out=[], blocked=[];
-  (str.match(/\d+/g)||[]).forEach(v=>{ v=+v; if(v<1||v>55||out.includes(v)) return; const o=ownerOf(v); if(o>=0&&o!==i){ blocked.push(`#${v} → ${state.teams[o].name}`); return; } out.push(v); });
+  (str.match(/\d+/g)||[]).forEach(v=>{ v=+v; if(v<1||v>56||out.includes(v)) return; const o=ownerOf(v); if(o>=0&&o!==i){ blocked.push(`#${v} → ${state.teams[o].name}`); return; } out.push(v); });
   state.teams[i].picks=out.slice(0,state.perTeam);
   const over=out.length>state.perTeam;
   return blocked.length? `Taken: ${blocked.join(", ")}` : over? `Only ${state.perTeam} items allowed` : "";
 }
+let busy=false;
 function flip(){
-  if(finished()||!state.deck.length) return;
-  state.played.push(state.deck.shift()); state.justFlipped=true; state.overlayDismissed=false;
-  const c3=$("#card3d"); c3.classList.remove("flipped"); void c3.offsetWidth;
-  save(); setTimeout(render, state.played.length>1?250:0);
+  if(busy||finished()||!state.deck.length) return;
+  busy=true; FX.clear();
+  const next=state.deck[0], c3=$("#card3d"), was=c3.classList.contains("flipped");
+  c3.classList.remove("flipped");
+  setTimeout(()=>FX.suspense(next,()=>{
+    state.played.push(state.deck.shift()); state.justFlipped=true; state.overlayDismissed=false;
+    save(); render(); FX.reveal(next); setTimeout(()=>{busy=false;},600);
+  }), was&&(FX.fx||FX.snd)?700:(was?250:0));
 }
 function startGame(){ buildPlan(); state.overlayDismissed=false; setPhase("play"); }
 
@@ -747,7 +1004,7 @@ $("#teamCount").addEventListener("change",e=>{ const n=+e.target.value; state.te
 $("#perTeam").addEventListener("change",e=>{ state.perTeam=+e.target.value; state.teams.forEach(t=>t.picks=t.picks.slice(0,state.perTeam)); state.plan=null; save(); render();});
 $("#startBtn").addEventListener("click",startGame);
 $("#flipBtn").addEventListener("click",()=>{ if(finished()){ state.overlayDismissed=false; save(); render(); } else flip(); });
-$("#undoBtn").addEventListener("click",()=>{ if(!state.played.length) return; state.deck.unshift(state.played.pop()); state.overlayDismissed=false; save(); render(); });
+$("#undoBtn").addEventListener("click",()=>{ if(!state.played.length||busy) return; FX.clear(); state.deck.unshift(state.played.pop()); state.overlayDismissed=false; save(); render(); });
 $("#winClose").addEventListener("click",()=>{ state.overlayDismissed=true; save(); render(); });
 $("#winNew").addEventListener("click",()=>{ newGame(); });
 document.addEventListener("keydown",e=>{
@@ -780,9 +1037,15 @@ $("#tStart").addEventListener("click",()=>{ if(tInt){stopTimer();return;} if(tLe
 $("#tPlus").addEventListener("click",()=>{ tLeft+=60; drawClock(); });
 $("#tReset").addEventListener("click",()=>{ stopTimer(); resetTimer(); });
 
+/* ---------- effect & sound switches ---------- */
+function drawToggles(){ $("#fxBtn").setAttribute("aria-pressed",String(FX.fx)); $("#sndBtn").setAttribute("aria-pressed",String(FX.snd)); $("#sndBtn").textContent=FX.snd?"🔊":"🔇"; }
+$("#fxBtn").addEventListener("click",()=>{ FX.setFx(!FX.fx); drawToggles(); });
+$("#sndBtn").addEventListener("click",()=>{ FX.setSnd(!FX.snd); drawToggles(); });
+drawToggles();
+
 /* ---------- boot ---------- */
 function start(data){
-  const carried = data&&data.state&&data.state.v===3 ? data.state : null;
+  const carried = data&&data.state&&data.state.v===4 ? data.state : null;
   state = carried || load() || freshState();
   state.justFlipped=false;
   drawClock(); render();
