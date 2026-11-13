@@ -42,11 +42,11 @@ button{cursor:pointer}
 
 /* ---------- header ---------- */
 .bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--panel);border-bottom:2px solid var(--line)}
-.bar-in{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;padding-block:10px;max-width:1400px;margin:0 auto}
-.brand{font-family:var(--f-display);font-size:26px;letter-spacing:.02em;line-height:1;color:var(--fg);display:flex;align-items:center;gap:10px}
+.bar-in{display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px;padding-block:10px;max-width:1400px;margin:0 auto}
+.brand{font-family:var(--f-display);font-size:23px;letter-spacing:.02em;line-height:1;color:var(--fg);display:flex;align-items:center;gap:10px}
 .brand .tape{display:inline-block;width:34px;height:20px;border-radius:2px;background:repeating-linear-gradient(-45deg,var(--caution) 0 7px,var(--ink) 7px 14px)}
 .steps{display:flex;gap:6px;flex-wrap:wrap}
-.step{border:2px solid var(--line);background:transparent;border-radius:6px;padding:6px 12px;font-family:var(--f-cond);font-weight:600;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.step{border:2px solid var(--line);background:transparent;border-radius:6px;padding:5px 9px;font-family:var(--f-cond);font-weight:600;font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .step[aria-current="true"]{border-color:var(--caution);color:var(--fg);background:var(--panel-2)}
 .step b{color:var(--caution);margin-right:6px}
 .bar .spacer{flex:1}
@@ -213,7 +213,7 @@ h2.sec{font-family:var(--f-display);font-size:clamp(28px,4vw,44px);line-height:1
 
 
 /* ---------- screen effects ---------- */
-#fx{position:fixed;inset:0;z-index:15;pointer-events:none;overflow:hidden}
+#fx{position:fixed;inset:0;z-index:25;pointer-events:none;overflow:hidden}
 #fx .tint{position:absolute;inset:0;opacity:0;transition:opacity .7s ease,background .7s ease}
 #fx canvas{position:absolute;inset:0;width:100%;height:100%}
 #fx .flash{position:absolute;inset:0;background:#fff;opacity:0}
@@ -271,6 +271,24 @@ main.fx-shake-soft{animation:shakes .14s linear infinite}
 .toggles .ghost{font-size:18px;padding:4px 10px;line-height:1.2}
 .toggles .ghost[aria-pressed="false"]{opacity:.45}
 @media (prefers-reduced-motion:reduce){ .fx-e,.fx-stamp,.card3d.charge,main.fx-shake-hard,main.fx-shake-soft{animation:none!important} }
+.overlay.prompt{background:rgba(15,18,12,.5)}
+.prompt-card{background:var(--panel);border:3px solid var(--caution);border-radius:16px;padding:28px 30px;text-align:center;max-width:560px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.55);animation:promptin .6s cubic-bezier(.2,1.4,.4,1) both}
+.prompt-card .eyebrow{font-family:var(--f-cond);font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--caution);font-size:15px}
+.prompt-card h2{font-family:var(--f-display);font-size:clamp(30px,5vw,48px);line-height:1.05;margin:10px 0 8px}
+.prompt-card p{font-size:20px;color:var(--muted);margin:0 0 20px}
+.btn.big{font-size:26px;padding:16px 28px;animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(242,144,43,.7)}50%{box-shadow:0 0 0 18px rgba(242,144,43,0)}}
+@keyframes promptin{from{transform:scale(.7);opacity:0}to{transform:none;opacity:1}}
+.win-card.reveal{animation:unfold .9s cubic-bezier(.2,1.2,.3,1) both}
+@keyframes unfold{0%{transform:perspective(900px) rotateX(80deg) scale(.6);opacity:0}100%{transform:none;opacity:1}}
+.win-card.reveal .wi{animation:popin .7s cubic-bezier(.2,1.8,.4,1) .5s both}
+.win-card.reveal h2,.win-card.reveal .with{animation:slidein .5s ease-out .75s both}
+.win-card.reveal .tale{animation:slidein .5s ease-out 1s both}
+.win-card.reveal #winText,.win-card.reveal>div:last-child{animation:slidein .5s ease-out 1.6s both}
+@keyframes popin{from{transform:scale(0) rotate(-30deg)}to{transform:none}}
+@keyframes slidein{from{transform:translateY(18px);opacity:0}to{transform:none;opacity:1}}
+#winStory{cursor:pointer}
+@media (prefers-reduced-motion:reduce){ .prompt-card,.btn.big,.win-card.reveal,.win-card.reveal *{animation:none!important} }
 @media (max-width:900px){
   .story,.choose,.play{grid-template-columns:minmax(0,1fr)}
   .teams-setup{position:static}

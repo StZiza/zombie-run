@@ -43,11 +43,11 @@ button{cursor:pointer}
 
 /* ---------- header ---------- */
 .bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--panel);border-bottom:2px solid var(--line)}
-.bar-in{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;padding-block:10px;max-width:1400px;margin:0 auto}
-.brand{font-family:var(--f-display);font-size:26px;letter-spacing:.02em;line-height:1;color:var(--fg);display:flex;align-items:center;gap:10px}
+.bar-in{display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px;padding-block:10px;max-width:1400px;margin:0 auto}
+.brand{font-family:var(--f-display);font-size:23px;letter-spacing:.02em;line-height:1;color:var(--fg);display:flex;align-items:center;gap:10px}
 .brand .tape{display:inline-block;width:34px;height:20px;border-radius:2px;background:repeating-linear-gradient(-45deg,var(--caution) 0 7px,var(--ink) 7px 14px)}
 .steps{display:flex;gap:6px;flex-wrap:wrap}
-.step{border:2px solid var(--line);background:transparent;border-radius:6px;padding:6px 12px;font-family:var(--f-cond);font-weight:600;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.step{border:2px solid var(--line);background:transparent;border-radius:6px;padding:5px 9px;font-family:var(--f-cond);font-weight:600;font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .step[aria-current="true"]{border-color:var(--caution);color:var(--fg);background:var(--panel-2)}
 .step b{color:var(--caution);margin-right:6px}
 .bar .spacer{flex:1}
@@ -214,7 +214,7 @@ h2.sec{font-family:var(--f-display);font-size:clamp(28px,4vw,44px);line-height:1
 
 
 /* ---------- screen effects ---------- */
-#fx{position:fixed;inset:0;z-index:15;pointer-events:none;overflow:hidden}
+#fx{position:fixed;inset:0;z-index:25;pointer-events:none;overflow:hidden}
 #fx .tint{position:absolute;inset:0;opacity:0;transition:opacity .7s ease,background .7s ease}
 #fx canvas{position:absolute;inset:0;width:100%;height:100%}
 #fx .flash{position:absolute;inset:0;background:#fff;opacity:0}
@@ -272,6 +272,24 @@ main.fx-shake-soft{animation:shakes .14s linear infinite}
 .toggles .ghost{font-size:18px;padding:4px 10px;line-height:1.2}
 .toggles .ghost[aria-pressed="false"]{opacity:.45}
 @media (prefers-reduced-motion:reduce){ .fx-e,.fx-stamp,.card3d.charge,main.fx-shake-hard,main.fx-shake-soft{animation:none!important} }
+.overlay.prompt{background:rgba(15,18,12,.5)}
+.prompt-card{background:var(--panel);border:3px solid var(--caution);border-radius:16px;padding:28px 30px;text-align:center;max-width:560px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.55);animation:promptin .6s cubic-bezier(.2,1.4,.4,1) both}
+.prompt-card .eyebrow{font-family:var(--f-cond);font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--caution);font-size:15px}
+.prompt-card h2{font-family:var(--f-display);font-size:clamp(30px,5vw,48px);line-height:1.05;margin:10px 0 8px}
+.prompt-card p{font-size:20px;color:var(--muted);margin:0 0 20px}
+.btn.big{font-size:26px;padding:16px 28px;animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(242,144,43,.7)}50%{box-shadow:0 0 0 18px rgba(242,144,43,0)}}
+@keyframes promptin{from{transform:scale(.7);opacity:0}to{transform:none;opacity:1}}
+.win-card.reveal{animation:unfold .9s cubic-bezier(.2,1.2,.3,1) both}
+@keyframes unfold{0%{transform:perspective(900px) rotateX(80deg) scale(.6);opacity:0}100%{transform:none;opacity:1}}
+.win-card.reveal .wi{animation:popin .7s cubic-bezier(.2,1.8,.4,1) .5s both}
+.win-card.reveal h2,.win-card.reveal .with{animation:slidein .5s ease-out .75s both}
+.win-card.reveal .tale{animation:slidein .5s ease-out 1s both}
+.win-card.reveal #winText,.win-card.reveal>div:last-child{animation:slidein .5s ease-out 1.6s both}
+@keyframes popin{from{transform:scale(0) rotate(-30deg)}to{transform:none}}
+@keyframes slidein{from{transform:translateY(18px);opacity:0}to{transform:none;opacity:1}}
+#winStory{cursor:pointer}
+@media (prefers-reduced-motion:reduce){ .prompt-card,.btn.big,.win-card.reveal,.win-card.reveal *{animation:none!important} }
 @media (max-width:900px){
   .story,.choose,.play{grid-template-columns:minmax(0,1fr)}
   .teams-setup{position:static}
@@ -401,6 +419,14 @@ main.fx-shake-soft{animation:shakes .14s linear infinite}
 </section>
 </main>
 
+<div class="overlay prompt" id="revealPrompt" hidden>
+  <div class="prompt-card">
+    <div class="eyebrow">Day 3 · The last card has been played</div>
+    <h2>Only one item is left.</h2>
+    <p>How did they get to the airport?</p>
+    <button class="btn big" id="revealBtn">🚁 Reveal the escape plan</button>
+  </div>
+</div>
 <div class="overlay" id="overlay" hidden>
   <div class="win-card" role="dialog" aria-modal="true" aria-labelledby="winTitle">
     <div class="eyebrow" id="winEyebrow">Rescue helicopter has landed</div>
@@ -752,10 +778,11 @@ const FX=(()=>{
       if(s) sound(s); if(id==="quiet") sound("crackle",7,.5); return; }
     (RUN[id]||(()=>flash()))();
   }
-  function rescue(){ if(fxOn){ mood("lucky",3200); emojis(["🚁"],"heli",1,3200,120); } sound("helicopter",3); }
+  function rescue(){ if(fxOn){ mood("lucky",3400); emojis(["🚁"],"heli",1,3200,120); } sound("helicopter",3); }
+  function celebrate(){ if(fxOn){ P.burst(2800,170); P.burst(2800,90,["rgba(242,144,43,A)","rgba(255,255,255,A)"]); } sound("chime"); }
   function setFx(v){ fxOn=v; try{localStorage.setItem("zr-fx",v?"1":"0");}catch(e){} if(!v) clear(); }
   function setSnd(v){ sndOn=v; try{localStorage.setItem("zr-snd",v?"1":"0");}catch(e){} if(v) SND.ding(); }
-  return {suspense,reveal,rescue,clear,setFx,setSnd,get fx(){return fxOn;},get snd(){return sndOn;},shakePre:()=>fxOn};
+  return {suspense,reveal,rescue,celebrate,clear,setFx,setSnd,get fx(){return fxOn;},get snd(){return sndOn;},shakePre:()=>fxOn};
 })();
 
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
@@ -900,7 +927,7 @@ function renderPlay(){
   $("#aliveTotal").textContent = sim? totalAlive(sim) : 0;
   $("#undoBtn").disabled=n===0;
   $("#flipBtn").disabled = !done && !state.deck.length;
-  $("#flipBtn").textContent = done ? "Show the rescue 🚁" : "Flip next card";
+  $("#flipBtn").textContent = done ? (state.revealed ? "Show the rescue 🚁" : "Reveal the escape plan 🚁") : "Flip next card";
   const c3=$("#card3d"), front=$("#cardFront");
   if(last){
     const step=sim.steps[n-1];
@@ -939,19 +966,41 @@ function renderPlay(){
     </div>`;
   }).join("");
   $("#log").innerHTML = n? state.played.map((id,k)=>`<li${CARD(id).bonus?' class="lucky"':""}><b>${k+1}</b>${CARD(id).e} ${esc(CARD(id).t)}</li>`).join("") : `<li>None yet</li>`;
-  if(done && !state.overlayDismissed && state.phase==="play"){
-    const x=state.plan.survivor, it=ITEM[x], tm=T[state.plan.team];
-    $("#winEmoji").textContent=it.e;
-    $("#winTitle").textContent=`${tm.name} survives!`;
-    $("#winWith").textContent= x<100 ? `The last item standing: #${x} ${it.n}` : `The last item standing: ${it.n} (a lucky find!)`;
-    $("#winStory").textContent=STORIES[x];
-    $("#winText").textContent=`Rescued after ${n} event cards.`;
-    if(state.justFlipped){ $("#overlay").hidden=true; clearTimeout(window.__zrWin); clearTimeout(window.__zrHeli);
-      window.__zrHeli=setTimeout(()=>{ if(finished()) FX.rescue(); },2600);
-      window.__zrWin=setTimeout(()=>{ if(finished()&&!state.overlayDismissed) $("#overlay").hidden=false; },5200); }
-    else $("#overlay").hidden=false;
-  } else $("#overlay").hidden=true;
+  clearTimeout(window.__zrPrompt);
+  const wantPrompt = done && !state.revealed && state.phase==="play";
+  if(wantPrompt){
+    $("#overlay").hidden=true;
+    if(state.justFlipped){ $("#revealPrompt").hidden=true; window.__zrPrompt=setTimeout(()=>{ if(finished()&&!state.revealed) $("#revealPrompt").hidden=false; },4000); }
+    else $("#revealPrompt").hidden=false;
+  } else {
+    $("#revealPrompt").hidden=true;
+    if(done && state.revealed && !state.overlayDismissed && state.phase==="play" && !window.__zrRevealing){ fillWin(false); $("#overlay").hidden=false; }
+    else if(!window.__zrRevealing) $("#overlay").hidden=true;
+  }
   state.justFlipped=false;
+}
+
+function fillWin(typing){
+  const T=teams(), x=state.plan.survivor, it=ITEM[x], tm=T[state.plan.team];
+  $("#winEmoji").textContent=it.e;
+  $("#winTitle").textContent=`${tm.name} survives!`;
+  $("#winWith").textContent= x<100 ? `The last item standing: #${x} ${it.n}` : `The last item standing: ${it.n} (a lucky find!)`;
+  $("#winText").textContent=`Rescued after ${state.played.length} event cards.`;
+  clearInterval(window.__zrType);
+  const el=$("#winStory"), full=STORIES[x];
+  if(!typing){ el.textContent=full; return; }
+  el.textContent=""; let i=0;
+  setTimeout(()=>{ window.__zrType=setInterval(()=>{ i+=2; el.textContent=full.slice(0,i); if(i>=full.length) clearInterval(window.__zrType); },32); },1150);
+}
+function revealEscape(){
+  if(!finished()||window.__zrRevealing) return;
+  state.revealed=true; state.overlayDismissed=false; save();
+  window.__zrRevealing=true; $("#revealPrompt").hidden=true; $("#overlay").hidden=true; renderPlay(); FX.rescue();
+  setTimeout(()=>{
+    window.__zrRevealing=false; fillWin(true);
+    const card=$("#overlay .win-card"); card.classList.remove("reveal"); void card.offsetWidth; card.classList.add("reveal");
+    $("#overlay").hidden=false; FX.celebrate();
+  },2300);
 }
 
 /* ---------- actions ---------- */
@@ -1003,8 +1052,10 @@ document.addEventListener("change",e=>{ // tidy the typed list once the box lose
 $("#teamCount").addEventListener("change",e=>{ const n=+e.target.value; state.teams.forEach((t,i)=>{ if(i>=n) t.picks=[]; }); state.teamCount=n; state.plan=null; save(); render();});
 $("#perTeam").addEventListener("change",e=>{ state.perTeam=+e.target.value; state.teams.forEach(t=>t.picks=t.picks.slice(0,state.perTeam)); state.plan=null; save(); render();});
 $("#startBtn").addEventListener("click",startGame);
-$("#flipBtn").addEventListener("click",()=>{ if(finished()){ state.overlayDismissed=false; save(); render(); } else flip(); });
-$("#undoBtn").addEventListener("click",()=>{ if(!state.played.length||busy) return; FX.clear(); state.deck.unshift(state.played.pop()); state.overlayDismissed=false; save(); render(); });
+$("#flipBtn").addEventListener("click",()=>{ if(finished()){ if(!state.revealed) revealEscape(); else { state.overlayDismissed=false; save(); render(); } } else flip(); });
+$("#revealBtn").addEventListener("click",revealEscape);
+$("#winStory").addEventListener("click",()=>{ clearInterval(window.__zrType); fillWin(false); });
+$("#undoBtn").addEventListener("click",()=>{ if(!state.played.length||busy) return; FX.clear(); state.revealed=false; clearTimeout(window.__zrPrompt); state.deck.unshift(state.played.pop()); state.overlayDismissed=false; save(); render(); });
 $("#winClose").addEventListener("click",()=>{ state.overlayDismissed=true; save(); render(); });
 $("#winNew").addEventListener("click",()=>{ newGame(); });
 document.addEventListener("keydown",e=>{
