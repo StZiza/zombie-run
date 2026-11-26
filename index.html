@@ -325,6 +325,32 @@ main.fx-shake-soft{animation:shakes .14s linear infinite}
 @keyframes slidein{from{transform:translateY(18px);opacity:0}to{transform:none;opacity:1}}
 #winStory{cursor:pointer}
 @media (prefers-reduced-motion:reduce){ .prompt-card,.btn.big,.win-card.reveal,.win-card.reveal *{animation:none!important} }
+/* ---------- tiers, shields and wildcards ---------- */
+.tier{font-style:normal;font-family:var(--f-cond);font-weight:700;font-size:11px;letter-spacing:.08em;padding:1px 5px;border-radius:3px;margin-left:5px;vertical-align:1px;white-space:nowrap}
+.tier.tough{background:#d4a634;color:#232818}
+.tier.sturdy{background:#9aa4ab;color:#232818}
+.team li.t-tough{border-left:5px solid #d4a634}
+.team li.t-sturdy{border-left:5px solid #9aa4ab}
+.team li .sh{font-size:14px;margin-left:2px}
+.team li .sh.used{opacity:.35;filter:grayscale(1)}
+.team li.blocked{animation:blocked 1.2s ease-out}
+@keyframes blocked{0%{transform:scale(1.08);box-shadow:0 0 0 4px #d4a634,0 0 30px #d4a634}100%{transform:none}}
+.team li.gone{background:transparent;color:var(--muted);border:2px dashed #8f74c4}
+.team li.gone::after,.team li.moved:not(.lost):not(.gone)::after{content:attr(data-tag);margin-left:auto;font-family:var(--f-cond);font-weight:700;font-size:12px;letter-spacing:.1em;color:#fff;background:#6d4fa3;padding:1px 6px;border-radius:3px}
+.team li.arrived{animation:arrive 1s ease-out}
+@keyframes arrive{0%{transform:translateX(-40px);opacity:0;background:#c9b6ee}100%{transform:none;opacity:1}}
+.team li.pick{cursor:pointer;outline:3px solid var(--caution);outline-offset:1px;animation:pickpulse 1.1s ease-in-out infinite}
+.team li.pick:hover,.team li.pick:focus-visible{background:#fff3df}
+@keyframes pickpulse{50%{outline-color:transparent}}
+.front.wild{background:#e4ddf0}
+.front .wildhdr{font-family:var(--f-cond);font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-size:15px;color:#5a3f8a;border-top:2px dashed #b3a5cc;padding-top:10px;margin-bottom:8px}
+.front .movelist{list-style:none;margin:0;padding:0;display:grid;gap:8px;font-size:18px;line-height:1.3}
+.front .movelist li{background:#f4f0fa;border:2px solid #9d86c4;border-radius:8px;padding:8px 10px}
+.front #autoPick{align-self:flex-start;color:var(--fg);font-size:16px;padding:8px 14px}
+.front .lostlist li.saved .why{color:#7a5a12;font-style:normal;font-weight:600}
+.front .who .dot.sh{box-shadow:0 0 0 3px #d4a634}
+.log li.wild{border-color:#8f74c4}
+@media (prefers-reduced-motion:reduce){ .team li.blocked,.team li.arrived,.team li.pick{animation:none} }
 @media (max-width:900px){
   .story,.choose,.play{grid-template-columns:minmax(0,1fr)}
   .teams-setup{position:static}
@@ -388,6 +414,8 @@ main.fx-shake-soft{animation:shakes .14s linear infinite}
           <li>Each team chooses <b id="ruleN">6</b> items from the supply room.</li>
           <li><b>First come, first served:</b> every item belongs to only one team.</li>
           <li>Event cards will destroy items, but some items can help you find <b>new</b> ones. When your team has nothing left, the zombies get you.</li>
+          <li><b>🛡️ Tough</b> items always survive their first hit. <b>Sturdy</b> items sometimes do.</li>
+          <li><b>🃏 Wildcards</b> can make teams raid, trade, lend or steal items. But thieves can get caught!</li>
           <li>In the end, only <b>one item</b> survives. The team holding it is rescued!</li>
         </ol>
       </aside>
@@ -501,6 +529,9 @@ const FOUND = [[101,"🍱","Army ration pack"],[102,"🥽","Night-vision goggles
  [114,"🚑","Ambulance keys"],[115,"🚌","School bus keys"],[116,"🔐","Master key to the school"],
  [117,"🍪","Homemade cookies"],[118,"🧣","Hand-knitted scarf"],[119,"☂️","Flowery umbrella"],[120,"🧿","Lucky nazar bead"],[121,"💌","“I believe in you” letter"],[122,"🧸","Teddy bear"]];
 const GIFTS = [117,118,119,120,121,122];   // Sezen Hoca's presents: one at random each game
+const TOUGH = [48,13,38,43,55,6];           // always survive their first hit
+const STURDY = [4,7,20,21,26,30,32,36,42,45,47,49,51,52,54,57,59,60];   // sometimes survive their first hit (a secret 40% chance)
+const tierOf = id=>TOUGH.includes(id)?"tough":STURDY.includes(id)?"sturdy":"";
 FOUND.forEach(([id,e,n])=>{ ITEM[id]={id,e,n,found:true}; });
 
 const STORIES = {
@@ -595,7 +626,7 @@ const CARDS = [
  {id:"music",e:"🎶",t:"Party's over",x:"The zombies are following music and engines all over the city.",
   lose:{8:"Someone pressed play.",24:"The wheels rattle down the whole street.",25:"The engine is far too loud."}},
  {id:"rain",e:"🌧️",t:"Three days of rain",x:"It rains for three days without stopping. Everything gets soaking wet.",
-  lose:{3:"Wet fireworks don't work.",5:"100 rolls of wet mush.",6:"The ink washes away.",38:"It won't stick to anything wet.",45:"Soaked and freezing.",49:"The textbooks turn into paste.",106:"Soaked.",108:"Too wet to burn.",121:"The ink washes away."}},
+  lose:{3:"Wet fireworks don't work.",5:"100 rolls of wet mush.",6:"The ink washes away.",38:"It won't stick to anything wet.",45:"Soaked and freezing.",49:"The textbooks turn into paste.",106:"Soaked.",108:"Too wet to burn.",121:"The ink washes away.",13:"The wet dog runs off to find shelter."}},
  {id:"power",e:"🔌",t:"Power cut",x:"The electricity goes off across the whole city. Nothing can be charged.",
   lose:{7:"An electric guitar with no electricity…",30:"Battery dead, no way to charge it.",33:"No socket, no hairdryer.",60:"No electricity, no computer."}},
  {id:"bridge",e:"🌊",t:"The broken bridge",x:"The bridge over the Aksu River has collapsed. You must swim across. Heavy things and wheels sink.",
@@ -611,23 +642,23 @@ const CARDS = [
  {id:"sugar",e:"🍭",t:"Sweet smell",x:"Zombies can smell sugar from a kilometre away. Throw away anything sweet, NOW!",
   lose:{16:"Thrown out of the window.",17:"Thrown out of the window.",19:"Thrown out of the window.",112:"Pancakes with syrup? Out of the window!",117:"Thrown out of the window. Sorry, Sezen Hoca!"}},
  {id:"fire",e:"🔥",t:"Fire!",x:"The observatory on the top floor catches fire! You escape, but some things burn or get used up.",
-  lose:{3:"BOOM!",28:"The balloon melts.",29:"It melts into a pink puddle.",39:"It burns.",42:"You used all of it to escape.",45:"Burnt.",105:"Melted.",106:"Burnt.",108:"It all burned.",113:"Burnt.",109:"Melted.",118:"Burnt."}},
+  lose:{3:"BOOM!",28:"The balloon melts.",29:"It melts into a pink puddle.",39:"It burns.",42:"You used all of it to escape.",45:"Burnt.",105:"Melted.",106:"Burnt.",108:"It all burned.",113:"Burnt.",109:"Melted.",118:"Burnt.",38:"It melts into a sticky mess."}},
  {id:"horde",e:"🧟",t:"The horde breaks in",x:"200 zombies smash the main entrance next to the front lobby desk. RUN! You can only carry small things.",
   lose:{4:"Too big to carry.",8:"Too heavy.",24:"Too slow.",26:"Too long to run with.",27:"You can't run with a trampoline.",54:"Too heavy to run with.",113:"Far too heavy to run with.",59:"You can't run with a couch."}},
  {id:"storm",e:"🌪️",t:"Storm",x:"A huge storm hits the coast. The wind blows away anything big or light.",
-  lose:{4:"Blown into the sea.",27:"Flying over Konyaaltı.",28:"Gone with the wind.",29:"Last seen over Kemer.",30:"Blown out of the sky.",53:"Blown into the sea.",105:"Blown away.",56:"Far too windy to fly.",118:"Blown away.",119:"Blown inside out."}},
+  lose:{4:"Blown into the sea.",27:"Flying over Konyaaltı.",28:"Gone with the wind.",29:"Last seen over Kemer.",30:"Blown out of the sky.",53:"Blown into the sea.",105:"Blown away.",56:"Far too windy to fly.",118:"Blown away.",119:"Blown inside out.",6:"Blown away."}},
  {id:"battery",e:"🪫",t:"Dead batteries",x:"Day three. Every battery is empty.",
   lose:{1:"Click… nothing.",8:"Silent forever.",9:"Not a sound.",31:"3%… 2%… 0%.",32:"Only static.",102:"Battery dead.",104:"Battery dead."}},
  {id:"gulls",e:"🐦",t:"Zombie seagulls",x:"Zombie seagulls attack from the sea! Anything in the air is in danger.",
   lose:{15:"The seagulls chase it away.",28:"POP!",29:"POP!",30:"Knocked out of the sky.",53:"The seagulls stole it.",105:"POP!",107:"The seagulls ate all the fish.",56:"Seagulls in the rotor!"}},
  {id:"quake",e:"🌋",t:"Earthquake",x:"The ground shakes. Anything fragile breaks.",
-  lose:{17:"The glass jar smashes.",34:"Seven years of bad luck.",35:"“Outlook not so good.”",36:"Cracked lenses.",50:"Thirty broken eggs.",102:"Cracked lenses.",104:"Smashed.",110:"The needle broke.",120:"It cracked. It did its job!"}},
+  lose:{17:"The glass jar smashes.",34:"Seven years of bad luck.",35:"“Outlook not so good.”",36:"Cracked lenses.",50:"Thirty broken eggs.",102:"Cracked lenses.",104:"Smashed.",110:"The needle broke.",120:"It cracked. It did its job!",43:"All the bottles break."}},
  {id:"thieves",e:"🦹",t:"Thieves",x:"A gang of survivors robs you. They take anything shiny or valuable.",
-  lose:{31:"Taken.",32:"Taken.",36:"Taken.",41:"Shiny! Taken.",43:"Taken.",46:"Taken. Nobody knows what it opens.",55:"Taken.",101:"Taken.",119:"Taken. It was a nice umbrella."}},
+  lose:{31:"Taken.",32:"Taken.",36:"Taken.",41:"Shiny! Taken.",43:"Taken.",46:"Taken. Nobody knows what it opens.",55:"Taken.",101:"Taken.",119:"Taken. It was a nice umbrella.",13:"They took the dog!"}},
  {id:"freeze",e:"🥶",t:"Freezing night",x:"The ice rink on floor -1 goes crazy and the whole school drops below zero. You burn things to stay warm.",
   lose:{5:"It burns very well.",6:"Burnt for warmth.",7:"It's made of wood.",40:"Wood burns.",49:"Textbooks burn surprisingly well.",108:"You burned all of it.",59:"Wood and cushions burn very well.",121:"You cried, and then you burned it."}},
  {id:"heat",e:"☀️",t:"Heat wave",x:"Antalya, 42°C. Everything melts, dries out or goes bad.",
-  lose:{16:"Chocolate soup.",19:"Black and rotten.",20:"You drank all of it.",37:"Dried into a rock.",50:"Cooked on the pavement.",107:"The fish went bad."}},
+  lose:{16:"Chocolate soup.",19:"Black and rotten.",20:"You drank all of it.",37:"Dried into a rock.",50:"Cooked on the pavement.",107:"The fish went bad.",38:"Too hot. Nothing sticks."}},
  {id:"scratch",e:"🩸",t:"Scratched!",x:"A zombie scratches someone on your team. The nurse's room is on the 1st floor, but there is only one nurse! Quick, do something!",
   lose:{43:"You used all of it.",44:"It doesn't work. Wrong monster!"}},
  {id:"teacher",e:"🧑‍🏫",t:"Grammar emergency",x:"Aziz Hoca stops to correct a zombie: “It's ‘I am hungry’, not ‘me hungry’!”",
@@ -635,11 +666,11 @@ const CARDS = [
  {id:"oyss",e:"📝",t:"OYSS exam day",x:"Zombies or no zombies, the OYSS English exam is today! Exam rules: no phones, no devices, no cheating.",
   lose:{31:"Phones go in the box.",32:"No communication devices in the exam!",35:"Obviously a cheating device.",55:"No sharp objects in the exam room!",58:"Nobody opens the phone locker today!",60:"No computers in the exam!"}},
  {id:"corridor",e:"🚸",t:"Corridor rules",x:"Erman Hoca catches you in the corridor: “No skating in the corridors! No toys in class!”",
-  lose:{22:"Confiscated.",23:"Confiscated.",11:"Confiscated. SQUEAK.",54:"No axes in school!",59:"“No sleeping in the corridors!” Confiscated."}},
+  lose:{22:"Confiscated.",23:"Confiscated.",11:"Confiscated. SQUEAK.",54:"No axes in school!",59:"“No sleeping in the corridors!” Confiscated.",55:"No knives in school!"}},
  {id:"meeting",e:"🗂️",t:"Emergency staff meeting",x:"Ferhan Hoca calls an emergency staff meeting in the middle of the zombie attack. All teachers must attend!",
   lose:{51:"He is running the meeting.",52:"He is taking the notes.",48:"Aziz Hoca has to attend too.",57:"The head of English has to attend."}},
  {id:"parents",e:"👨‍👩‍👧",t:"Parent conference",x:"200 parents arrive at school for the veli toplantısı. Somebody has to talk to all of them!",
-  lose:{51:"Greeting every parent.",52:"Answering every question.",47:"The parents drank all the coffee.",57:"Telling every parent how wonderful their child is."}},
+  lose:{51:"Greeting every parent.",52:"Answering every question.",47:"The parents drank all the coffee.",57:"Telling every parent how wonderful their child is.",48:"Aziz Hoca has to talk to every parent."}},
  {id:"pickpockets",e:"👛",t:"Pickpockets",x:"At the tram stop, zombie pickpockets (yes, they exist) grab anything small from your pockets.",
   lose:{31:"Gone from your pocket.",46:"Gone from your pocket.",103:"Gone.",109:"Gone. 100 TL!",114:"Gone.",115:"Gone.",116:"Gone.",58:"Gone from your pocket.",120:"Gone from your pocket."}},
  {id:"quiet",e:"😮‍💨",t:"Quiet night",x:"Nothing happens. Everyone gets some sleep. Phew!",lose:{}}
@@ -662,18 +693,27 @@ const BONUS = [
  {id:"b_sezen",bonus:true,e:"🎁",t:"A present from Sezen Hoca",trigger:57,found:117,x:"Sezen Hoca opens her bag and smiles: “I brought a little something for my favourite students!” (She says this to every class.)"},
  {id:"b_aziz",bonus:true,e:"🔭",t:"Eyes on the sky",trigger:48,found:106,x:"Aziz Hoca looks through the telescope in the observatory and spots an army supply drop on the terrace!"}
 ];
-const BASE = Object.fromEntries(CARDS.concat(BONUS).map(c=>[c.id,c]));
+const WILDS = [
+ {id:"w_raid",wild:"raid",e:"⚔️",t:"Raid!",x:"Night raid! The team with the fewest items sneaks into another hideout and takes one item."},
+ {id:"w_trade",wild:"trade",e:"🤝",t:"Trade deal",x:"Two teams meet in the school garden and swap one item each. Each team chooses what it gives."},
+ {id:"w_charity",wild:"charity",e:"🤲",t:"Charity drive",x:"The biggest team must help the smallest one and lend it an item. If the item survives two more cards, it comes back."},
+ {id:"w_sneak",wild:"sneak",e:"🕵️",t:"Sneaky survivors",x:"In the middle of the night, one team sneaks into another hideout and steals something."},
+ {id:"w_caught",wild:"caught",e:"🚨",t:"Caught red-handed!",x:"Erman Hoca checks the cameras: “Who took that?” The raiders lose the item they stole."},
+ {id:"w_justice",wild:"justice",e:"⚖️",t:"Sezen Hoca's justice",x:"Sezen Hoca saw the raid: “That's not yours, canım. Give it back.” The stolen item goes home."}
+];
+const BASE = Object.fromEntries(CARDS.concat(BONUS,WILDS).map(c=>[c.id,c]));
+
 const TEAM_COLORS = ["var(--t1)","var(--t2)","var(--t3)","var(--t4)","var(--t5)","var(--t6)"];
 const KEY = "zombie-run-antalya-v2";
 
 let state;
 function freshState(){
-  return {v:4,phase:"story",teamCount:4,perTeam:6,active:0,
+  return {v:5,phase:"story",teamCount:4,perTeam:6,active:0,
     teams:Array.from({length:6},(_,i)=>({name:"Team "+(i+1),picks:[]})),
-    plan:null,deck:[],played:[],special:null,overlayDismissed:false};
+    plan:null,deck:[],played:[],special:null,overlayDismissed:false,moves:{},hist:[],pending:null,dodge:{}};
 }
 function save(){ try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){} }
-function load(){ try{const s=JSON.parse(localStorage.getItem(KEY)); if(s&&s.teams&&s.v===4) return s;}catch(e){} return null; }
+function load(){ try{const s=JSON.parse(localStorage.getItem(KEY)); if(s&&s.teams&&s.v===5) return s;}catch(e){} return null; }
 const CARD = id => id==="last" ? state.special : id==="b_sezen" && state.gift ? {...BASE[id],found:state.gift} : BASE[id];
 
 const $ = s=>document.querySelector(s);
@@ -812,6 +852,12 @@ const FX=(()=>{
     corridor(){ stamp("🚸 STOP!",1700,"word"); sound("whistle"); },
     meeting(){ emojis(["📋","📄","🗂️"],"fall",14,2800,52); sound("ding"); },
     parents(){ emojis(["👨‍👩‍👧","👩‍👦","👨‍👧","🧑‍🦳"],"cross",10,3200,56); sound("murmur"); },
+    w_raid(){ mood("red",1600); stamp("⚔️",1500); sound("swish"); sound("growl"); },
+    w_trade(){ emojis(["🤝","🔄"],"rise",10,2600,54); sound("chime"); },
+    w_charity(){ stamp("🤲",1500); sound("ding"); },
+    w_sneak(){ mood("night",2200); emojis(["🕵️"],"cross",3,2400,90); sound("swish"); },
+    w_caught(){ mood("red",1500); stamp("🚨",1500,"blink"); sound("whistle"); },
+    w_justice(){ stamp("⚖️",1600,"slow"); sound("ding"); },
     last(){ mood("dark",3800); emojis(["🧟","🧟‍♂️","🧟‍♀️"],"climb",20,3600,90); sound("groan"); sound("rumble",2.5); },
     quiet(){ mood("calm",7600); P.stars(7600); P.flies(7600); stamp("🔥",7000,"campfire"); sound("crickets",7.2); sound("crackle",7,.5); }
   };
@@ -841,124 +887,228 @@ const FX=(()=>{
   }
   function reveal(id,tn=0){
     const c=CARD(id);
-    if(tn>=2&&!c.bonus&&id!=="quiet"){ sound("boom"); if(fxOn&&tn>=3) shake("hard",tn===4?900:450); }
+    if(tn>=2&&!c.bonus&&!c.wild&&id!=="quiet"){ sound("boom"); if(fxOn&&tn>=3) shake("hard",tn===4?900:450); }
     if(id!=="quiet"){ if(fxOn) flash(1,0,c.bonus?.5:.75); sound("whoosh"); }
     if(c.bonus){ if(fxOn){ mood("lucky",2600); P.burst(); stamp(ITEM[c.found].e,1800,"lucky"); if(id==="b_sezen") emojis(["💛","🌸","🎁"],"rise",18,3200,54); } sound("chime"); return; }
     if(!fxOn){ // sound only
-      const s={night:"hoot",silence:"shh",music:"notes",rain:"rain",power:"powerdown",bridge:"splash",mud:"squelch",climb:"groan",dogs:"growl",starving:"stomach",sugar:"swish",fire:"crackle",horde:"groan",storm:"thunder",battery:"powerdown",gulls:"squawks",quake:"rumble",thieves:"swish",pickpockets:"swish",freeze:"wind",heat:"wind",scratch:"swish",teacher:"ding",oyss:"bell",corridor:"whistle",meeting:"ding",parents:"murmur",last:"groan",quiet:"crickets"}[id];
+      const s={night:"hoot",silence:"shh",music:"notes",rain:"rain",power:"powerdown",bridge:"splash",mud:"squelch",climb:"groan",dogs:"growl",starving:"stomach",sugar:"swish",fire:"crackle",horde:"groan",storm:"thunder",battery:"powerdown",gulls:"squawks",quake:"rumble",thieves:"swish",pickpockets:"swish",freeze:"wind",heat:"wind",scratch:"swish",teacher:"ding",oyss:"bell",corridor:"whistle",meeting:"ding",parents:"murmur",last:"groan",quiet:"crickets",w_raid:"growl",w_trade:"chime",w_charity:"ding",w_sneak:"swish",w_caught:"whistle",w_justice:"ding"}[id];
       if(s) sound(s); if(id==="quiet") sound("crackle",7,.5); return; }
     (RUN[id]||(()=>flash()))();
   }
+  function pick(){ sound("swish"); if(fxOn) flash(1,0,.3); }
   function rescue(){ if(fxOn){ mood("lucky",3400); emojis(["🚁"],"heli",1,3200,120); } sound("helicopter",3); }
   function celebrate(){ if(fxOn){ P.burst(2800,170); P.burst(2800,90,["rgba(242,144,43,A)","rgba(255,255,255,A)"]); } sound("chime"); }
   function setFx(v){ fxOn=v; try{localStorage.setItem("zr-fx",v?"1":"0");}catch(e){} if(!v) clear(); }
   function setSnd(v){ sndOn=v; try{localStorage.setItem("zr-snd",v?"1":"0");}catch(e){} if(v) SND.ding(); }
-  return {suspense,reveal,eaten,rescue,celebrate,clear,setFx,setSnd,get fx(){return fxOn;},get snd(){return sndOn;},shakePre:()=>fxOn};
+  return {suspense,reveal,eaten,pick,rescue,celebrate,clear,setFx,setSnd,get fx(){return fxOn;},get snd(){return sndOn;},shakePre:()=>fxOn};
 })();
 
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function ownerOf(id){ return teams().findIndex(t=>t.picks.includes(id)); }
 
 /* ---------- simulation: what each team holds after a list of cards ---------- */
+const alive = it=>!it.lost&&!it.gone;
 function simulate(order,T){
-  const inv=T.map(t=>t.picks.map(id=>({id,found:false,got:0,lost:0})));
-  const steps=[];
+  const D=state.dodge||{}, MV=state.moves||{};
+  const inv=T.map(t=>t.picks.map(id=>({id,found:false,got:0,lost:0,gone:0,shield:TOUGH.includes(id)||D[id]?1:0})));
+  const steps=[], loans=[]; let lastRaid=null;
+  const count=i=>inv[i].filter(alive).length;
+  const move=(id,from,to,k,how)=>{
+    const src=inv[from].find(it=>it.id===id&&alive(it)); if(!src) return false;
+    src.gone=k+1; src.out=how;
+    const old=inv[to].find(it=>it.id===id&&it.gone&&!it.lost);
+    if(old){ old.gone=0; old.out=null; old.in=how; old.got=k+1; old.shield=src.shield; }
+    else inv[to].push({id,found:src.found,got:k+1,lost:0,gone:0,shield:src.shield,in:how});
+    return true;
+  };
   order.forEach((cid,k)=>{
-    const c=CARD(cid), step={hits:[],gains:[],fail:false};
+    const c=CARD(cid), step={hits:[],blocks:[],gains:[],moves:[],fail:false};
     if(c.bonus){
-      let ti=-1; inv.forEach((L,i)=>{ if(L.some(it=>it.id===c.trigger&&!it.lost)) ti=i; });
-      if(ti>=0){ inv[ti].push({id:c.found,found:true,got:k+1,lost:0}); step.gains.push({team:ti,id:c.found}); } else step.fail=true;
+      let ti=-1; inv.forEach((L,i)=>{ if(L.some(it=>it.id===c.trigger&&alive(it))) ti=i; });
+      if(ti>=0){ inv[ti].push({id:c.found,found:true,got:k+1,lost:0,gone:0,shield:0}); step.gains.push({team:ti,id:c.found}); } else step.fail=true;
+    } else if(c.wild){
+      (MV[k]||[]).forEach(m=>{
+        if(m.destroy){ const it=inv[m.from].find(e=>e.id===m.id&&alive(e)); if(it){ it.lost=k+1; step.hits.push({team:m.from,id:m.id}); step.moves.push(m); lastRaid=null; } return; }
+        if(!move(m.id,m.from,m.to,k,m.how)) return;
+        step.moves.push(m);
+        if(m.how==="raid") lastRaid={id:m.id,from:m.from,to:m.to};
+        if(m.how==="justice") lastRaid=null;
+        if(m.how==="loan") loans.push({id:m.id,from:m.from,to:m.to,back:k+2});
+      });
     } else {
-      inv.forEach((L,i)=>L.forEach(it=>{ if(!it.lost&&c.lose[it.id]){ it.lost=k+1; step.hits.push({team:i,id:it.id}); } }));
+      inv.forEach((L,i)=>L.forEach(it=>{ if(alive(it)&&c.lose[it.id]){
+        if(it.shield&&!c.pierce){ it.shield=0; step.blocks.push({team:i,id:it.id}); }
+        else { it.lost=k+1; step.hits.push({team:i,id:it.id}); } } }));
     }
-    step.alive=inv.map(L=>L.filter(it=>!it.lost).length);
+    // a loan comes back after two more cards, if the item survived and nobody is left empty-handed
+    loans.filter(l=>l.back===k).forEach(l=>{
+      if(inv[l.to].some(e=>e.id===l.id&&alive(e)) && count(l.to)>=2 && count(l.from)>0 && move(l.id,l.to,l.from,k,"back"))
+        step.moves.push({id:l.id,from:l.to,to:l.from,how:"back"});
+    });
+    step.alive=inv.map((L,i)=>count(i));
     steps.push(step);
   });
-  return {inv,steps};
+  return {inv,steps,lastRaid};
 }
 
 /* ---------- planner: exactly one item survives ---------- */
 function killers(item){ return CARDS.filter(c=>c.lose[item]).map(c=>c.id); }
-function buildPlan(){
+function killersLeft(item,used){ return CARDS.filter(c=>c.id!=="quiet"&&!used.has(c.id)&&c.lose[item]).map(c=>c.id); }
+const tierW=id=>TOUGH.includes(id)?14:STURDY.includes(id)?2.2:1;
+function weighted(list,w){ const ws=list.map(w), tot=ws.reduce((a,b)=>a+b,0); let r=Math.random()*tot; for(let i=0;i<list.length;i++){ r-=ws[i]; if(r<=0) return list[i]; } return list[list.length-1]; }
+// fresh=true starts a new game; fresh=false re-plans the rest of the deck after a wildcard moved items around
+function buildPlan(fresh){
   const T=teams();
-  const ids=[]; T.forEach(t=>t.picks.forEach(p=>ids.push(p)));
-  const sparesAll=(x,list)=>list.every(y=>y===x||killers(y).some(c=>!BASE[c].lose[x]));
-  const valid=ids.filter(x=>sparesAll(x,ids));
-  const pool=valid.length?valid:ids;
-  const minK=Math.min(...pool.map(x=>killers(x).length));
-  let x=shuffle(pool.filter(v=>killers(v).length===minK))[0];    // the "wisest" pick wins
-  const win=ownerOf(x);
-  // lucky finds: 2–3 per game, mostly for the other teams (comebacks)
-  const cands=shuffle(BONUS.filter(b=>b.id!=="b_sezen"&&ownerOf(b.trigger)>=0));
-  const others=cands.filter(b=>ownerOf(b.trigger)!==win), mine=cands.filter(b=>ownerOf(b.trigger)===win);
-  const nB=Math.min(cands.length, T.length===4?3:2);
-  let bonus=others.slice(0,nB);
-  if(mine.length && (bonus.length<nB || Math.random()<.35)){ if(bonus.length>=nB) bonus.pop(); bonus.push(mine[0]); }
-  // Sezen Hoca always has a surprise for the team that chose her
-  state.gift=shuffle(GIFTS)[0];
-  const hasSezen=ownerOf(57)>=0; if(hasSezen) bonus.push(CARD("b_sezen"));
-  // sometimes the winners' own lucky find becomes the winning item
-  const allIds=ids.concat(bonus.map(b=>b.found));
-  const wb=shuffle(bonus.filter(b=>ownerOf(b.trigger)===win))[0];
-  if(wb && Math.random()<.5 && sparesAll(wb.found,allIds)) x=wb.found;
-  // cards that destroy everything except x
-  const need=new Set(allIds.filter(v=>v!==x));
-  const allowed=CARDS.filter(c=>c.id!=="quiet"&&!c.lose[x]); const chosen=[];
-  while(need.size){
-    let best=null,bestHit=0;
-    shuffle(allowed).forEach(c=>{ if(chosen.includes(c.id)) return; const h=Object.keys(c.lose).filter(k=>need.has(+k)).length; if(h>bestHit){best=c;bestHit=h;} });
-    if(!best) break;
-    chosen.push(best.id); Object.keys(best.lose).forEach(k=>need.delete(+k));
+  if(fresh){
+    state.played=[]; state.moves={}; state.hist=[]; state.pending=null; state.deck=[];
+    state.gift=shuffle(GIFTS)[0];
+    state.dodge={}; STURDY.forEach(id=>{ if(Math.random()<.4) state.dodge[id]=1; });   // sturdy items: a secret 40% chance to dodge
   }
-  const base=chosen.concat(bonus.map(b=>b.id));
-  state.special=null;
+  const P=state.played.length, used=new Set(state.played), cur=simulate(state.played,T);
+  const owner={}, shield={};
+  cur.inv.forEach((L,i)=>L.forEach(it=>{ if(alive(it)){ owner[it.id]=i; shield[it.id]=it.shield; } }));
+  const ids=Object.keys(owner).map(Number);
+  const needOf=y=>1+(shield[y]||0);
+  const spares=(x,list)=>list.every(y=>y===x||killersLeft(y,used).filter(c=>!BASE[c].lose[x]).length>=needOf(y));
+  let pool=ids.filter(x=>spares(x,ids)); if(!pool.length) pool=ids;
+  // the survivor: wiser picks (fewer dangers) are likelier, tough and sturdy items much more so
+  let x=weighted(pool,v=>tierW(v)/Math.pow(Math.max(1,killersLeft(v,used).length),2));
+  const win=owner[x];
+  let bonus;
+  if(fresh){
+    // lucky finds: 2 per game, mostly for the other teams (comebacks)
+    const cands=shuffle(BONUS.filter(b=>b.id!=="b_sezen"&&owner[b.trigger]!==undefined));
+    const others=cands.filter(b=>owner[b.trigger]!==win), mine=cands.filter(b=>owner[b.trigger]===win);
+    const nB=Math.min(cands.length, 2);
+    bonus=others.slice(0,nB);
+    if(mine.length && (bonus.length<nB || Math.random()<.35)){ if(bonus.length>=nB) bonus.pop(); bonus.push(mine[0]); }
+    if(owner[57]!==undefined) bonus.push(CARD("b_sezen"));   // Sezen Hoca always has a surprise for the team that chose her
+  } else bonus=state.deck.filter(id=>BASE[id]&&BASE[id].bonus).map(CARD);
+  const allIds=ids.concat(bonus.map(b=>b.found));
+  const wb=shuffle(bonus.filter(b=>owner[b.trigger]===win))[0];
+  if(wb && Math.random()<.5 && spares(wb.found,allIds)) x=wb.found;    // sometimes the winners' own lucky find wins
+  // wildcards: one good, one bad, sometimes a third
+  let wilds;
+  if(fresh){
+    wilds=[shuffle(["w_raid","w_trade"])[0], shuffle(["w_charity","w_sneak"])[0]];
+    if(Math.random()<.25) wilds.push(shuffle(["w_raid","w_trade","w_charity","w_sneak"].filter(w=>!wilds.includes(w)))[0]);
+  } else wilds=state.deck.filter(id=>BASE[id]&&BASE[id].wild);
+  // karma: after a raid, the raiders may be caught, or Sezen Hoca may send the item back
+  const karma=["w_caught","w_justice"];
+  if(!fresh && cur.lastRaid && !karma.some(w=>used.has(w)||wilds.includes(w)) && (state.moves[P-1]||[]).some(m=>m.how==="raid")){
+    const r=Math.random();
+    if(cur.lastRaid.id===x){ if(r<.4) wilds.push("w_justice"); }
+    else if(r<.5) wilds.push("w_caught"); else if(r<.75) wilds.push("w_justice");
+  }
+  // event cards that destroy everything except x (a shield needs one extra hit)
+  const need={}; allIds.forEach(y=>{ if(y!==x) need[y]=needOf(y); });
+  const allowed=CARDS.filter(c=>c.id!=="quiet"&&!used.has(c.id)&&!c.lose[x]); const chosen=[];
+  for(;;){
+    let best=null,bh=0;
+    shuffle(allowed).forEach(c=>{ if(chosen.includes(c.id)) return; const h=Object.keys(c.lose).filter(k=>need[k]>0).length; if(h>bh){best=c;bh=h;} });
+    if(!best) break;
+    chosen.push(best.id); Object.keys(best.lose).forEach(k=>{ if(need[k]>0) need[k]--; });
+  }
+  const base=chosen.concat(bonus.map(b=>b.id),wilds);
+  state.special=null; state.plan={survivor:x};
   let bestOrder=base, bestScore=-1e9;
-  for(let it=0;it<900;it++){
+  for(let it=0;it<(fresh?900:500);it++){
     const o=shuffle(base);
-    if(o.length>=5 && Math.random()<.5){ o.splice(1+Math.floor(Math.random()*(o.length-2)),0,"quiet"); }
-    const sc=scoreOrder(o,x,T,win); if(sc>bestScore){bestScore=sc;bestOrder=o;}
+    if(!used.has("quiet") && o.length>=5 && P+o.length<16 && Math.random()<.5){ o.splice(1+Math.floor(Math.random()*(o.length-2)),0,"quiet"); }
+    const sc=scoreOrder(o,x,T,win,P); if(sc>bestScore){bestScore=sc;bestOrder=o;}
   }
   // make sure Sezen Hoca's present and a winning lucky find really happen
-  const must=new Set(); if(x>100) must.add(wb.id); if(hasSezen) must.add("b_sezen");
+  const must=new Set(); if(wb && x===wb.found) must.add(wb.id); if(bonus.some(b=>b.id==="b_sezen")) must.add("b_sezen");
   must.forEach(id=>{
-    const tooLate=o=>{ const k=o.indexOf(id), st=simulate(o,T).steps; return st[k].fail || st.slice(0,k).some(s=>s.alive.reduce((a,b)=>a+b,0)<=1); };
+    const tooLate=o=>{ const k=P+o.indexOf(id), st=simulate(state.played.concat(o),T).steps; return st[k].fail || st.slice(P,k).some(s=>s.alive.reduce((a,b)=>a+b,0)<=1); };
     if(!tooLate(bestOrder)) return;
     const rest=bestOrder.filter(c=>c!==id);
     for(const p of [2,1,0]){ const o=rest.slice(); o.splice(p,0,id); if(p===0||!tooLate(o)){ bestOrder=o; break; } }
   });
-  // safety net: anything still alive apart from x is taken by one final card
-  const sim=simulate(bestOrder,T); const left={};
-  sim.inv.forEach(L=>L.forEach(it=>{ if(!it.lost&&it.id!==x) left[it.id]="The zombies found it."; }));
+  // safety net: anything still alive apart from x is taken by one final card (shields can't stop it)
+  const sim=simulate(state.played.concat(bestOrder),T); const left={};
+  sim.inv.forEach(L=>L.forEach(it=>{ if(alive(it)&&it.id!==x) left[it.id]="The zombies found it."; }));
   if(Object.keys(left).length){
-    state.special={id:"last",e:"🧟‍♀️",t:"The last stand",x:"The zombies surround you on the final night. Only one thing can save you now.",lose:left};
+    state.special={id:"last",e:"🧟‍♀️",t:"The last stand",x:"The zombies surround you on the final night. Only one thing can save you now.",lose:left,pierce:true};
     bestOrder=bestOrder.concat("last");
   }
-  state.plan={survivor:x,team:win}; state.deck=bestOrder; state.played=[];
+  state.deck=bestOrder;
 }
-function scoreOrder(o,x,T,win){
-  const {inv,steps}=simulate(o,T);
-  let firstOut=-1, alone=-1, wasted=0, fails=0, end=-1, comeback=0, score=0;
-  steps.forEach((s,k)=>{
-    const c=CARD(o[k]);
-    if(c.bonus){ if(s.fail) fails++; else { const t=s.gains[0].team; if(k>0 && steps[k-1].alive[t]<=2) comeback++; if(k===0) score-=10; } }
-    else if(o[k]!=="quiet" && !s.hits.length && end<0) wasted++;
-    if(firstOut<0 && s.alive.some(v=>v===0)) firstOut=k;
-    if(alone<0 && s.alive.every((v,i)=>i===win||v===0)) alone=k;
-    if(end<0 && s.alive.reduce((a,b)=>a+b,0)===1) end=k;
-  });
-  const leftover=inv.reduce((a,L)=>a+L.filter(it=>!it.lost&&it.id!==x).length,0);
-  const len = end>=0 ? end+1 : o.length+1;
-  score += alone*10 + Math.min(firstOut,3)*4 - wasted*8 - fails*60 + comeback*4 - leftover*30;
+function scoreOrder(o,x,T,win,P){
+  const full=state.played.concat(o), {inv,steps}=simulate(full,T);
+  let firstOut=-1, alone=-1, wasted=0, fails=0, end=-1, comeback=0, score=0, wildLate=0;
+  for(let j=0;j<o.length;j++){
+    const k=P+j, s=steps[k], c=CARD(o[j]);
+    if(c.bonus){ if(s.fail) fails++; else { const t=s.gains[0].team; if(k>0 && steps[k-1].alive[t]<=2) comeback++; if(j===0&&!P) score-=10; } }
+    else if(c.wild){ if(end>=0) wildLate++; else if(!P && j<2) score-=40; if((c.wild==="caught"||c.wild==="justice") && j>2) score-=25*(j-2); }
+    else if(o[j]!=="quiet" && !s.hits.length && !s.blocks.length && end<0) wasted++;
+    if(firstOut<0 && s.alive.some(v=>v===0)) firstOut=j;
+    if(alone<0 && s.alive.every((v,i)=>i===win||v===0)) alone=j;
+    if(end<0 && s.alive.reduce((a,b)=>a+b,0)===1) end=j;
+  }
+  const leftover=inv.reduce((a,L)=>a+L.filter(it=>alive(it)&&it.id!==x).length,0);
+  const len=end>=0?end+1:o.length+1, target=Math.max(3,15-P);
+  score += alone*10 + Math.min(firstOut,3)*4 - wasted*8 - fails*60 + comeback*4 - leftover*30 - wildLate*80;
   if(end>=0) score -= (o.length-1-end)*4;
-  if(len>14) score -= (len-14)*10;
+  if(len>target) score -= (len-target)*10;
   if(o[0]==="quiet") score-=20;
   return score;
 }
 
+/* ---------- wildcards: what happens when one is flipped ---------- */
+function resolveWild(k){
+  const c=CARD(state.played[k]), T=teams(), cur=simulate(state.played.slice(0,k),T);
+  const cnt=cur.inv.map(L=>L.filter(alive).length), live=cnt.map((v,i)=>i).filter(i=>cnt[i]>0);
+  const pick=a=>shuffle(a)[0], itemsOf=i=>cur.inv[i].filter(alive).map(e=>e.id);
+  let moves=[];
+  if(c.wild==="raid"){
+    // the team with the fewest items raids; teams with only one item are safe
+    const cands=live.filter(i=>live.some(j=>j!==i&&cnt[j]>=2));
+    if(cands.length){ const m=Math.min(...cands.map(i=>cnt[i])); state.pending={k,type:"raid",team:pick(cands.filter(i=>cnt[i]===m))}; return; }
+  } else if(c.wild==="trade"){
+    if(live.length>=2){ const [a,b]=shuffle(live); state.pending={k,type:"trade",teams:[a,b],stage:0,picks:[]}; return; }
+  } else if(c.wild==="charity"){
+    const lenders=live.filter(i=>cnt[i]>=2);
+    if(lenders.length && live.length>=2){
+      const M=Math.max(...lenders.map(i=>cnt[i])), L=pick(lenders.filter(i=>cnt[i]===M));
+      const rec=live.filter(i=>i!==L), m=Math.min(...rec.map(i=>cnt[i])), R=pick(rec.filter(i=>cnt[i]===m));
+      moves=[{id:pick(itemsOf(L)),from:L,to:R,how:"loan"}];
+    }
+  } else if(c.wild==="sneak"){
+    const pairs=[]; live.forEach(a=>live.forEach(b=>{ if(a!==b&&cnt[b]>=2) pairs.push([a,b]); }));
+    if(pairs.length){ const [a,b]=pick(pairs); moves=[{id:pick(itemsOf(b)),from:b,to:a,how:"sneak"}]; }
+  } else if(c.wild==="caught"||c.wild==="justice"){
+    const r=cur.lastRaid;
+    if(r && cur.inv[r.to].some(e=>e.id===r.id&&alive(e)) && cnt[r.to]>=2){
+      if(c.wild==="caught" && r.id!==state.plan.survivor) moves=[{destroy:true,id:r.id,from:r.to}];
+      else if(cnt[r.from]>0) moves=[{id:r.id,from:r.to,to:r.from,how:"justice"}];
+    }
+  }
+  state.moves[k]=moves;
+  replan();
+}
+function replan(){ if(totalAlive(current())>1) buildPlan(false); }
+function pickable(i,it,cnt){
+  const p=state.pending; if(!p||!alive(it)) return false;
+  return p.type==="raid" ? i!==p.team && cnt[i]>=2 : i===p.teams[p.stage];
+}
+function pickItem(team,id){
+  const p=state.pending; if(!p||busy) return;
+  if(p.type==="raid") return finishPick([{id,from:team,to:p.team,how:"raid"}]);
+  p.picks.push({id,from:team});
+  if(p.stage===0){ p.stage=1; FX.pick(); save(); render(); return; }
+  const [a,b]=p.picks;
+  finishPick([{id:a.id,from:a.from,to:b.from,how:"trade"},{id:b.id,from:b.from,to:a.from,how:"trade"}]);
+}
+function finishPick(moves){
+  const k=state.pending.k; state.pending=null; state.moves[k]=moves; replan();
+  state.justFlipped=true; FX.pick(); save(); render();
+}
+
 /* ---------- state helpers ---------- */
 function current(){ return simulate(state.played,teams()); }
-function totalAlive(sim){ return sim.inv.reduce((a,L)=>a+L.filter(it=>!it.lost).length,0); }
-function finished(){ return !!state.plan && state.played.length>0 && totalAlive(current())<=1; }
+function totalAlive(sim){ return sim.inv.reduce((a,L)=>a+L.filter(alive).length,0); }
+function finished(){ return !!state.plan && !state.pending && state.played.length>0 && totalAlive(current())<=1; }
 
 /* ---------- rendering ---------- */
 function setPhase(p){ state.phase=p; save(); render(); window.scrollTo({top:0}); }
@@ -976,7 +1126,7 @@ function renderItems(){
   $("#items").innerHTML=ITEMS.map(([id,e,n])=>{
     const o=ownerOf(id), mine=o===state.active, taken=o>=0&&!mine;
     return `<button class="tile${mine?" mine":""}${taken?" taken":""}" data-item="${id}" aria-pressed="${mine}" title="${esc(n)}${taken?" (taken by "+esc(T[o].name)+")":""}">
-      <span class="no">#${id}</span><span class="em">${e}</span><span class="nm">${esc(n)}</span>
+      <span class="no">#${id}${tierOf(id)?` <i class="tier ${tierOf(id)}">${tierOf(id)==="tough"?"🛡️ TOUGH":"STURDY"}</i>`:""}</span><span class="em">${e}</span><span class="nm">${esc(n)}</span>
       ${o>=0?`<span class="dots"><span class="dot" style="background:${TEAM_COLORS[o]}"></span></span>${taken?`<span class="owner">${esc(T[o].name)}</span>`:""}`:""}</button>`;
   }).join("");
 }
@@ -1001,53 +1151,81 @@ function renderStart(){
   $("#startMsg").textContent = bad.length ? `Waiting for: ${bad.map(t=>`${t.name} (${t.picks.length}/${state.perTeam})`).join(", ")}` : `All ${T.length} teams are ready.`;
   $("#startAnyway").hidden = true;
 }
+const OUT={raid:"STOLEN",trade:"TRADED",loan:"LENT",sneak:"STOLEN",justice:"RETURNED",back:"RETURNED"};
+const IN={raid:"RAIDED",trade:"TRADED",loan:"BORROWED",sneak:"STOLEN",justice:"RETURNED",back:"BACK"};
+function moveText(m,T){
+  const it=ITEM[m.id], nm=`${it.e} <b>${esc(it.n)}</b>`, a=`<b>${esc(T[m.from].name)}</b>`, b=m.to!==undefined?`<b>${esc(T[m.to].name)}</b>`:"";
+  if(m.destroy) return `Erman Hoca confiscates ${nm} from ${a}. Gone!`;
+  return {raid:`${b} raided ${nm} from ${a}.`, trade:`${a} gave ${nm} to ${b}.`, loan:`${a} lent ${nm} to ${b}. It comes back after two cards.`,
+    sneak:`${b} stole ${nm} from ${a}.`, justice:`${nm} goes back to ${b}.`, back:`${nm} goes back to ${b}.`}[m.how];
+}
+function survivor(){ const sim=current(); for(let i=0;i<sim.inv.length;i++){ const it=sim.inv[i].find(alive); if(it) return {id:it.id,team:i}; } return null; }
 function renderPlay(){
   const T=teams(), n=state.plan?state.played.length:0, last=n?CARD(state.played[n-1]):null;
-  const sim=state.plan?current():null, done=finished();
+  const sim=state.plan?current():null, done=finished(), p=state.pending, step=n?sim.steps[n-1]:null;
   $("#aliveTotal").textContent = sim? totalAlive(sim) : 0;
   $("#undoBtn").disabled=n===0;
-  $("#flipBtn").disabled = !done && !state.deck.length;
-  $("#flipBtn").textContent = done ? (state.revealed ? "Show the rescue 🚁" : "Reveal the escape plan 🚁") : "Flip next card";
+  $("#flipBtn").disabled = !!p || (!done && !state.deck.length);
+  $("#flipBtn").textContent = p ? "Choose an item on the board" : done ? (state.revealed ? "Show the rescue 🚁" : "Reveal the escape plan 🚁") : "Flip next card";
   const c3=$("#card3d"), front=$("#cardFront");
+  const dot=(i,cls="")=>`<span class="dot${cls}" style="background:${TEAM_COLORS[i]}"></span>`;
   if(last){
-    const step=sim.steps[n-1];
-    front.classList.toggle("bonus",!!last.bonus);
-    const dot=i=>`<span class="dot" style="background:${TEAM_COLORS[i]}"></span>`;
+    front.classList.toggle("bonus",!!last.bonus); front.classList.toggle("wild",!!last.wild);
     let body;
     if(last.bonus){
       const trig=ITEM[last.trigger], f=ITEM[last.found];
       body = step.gains.length
         ? `<div class="gainhdr">${last.id==="b_sezen"?"With love from Sezen Hoca":"Lucky find!"}</div><div class="gainbox"><span class="ge">${f.e}</span><span><b>${esc(T[step.gains[0].team].name)}</b> gets<br><b class="gi">${esc(f.n)}</b></span>${dot(step.gains[0].team)}</div><p class="gnote">Thanks to: ${trig.e} ${esc(trig.n)}</p>`
         : `<div class="gainhdr">No luck</div><p class="ctext">Nobody has the ${esc(trig.n)} any more. Nothing happens.</p>`;
+    } else if(last.wild){
+      if(p && p.k===n-1){
+        const who=p.type==="raid"?p.team:p.teams[p.stage], to=p.type==="trade"?p.teams[1-p.stage]:-1;
+        body=`<div class="wildhdr">${p.type==="raid"?"Raid time":"Trade "+(p.stage+1)+" of 2"}</div><p class="ctext">${p.type==="raid"
+          ? `<b>${esc(T[who].name)}</b>, choose one item to take from another team. Teams with only one item are safe.`
+          : `<b>${esc(T[who].name)}</b>, choose one of your items to give to <b>${esc(T[to].name)}</b>.`} Click it on the board.</p>
+          <button class="btn sec" id="autoPick">Let the game choose</button>`;
+      } else {
+        const ms=step.moves.filter(m=>m.how!=="back");
+        body=`<div class="wildhdr">What happened</div>`+(ms.length?`<ul class="movelist">${ms.map(m=>`<li>${moveText(m,T)}</li>`).join("")}</ul>`:`<p class="ctext">Nobody can do anything this time. Phew!</p>`);
+      }
     } else {
-      const hitBy={}; step.hits.forEach(h=>{ (hitBy[h.id]=hitBy[h.id]||[]).push(h.team); });
-      const entries=Object.entries(last.lose).sort((a,b)=>(hitBy[b[0]]?1:0)-(hitBy[a[0]]?1:0));
+      const hitBy={}, blockBy={};
+      step.hits.forEach(h=>{ (hitBy[h.id]=hitBy[h.id]||[]).push(h.team); });
+      step.blocks.forEach(h=>{ (blockBy[h.id]=blockBy[h.id]||[]).push(h.team); });
+      const act=id=>hitBy[id]||blockBy[id];
+      const entries=Object.entries(last.lose).sort((a,b)=>(act(b[0])?1:0)-(act(a[0])?1:0));
       body = entries.length
-        ? `<div class="losthdr">Everyone loses</div><ul class="lostlist">${entries.map(([id,why])=>{const it=ITEM[id], hs=hitBy[id]||[];
-            return `<li class="${hs.length?"":"nobody"}"><span class="e">${it.e}</span><span><b>${+id<100?"#"+id+" ":""}${esc(it.n)}</b><span class="why">${esc(why)}</span></span><span class="who">${hs.map(dot).join("")}</span></li>`;}).join("")}</ul>`
+        ? `<div class="losthdr">Everyone loses</div><ul class="lostlist">${entries.map(([id,why])=>{const it=ITEM[id], hs=hitBy[id]||[], bs=blockBy[id]||[];
+            const saved=bs.length&&!hs.length;
+            return `<li class="${act(id)?"":"nobody"}${saved?" saved":""}"><span class="e">${it.e}</span><span><b>${+id<100?"#"+id+" ":""}${esc(it.n)}</b><span class="why">${saved?"🛡️ Blocked! The shield breaks, but the item survives.":esc(why)}</span></span><span class="who">${hs.map(i=>dot(i)).join("")}${bs.map(i=>dot(i," sh")).join("")}</span></li>`;}).join("")}</ul>`
         : `<div class="phew">No items lost!</div>`;
     }
-    front.innerHTML=`<div class="ctop"><span>Event ${n}</span><span>Day ${Math.min(3,1+Math.floor((n-1)/4))}</span></div>
+    const backs=step.moves.filter(m=>m.how==="back");
+    if(backs.length) body+=backs.map(m=>`<p class="gnote">↩ ${moveText(m,T)}</p>`).join("");
+    front.innerHTML=`<div class="ctop"><span>${last.wild?"Wildcard":"Event"} ${n}</span><span>Day ${Math.min(3,1+Math.floor((n-1)/4))}</span></div>
       <div class="cem">${last.e}</div><h3>${esc(last.t)}</h3><p class="ctext">${esc(last.x)}</p>${body}`;
     c3.classList.add("flipped");
-  } else { c3.classList.remove("flipped"); front.innerHTML=""; front.classList.remove("bonus"); }
+  } else { c3.classList.remove("flipped"); front.innerHTML=""; front.classList.remove("bonus","wild"); }
   $("#backHint").textContent = done? "The rescue has arrived" : "Press “Flip next card” or Space";
-  const win=done&&state.plan?state.plan.team:-1;
-  const died=n?diedOn(sim,n):[], dying=state.justFlipped&&FX.fx?died:[];
+  const win=done?(survivor()||{team:-1}).team:-1;
+  const died=n?diedOn(sim,n):[], dying=state.justFlipped&&FX.fx?died:[], D=state.dodge||{};
   $("#board").innerHTML=T.map((t,i)=>{
-    const L=sim?sim.inv[i]:t.picks.map(id=>({id,found:false,got:0,lost:0}));
-    const alive=L.filter(it=>!it.lost).length;
-    const ate = alive===0&&sim ? Math.max(...L.map(it=>it.lost)) : 0;
-    return `<div class="team${alive===0?" out":""}${i===win?" win":""}${dying.includes(i)?" dying":""}" style="--tc:${TEAM_COLORS[i]};--bd:${2.2+Math.max(0,dying.indexOf(i))*.6}s">
+    const L=sim?sim.inv[i]:t.picks.map(id=>({id,found:false,got:0,lost:0,gone:0,shield:TOUGH.includes(id)?1:0}));
+    const alv=L.filter(alive).length, cnt=sim?sim.inv.map(M=>M.filter(alive).length):[];
+    const ate = alv===0&&sim ? Math.max(...L.map(it=>it.lost)) : 0;
+    return `<div class="team${alv===0?" out":""}${i===win?" win":""}${dying.includes(i)?" dying":""}" style="--tc:${TEAM_COLORS[i]};--bd:${2.2+Math.max(0,dying.indexOf(i))*.6}s">
       <h3>${esc(t.name)}</h3>
-      <div class="left">${alive===0?`Eaten on card ${ate}`:i===win?"Rescued!":`${alive} item${alive===1?"":"s"} left`}</div>
-      <ul>${L.map(it=>{const fresh=state.justFlipped&&it.lost===n, got=state.justFlipped&&it.got===n&&it.found;
-        return `<li class="${it.lost?"lost":""}${it.found?" found":""}${GIFTS.includes(it.id)?" gift":""}${fresh?" fresh":""}${got?" gained":""}"><span class="e">${ITEM[it.id].e}</span>${esc(ITEM[it.id].n)}</li>`;}).join("")}</ul>
-      ${alive===0?`<div class="eaten">EATEN</div>`:""}
+      <div class="left">${alv===0?`Eaten on card ${ate}`:i===win?"Rescued!":`${alv} item${alv===1?"":"s"} left`}</div>
+      <ul>${L.map(it=>{
+        const tier=tierOf(it.id), jf=state.justFlipped, fresh=jf&&it.lost===n, got=jf&&it.got===n, blocked=jf&&step&&step.blocks.some(b=>b.id===it.id);
+        const tag=it.gone?OUT[it.out]:it.in?IN[it.in]:"", pk=sim&&pickable(i,it,cnt);
+        const sh=!it.lost&&!it.gone&&(TOUGH.includes(it.id)||(D[it.id]&&!it.shield)) ? `<span class="sh${it.shield?"":" used"}" title="${it.shield?"Shield ready":"Shield used"}">🛡️</span>` : "";
+        return `<li class="${it.lost?"lost":""}${it.gone?" gone":""}${it.in&&!it.gone?" moved":""}${it.found?" found":""}${GIFTS.includes(it.id)?" gift":""}${tier?" t-"+tier:""}${fresh?" fresh":""}${got&&it.found&&!it.in?" gained":""}${got&&it.in&&!it.gone?" arrived":""}${blocked?" blocked":""}${pk?" pick":""}"${tag?` data-tag="${tag}"`:""}${pk?` data-pick="${i}:${it.id}" tabindex="0" role="button"`:""}><span class="e">${ITEM[it.id].e}</span>${esc(ITEM[it.id].n)}${sh}</li>`;}).join("")}</ul>
+      ${alv===0?`<div class="eaten">EATEN</div>`:""}
       ${dying.includes(i)?`<div class="bite" aria-hidden="true"><span class="bz two">🧟‍♀️</span><span class="bz three">🧟‍♂️</span><span class="bz">🧟</span></div>`:""}
     </div>`;
   }).join("");
-  $("#log").innerHTML = n? state.played.map((id,k)=>`<li${CARD(id).bonus?' class="lucky"':""}><b>${k+1}</b>${CARD(id).e} ${esc(CARD(id).t)}</li>`).join("") : `<li>None yet</li>`;
+  $("#log").innerHTML = n? state.played.map((id,k)=>`<li${CARD(id).bonus?' class="lucky"':CARD(id).wild?' class="wild"':""}><b>${k+1}</b>${CARD(id).e} ${esc(CARD(id).t)}</li>`).join("") : `<li>None yet</li>`;
   clearTimeout(window.__zrPrompt);
   const wantPrompt = done && !state.revealed && state.phase==="play";
   if(wantPrompt){
@@ -1063,7 +1241,7 @@ function renderPlay(){
 }
 
 function fillWin(typing){
-  const T=teams(), x=state.plan.survivor, it=ITEM[x], tm=T[state.plan.team];
+  const T=teams(), w=survivor(), x=w.id, it=ITEM[x], tm=T[w.team];
   $("#winEmoji").textContent=it.e;
   $("#winTitle").textContent=`${tm.name} survives!`;
   $("#winWith").textContent= x<100 ? `The last item standing: #${x} ${it.n}` : `The last item standing: ${it.n} ${GIFTS.includes(x)?"(a present from Sezen Hoca!)":"(a lucky find!)"}`;
@@ -1103,20 +1281,23 @@ function tension(){ // 0 = early in the game, 3 = close to the end, 4 = the card
 }
 function diedOn(sim,n){ return sim.inv.map((L,i)=>i).filter(i=>sim.steps[n-1].alive[i]===0&&(n===1||sim.steps[n-2].alive[i]>0)); }
 function flip(){
-  if(busy||!state.plan||finished()||!state.deck.length) return;
+  if(busy||!state.plan||state.pending||finished()||!state.deck.length) return;
   busy=true; FX.clear();
   const next=state.deck[0], c3=$("#card3d"), was=c3.classList.contains("flipped"), tn=tension(), g=run;
   c3.classList.remove("flipped");
   setTimeout(()=>{ if(g!==run) return; FX.suspense(next,tn,()=>{
     if(g!==run) return;
-    state.played.push(state.deck.shift()); state.justFlipped=true; state.overlayDismissed=false;
+    (state.hist=state.hist||[]).push({deck:state.deck.slice(),plan:state.plan,special:state.special});
+    state.played.push(state.deck.shift()); if(CARD(next).wild) resolveWild(state.played.length-1); state.justFlipped=true; state.overlayDismissed=false;
     const died=diedOn(current(),state.played.length).length;
     save(); render(); FX.reveal(next,tn); if(died) FX.eaten(died); setTimeout(()=>{ if(g===run) busy=false; },600);
   }); }, was&&(FX.fx||FX.snd)?700:(was?250:0));
 }
-function startGame(){ cancelFlip(); state.revealed=false; buildPlan(); state.overlayDismissed=false; setPhase("play"); }
+function startGame(){ cancelFlip(); state.revealed=false; buildPlan(true); state.overlayDismissed=false; setPhase("play"); }
 
 document.addEventListener("click",e=>{
+  const pk=e.target.closest("[data-pick]"); if(pk){ const [i,id]=pk.dataset.pick.split(":").map(Number); pickItem(i,id); return; }
+  if(e.target.closest("#autoPick")){ const all=[...document.querySelectorAll("[data-pick]")]; if(all.length){ const [i,id]=shuffle(all)[0].dataset.pick.split(":").map(Number); pickItem(i,id); } return; }
   const go=e.target.closest("[data-go]"); if(go){ if(go.dataset.go==="play"&&!state.plan){ setPhase("choose"); return;} setPhase(go.dataset.go); return; }
   const tile=e.target.closest("[data-item]");
   if(tile){ if(state.plan&&state.played.length){ return; }
@@ -1147,10 +1328,11 @@ $("#startBtn").addEventListener("click",startGame);
 $("#flipBtn").addEventListener("click",()=>{ if(finished()){ if(!state.revealed) revealEscape(); else { state.overlayDismissed=false; save(); render(); } } else flip(); });
 $("#revealBtn").addEventListener("click",revealEscape);
 $("#winStory").addEventListener("click",()=>{ clearInterval(window.__zrType); fillWin(false); });
-$("#undoBtn").addEventListener("click",()=>{ if(!state.played.length||busy) return; FX.clear(); state.revealed=false; clearTimeout(window.__zrPrompt); state.deck.unshift(state.played.pop()); state.overlayDismissed=false; save(); render(); });
+$("#undoBtn").addEventListener("click",()=>{ if(!state.played.length||busy) return; FX.clear(); state.revealed=false; clearTimeout(window.__zrPrompt); const k=state.played.length-1, id=state.played.pop(), h=(state.hist||[]).pop(); delete state.moves[k]; state.pending=null; if(h){ state.deck=h.deck; state.plan=h.plan; state.special=h.special; } else state.deck.unshift(id); state.overlayDismissed=false; save(); render(); });
 $("#winClose").addEventListener("click",()=>{ state.overlayDismissed=true; save(); render(); });
 $("#winNew").addEventListener("click",()=>{ newGame(); });
 document.addEventListener("keydown",e=>{
+  if((e.key==="Enter"||e.key===" ")&&document.activeElement&&document.activeElement.dataset&&document.activeElement.dataset.pick){ e.preventDefault(); document.activeElement.click(); return; }
   if(state.phase!=="play"||e.code!=="Space") return;
   const tag=(document.activeElement&&document.activeElement.tagName)||""; if(/INPUT|SELECT|TEXTAREA|BUTTON/.test(tag)) return;
   e.preventDefault(); flip();
@@ -1189,7 +1371,7 @@ drawToggles();
 
 /* ---------- boot ---------- */
 function start(data){
-  const carried = data&&data.state&&data.state.v===4 ? data.state : null;
+  const carried = data&&data.state&&data.state.v===5 ? data.state : null;
   state = carried || load() || freshState();
   state.justFlipped=false;
   drawClock(); render();

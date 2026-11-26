@@ -105,6 +105,9 @@ h2.sec{font-family:var(--f-display);font-size:clamp(28px,4vw,44px);line-height:1
 .tile{position:relative;background:var(--khaki);color:var(--ink);border:2px solid var(--khaki-2);border-radius:8px;padding:8px 10px 10px;text-align:left;display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:8px;align-items:center;min-height:74px}
 .tile:hover{border-color:var(--caution)}
 .tile .no{grid-column:1/-1;font-family:var(--f-cond);font-weight:700;font-size:15px;letter-spacing:.05em;color:#6b6450}
+.tier{font-style:normal;font-family:var(--f-cond);font-weight:700;font-size:11px;letter-spacing:.08em;padding:1px 5px;border-radius:3px;margin-left:5px;vertical-align:1px;white-space:nowrap}
+.tier.tough{background:#d4a634;color:#232818}
+.tier.sturdy{background:#9aa4ab;color:#232818}
 .tile .em{font-size:28px;line-height:1}
 .tile .nm{font-weight:600;font-size:15.5px;line-height:1.15}
 .tile .dots{position:absolute;top:7px;right:8px;display:flex;gap:3px}
@@ -326,6 +329,8 @@ footer{color:var(--muted);font-size:14px;padding-block:24px 40px;text-align:cent
           <li>Each team chooses <b id="ruleN">6</b> items from the supply room.</li>
           <li><b>First come, first served:</b> every item belongs to only one team.</li>
           <li>Event cards will destroy items, but some items can help you find <b>new</b> ones. When your team has nothing left, the zombies get you.</li>
+          <li><b>🛡️ Tough</b> items always survive their first hit. <b>Sturdy</b> items sometimes do.</li>
+          <li><b>🃏 Wildcards</b> can make teams raid, trade, lend or steal items. But thieves can get caught!</li>
           <li>In the end, only <b>one item</b> survives. The team holding it is rescued!</li>
         </ol>
       </aside>
@@ -333,63 +338,63 @@ footer{color:var(--muted);font-size:14px;padding-block:24px 40px;text-align:cent
 <li class="tile"><span class="no">#1</span><span class="em">🔦</span><span class="nm">Flashlight</span></li>
 <li class="tile"><span class="no">#2</span><span class="em">🔥</span><span class="nm">Lighter</span></li>
 <li class="tile"><span class="no">#3</span><span class="em">🎆</span><span class="nm">Box of fireworks</span></li>
-<li class="tile"><span class="no">#4</span><span class="em">⛺</span><span class="nm">Tent</span></li>
+<li class="tile"><span class="no">#4 <i class="tier sturdy">STURDY</i></span><span class="em">⛺</span><span class="nm">Tent</span></li>
 <li class="tile"><span class="no">#5</span><span class="em">🧻</span><span class="nm">100 rolls of toilet paper</span></li>
-<li class="tile"><span class="no">#6</span><span class="em">🗺️</span><span class="nm">Map of Antalya</span></li>
-<li class="tile"><span class="no">#7</span><span class="em">🎸</span><span class="nm">Electric guitar</span></li>
+<li class="tile"><span class="no">#6 <i class="tier tough">🛡️ TOUGH</i></span><span class="em">🗺️</span><span class="nm">Map of Antalya</span></li>
+<li class="tile"><span class="no">#7 <i class="tier sturdy">STURDY</i></span><span class="em">🎸</span><span class="nm">Electric guitar</span></li>
 <li class="tile"><span class="no">#8</span><span class="em">🎤</span><span class="nm">Karaoke machine</span></li>
 <li class="tile"><span class="no">#9</span><span class="em">📢</span><span class="nm">Megaphone</span></li>
 <li class="tile"><span class="no">#10</span><span class="em">📯</span><span class="nm">Air horn</span></li>
 <li class="tile"><span class="no">#11</span><span class="em">🦆</span><span class="nm">Squeaky rubber duck</span></li>
 <li class="tile"><span class="no">#12</span><span class="em">🐈</span><span class="nm">Very angry cat</span></li>
-<li class="tile"><span class="no">#13</span><span class="em">🐕</span><span class="nm">Loyal dog</span></li>
+<li class="tile"><span class="no">#13 <i class="tier tough">🛡️ TOUGH</i></span><span class="em">🐕</span><span class="nm">Loyal dog</span></li>
 <li class="tile"><span class="no">#14</span><span class="em">🐎</span><span class="nm">Horse</span></li>
 <li class="tile"><span class="no">#15</span><span class="em">🦜</span><span class="nm">Talking parrot</span></li>
 <li class="tile"><span class="no">#16</span><span class="em">🍫</span><span class="nm">10 kg of chocolate</span></li>
 <li class="tile"><span class="no">#17</span><span class="em">🍯</span><span class="nm">Jar of honey</span></li>
 <li class="tile"><span class="no">#18</span><span class="em">🥫</span><span class="nm">20 tins of beans</span></li>
 <li class="tile"><span class="no">#19</span><span class="em">🍌</span><span class="nm">Bunch of bananas</span></li>
-<li class="tile"><span class="no">#20</span><span class="em">💧</span><span class="nm">5-litre bottle of water</span></li>
-<li class="tile"><span class="no">#21</span><span class="em">🚲</span><span class="nm">Bicycle</span></li>
+<li class="tile"><span class="no">#20 <i class="tier sturdy">STURDY</i></span><span class="em">💧</span><span class="nm">5-litre bottle of water</span></li>
+<li class="tile"><span class="no">#21 <i class="tier sturdy">STURDY</i></span><span class="em">🚲</span><span class="nm">Bicycle</span></li>
 <li class="tile"><span class="no">#22</span><span class="em">🛹</span><span class="nm">Skateboard</span></li>
 <li class="tile"><span class="no">#23</span><span class="em">🛼</span><span class="nm">Roller skates</span></li>
 <li class="tile"><span class="no">#24</span><span class="em">🛒</span><span class="nm">Shopping trolley</span></li>
 <li class="tile"><span class="no">#25</span><span class="em">🛵</span><span class="nm">Pizza scooter</span></li>
-<li class="tile"><span class="no">#26</span><span class="em">🪜</span><span class="nm">Ladder</span></li>
+<li class="tile"><span class="no">#26 <i class="tier sturdy">STURDY</i></span><span class="em">🪜</span><span class="nm">Ladder</span></li>
 <li class="tile"><span class="no">#27</span><span class="em">🤸</span><span class="nm">Trampoline</span></li>
 <li class="tile"><span class="no">#28</span><span class="em">🎈</span><span class="nm">Hot-air balloon</span></li>
 <li class="tile"><span class="no">#29</span><span class="em">🦄</span><span class="nm">Giant inflatable unicorn</span></li>
-<li class="tile"><span class="no">#30</span><span class="em">🕹️</span><span class="nm">Drone (with remote)</span></li>
+<li class="tile"><span class="no">#30 <i class="tier sturdy">STURDY</i></span><span class="em">🕹️</span><span class="nm">Drone (with remote)</span></li>
 <li class="tile"><span class="no">#31</span><span class="em">📱</span><span class="nm">Phone (3% battery)</span></li>
-<li class="tile"><span class="no">#32</span><span class="em">📻</span><span class="nm">Walkie-talkies</span></li>
+<li class="tile"><span class="no">#32 <i class="tier sturdy">STURDY</i></span><span class="em">📻</span><span class="nm">Walkie-talkies</span></li>
 <li class="tile"><span class="no">#33</span><span class="em">💨</span><span class="nm">Hairdryer</span></li>
 <li class="tile"><span class="no">#34</span><span class="em">🪞</span><span class="nm">Big mirror</span></li>
 <li class="tile"><span class="no">#35</span><span class="em">🎱</span><span class="nm">Magic 8-Ball</span></li>
-<li class="tile"><span class="no">#36</span><span class="em">🔭</span><span class="nm">Binoculars</span></li>
+<li class="tile"><span class="no">#36 <i class="tier sturdy">STURDY</i></span><span class="em">🔭</span><span class="nm">Binoculars</span></li>
 <li class="tile"><span class="no">#37</span><span class="em">🧴</span><span class="nm">Bucket of super glue</span></li>
-<li class="tile"><span class="no">#38</span><span class="em">🩹</span><span class="nm">Duct tape</span></li>
+<li class="tile"><span class="no">#38 <i class="tier tough">🛡️ TOUGH</i></span><span class="em">🩹</span><span class="nm">Duct tape</span></li>
 <li class="tile"><span class="no">#39</span><span class="em">🪢</span><span class="nm">20 m of rope</span></li>
 <li class="tile"><span class="no">#40</span><span class="em">⚾</span><span class="nm">Baseball bat</span></li>
 <li class="tile"><span class="no">#41</span><span class="em">🍳</span><span class="nm">Frying pan</span></li>
-<li class="tile"><span class="no">#42</span><span class="em">🧯</span><span class="nm">Fire extinguisher</span></li>
-<li class="tile"><span class="no">#43</span><span class="em">⛑️</span><span class="nm">First-aid kit</span></li>
+<li class="tile"><span class="no">#42 <i class="tier sturdy">STURDY</i></span><span class="em">🧯</span><span class="nm">Fire extinguisher</span></li>
+<li class="tile"><span class="no">#43 <i class="tier tough">🛡️ TOUGH</i></span><span class="em">⛑️</span><span class="nm">First-aid kit</span></li>
 <li class="tile"><span class="no">#44</span><span class="em">🧄</span><span class="nm">Garlic necklace</span></li>
-<li class="tile"><span class="no">#45</span><span class="em">🛌</span><span class="nm">Sleeping bag</span></li>
+<li class="tile"><span class="no">#45 <i class="tier sturdy">STURDY</i></span><span class="em">🛌</span><span class="nm">Sleeping bag</span></li>
 <li class="tile"><span class="no">#46</span><span class="em">🗝️</span><span class="nm">Mysterious golden key</span></li>
-<li class="tile"><span class="no">#47</span><span class="em">☕</span><span class="nm">Flask of hot coffee</span></li>
-<li class="tile"><span class="no">#48</span><span class="em">🧑‍🏫</span><span class="nm">Aziz Hoca (English teacher)</span></li>
-<li class="tile"><span class="no">#49</span><span class="em">🎒</span><span class="nm">Backpack full of textbooks</span></li>
+<li class="tile"><span class="no">#47 <i class="tier sturdy">STURDY</i></span><span class="em">☕</span><span class="nm">Flask of hot coffee</span></li>
+<li class="tile"><span class="no">#48 <i class="tier tough">🛡️ TOUGH</i></span><span class="em">🧑‍🏫</span><span class="nm">Aziz Hoca (English teacher)</span></li>
+<li class="tile"><span class="no">#49 <i class="tier sturdy">STURDY</i></span><span class="em">🎒</span><span class="nm">Backpack full of textbooks</span></li>
 <li class="tile"><span class="no">#50</span><span class="em">🥚</span><span class="nm">Box of 30 eggs</span></li>
-<li class="tile"><span class="no">#51</span><span class="em">👔</span><span class="nm">Ferhan Hoca (principal)</span></li>
-<li class="tile"><span class="no">#52</span><span class="em">📋</span><span class="nm">Erman Hoca (vice principal)</span></li>
+<li class="tile"><span class="no">#51 <i class="tier sturdy">STURDY</i></span><span class="em">👔</span><span class="nm">Ferhan Hoca (principal)</span></li>
+<li class="tile"><span class="no">#52 <i class="tier sturdy">STURDY</i></span><span class="em">📋</span><span class="nm">Erman Hoca (vice principal)</span></li>
 <li class="tile"><span class="no">#53</span><span class="em">🎣</span><span class="nm">Fishing rod</span></li>
-<li class="tile"><span class="no">#54</span><span class="em">🪓</span><span class="nm">Axe</span></li>
-<li class="tile"><span class="no">#55</span><span class="em">🛠️</span><span class="nm">Swiss Army knife</span></li>
+<li class="tile"><span class="no">#54 <i class="tier sturdy">STURDY</i></span><span class="em">🪓</span><span class="nm">Axe</span></li>
+<li class="tile"><span class="no">#55 <i class="tier tough">🛡️ TOUGH</i></span><span class="em">🛠️</span><span class="nm">Swiss Army knife</span></li>
 <li class="tile"><span class="no">#56</span><span class="em">🚁</span><span class="nm">Helicopter (no pilot)</span></li>
-<li class="tile"><span class="no">#57</span><span class="em">👩‍🏫</span><span class="nm">Sezen Hoca (head of English)</span></li>
+<li class="tile"><span class="no">#57 <i class="tier sturdy">STURDY</i></span><span class="em">👩‍🏫</span><span class="nm">Sezen Hoca (head of English)</span></li>
 <li class="tile"><span class="no">#58</span><span class="em">📵</span><span class="nm">Key to the phone locker</span></li>
-<li class="tile"><span class="no">#59</span><span class="em">🛋️</span><span class="nm">School corridor couch</span></li>
-<li class="tile"><span class="no">#60</span><span class="em">🖥️</span><span class="nm">School computer</span></li>
+<li class="tile"><span class="no">#59 <i class="tier sturdy">STURDY</i></span><span class="em">🛋️</span><span class="nm">School corridor couch</span></li>
+<li class="tile"><span class="no">#60 <i class="tier sturdy">STURDY</i></span><span class="em">🖥️</span><span class="nm">School computer</span></li>
 </ul>
 </main>
 <footer class="wrap">Antalya Sınav College · Zombie Drill 2026 · English class game</footer>
