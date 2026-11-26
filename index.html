@@ -125,6 +125,7 @@ h2.sec{font-family:var(--f-display);font-size:clamp(28px,4vw,44px);line-height:1
 .front .gnote{font-size:15px;color:#4d5a3e;margin:8px 0 0}
 .team li.found{box-shadow:inset 0 0 0 2px #7fa86b}
 .team li.found:not(.lost)::after{content:"FOUND";margin-left:auto;font-family:var(--f-cond);font-weight:700;font-size:12px;letter-spacing:.1em;color:#fff;background:#4f8a3c;padding:1px 6px;border-radius:3px}
+.team li.gift:not(.lost)::after{content:"GIFT"}
 .team li.gained{animation:gain 1.2s ease-out}
 @keyframes gain{0%{transform:scale(1.08);background:#9fd486}100%{transform:none}}
 .log li.lucky{border-color:#7fa86b}
@@ -134,6 +135,7 @@ h2.sec{font-family:var(--f-display);font-size:clamp(28px,4vw,44px);line-height:1
 .win-card .tale b{display:block;font-family:var(--f-cond);letter-spacing:.12em;text-transform:uppercase;font-size:14px;color:var(--blood);margin-bottom:4px}
 
 .teams-setup{display:grid;gap:12px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 76px)}
+.teams-setup,#teamCards,.tcard{grid-template-columns:minmax(0,1fr)}
 .tcard{background:var(--panel);border:2px solid var(--line);border-left:8px solid var(--tc);border-radius:10px;padding:12px 14px;display:grid;gap:8px}
 .tcard.active{border-color:var(--tc);border-left-width:8px;background:var(--panel-2)}
 .trow{display:flex;gap:8px;align-items:center}
@@ -195,7 +197,20 @@ h2.sec{font-family:var(--f-display);font-size:clamp(28px,4vw,44px);line-height:1
 .team li.fresh{animation:hit .9s ease-out}
 @keyframes hit{0%{transform:scale(1.06);background:var(--blood);color:#fff}100%{transform:none}}
 .team .eaten{position:absolute;right:-6px;bottom:14px;transform:rotate(-12deg);font-family:var(--f-display);font-size:30px;color:var(--blood);border:4px solid var(--blood);border-radius:6px;padding:0 10px;background:rgba(28,33,24,.85);pointer-events:none}
-.team.win{box-shadow:0 0 0 4px var(--caution)}
+/* a team is eaten: zombies climb into the panel, bite, and the stamp lands */
+.team .bite{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,rgba(201,52,44,.25),rgba(140,0,0,.82));animation:bitered 2.2s ease-in-out var(--bd,2.2s) both}
+.team .bz{position:absolute;left:50%;bottom:0;font-size:104px;line-height:1;animation:bitez 2.1s ease-in-out var(--bd,2.2s) both}
+.team .bz.two{font-size:74px;margin-left:-84px;animation-delay:calc(var(--bd,2.2s) + .18s)}
+.team .bz.three{font-size:74px;margin-left:78px;animation-delay:calc(var(--bd,2.2s) + .3s)}
+.team.dying{animation:panelbite .16s linear calc(var(--bd,2.2s) + .65s) 5}
+.team.dying .eaten{animation:eatenslam .5s cubic-bezier(.2,1.5,.4,1) calc(var(--bd,2.2s) + 1.75s) both}
+@keyframes bitered{0%{opacity:0}30%,70%{opacity:1}100%{opacity:0}}
+@keyframes bitez{0%{transform:translate(-50%,110%)}28%{transform:translate(-50%,-40%) rotate(-5deg)}36%{transform:translate(-50%,-34%) scale(1.22) rotate(5deg)}44%{transform:translate(-50%,-40%) scale(1) rotate(-5deg)}52%{transform:translate(-50%,-34%) scale(1.22) rotate(5deg)}60%{transform:translate(-50%,-40%) scale(1) rotate(-4deg)}68%{transform:translate(-50%,-34%) scale(1.22)}100%{transform:translate(-50%,115%)}}
+@keyframes panelbite{0%,100%{transform:none}25%{transform:translate(-7px,3px) rotate(-1deg)}75%{transform:translate(7px,-3px) rotate(1deg)}}
+@keyframes eatenslam{0%{opacity:0;transform:rotate(-30deg) scale(4)}100%{opacity:1;transform:rotate(-12deg) scale(1)}}
+@media (prefers-reduced-motion:reduce){ .team.dying,.team.dying .eaten{animation:none} .team .bite{display:none} #fx .tint{animation:none!important} }
+.team.win{box-shadow
+:0 0 0 4px var(--caution)}
 
 .log{margin-top:18px}
 .log h4{font-family:var(--f-cond);font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-size:15px;color:var(--muted);margin:0 0 8px}
@@ -272,7 +287,25 @@ main.fx-shake-soft{animation:shakes .14s linear infinite}
 .toggles .ghost{font-size:18px;padding:4px 10px;line-height:1.2}
 .toggles .ghost[aria-pressed="false"]{opacity:.45}
 @media (prefers-reduced-motion:reduce){ .fx-e,.fx-stamp,.card3d.charge,main.fx-shake-hard,main.fx-shake-soft{animation:none!important} }
-.overlay.prompt{background:rgba(15,18,12,.5)}
+/* suspense grows with the game: data-mood suspense1 to suspense4 (4 = the card that ends it) */
+#fx[data-mood="suspense1"] .tint{opacity:1;background:radial-gradient(circle at var(--cx,25%) var(--cy,50%),transparent 230px,rgba(0,0,0,.84) 620px)}
+#fx[data-mood="suspense2"] .tint{opacity:1;background:radial-gradient(circle at var(--cx,25%) var(--cy,50%),transparent 220px,rgba(25,0,0,.88) 540px);animation:thump .7s ease-in-out infinite}
+#fx[data-mood="suspense3"] .tint{opacity:1;background:radial-gradient(circle at var(--cx,25%) var(--cy,50%),transparent 210px,rgba(95,4,0,.6) 350px,rgba(16,0,0,.94) 560px);animation:thump .5s ease-in-out infinite}
+#fx[data-mood="suspense4"] .tint{opacity:1;background:radial-gradient(circle at var(--cx,25%) var(--cy,50%),transparent 200px,rgba(140,6,0,.6) 310px,rgba(0,0,0,.985) 500px);animation:thump .4s ease-in-out infinite}
+#fx[data-mood="hush"] .tint{opacity:1;transition-duration:.15s;background:radial-gradient(circle at var(--cx,25%) var(--cy,50%),transparent 180px,#000 400px)}
+#fx[data-mood="bite"] .tint{opacity:1;background:radial-gradient(ellipse at center,transparent 55%,rgba(150,0,0,.4) 100%)}
+@keyframes thump{0%,100%{opacity:1}35%{opacity:.8}}
+.card3d.charge.t1{animation-duration:1.8s}
+.card3d.charge.t2{animation:charge2 2.5s ease-in both}
+.card3d.charge.t3{animation:charge2 3.3s ease-in both}
+.card3d.charge.t4{animation:charge4 4.6s linear both}
+.card3d.charge.t2 .back{box-shadow:0 0 0 4px var(--caution),0 0 90px 20px rgba(242,110,43,.6)}
+.card3d.charge.t3 .back,.card3d.charge.t4 .back{border-color:var(--blood);box-shadow:0 0 0 5px var(--blood),0 0 120px 34px rgba(225,40,25,.65)}
+.card3d.charge.t3 .q,.card3d.charge.t4 .q{color:#ff5a45}
+@keyframes charge2{0%{transform:none}15%{transform:rotate(-.8deg)}28%{transform:translateX(4px) rotate(1deg) scale(1.02)}40%{transform:translateX(-6px) rotate(-1.4deg) scale(1.03)}50%{transform:translateX(8px) rotate(2deg) scale(1.04)}58%{transform:translateX(-9px) rotate(-2.2deg) scale(1.05)}66%{transform:translateX(10px) rotate(2.4deg) scale(1.06)}73%{transform:translateX(-11px) rotate(-2.8deg) scale(1.07)}80%{transform:translateX(12px) rotate(3deg) scale(1.08)}86%{transform:translateX(-13px) rotate(-3.2deg) scale(1.09)}91%{transform:translateX(13px) rotate(3.4deg) scale(1.1)}96%{transform:translateX(-12px) rotate(-3deg) scale(1.11)}100%{transform:scale(1.12)}}
+@keyframes charge4{0%{transform:none}25%{transform:scale(.94)}40%{transform:translateX(-5px) rotate(-1deg) scale(.98)}45%{transform:translateX(6px) rotate(1.4deg) scale(1)}50%{transform:translateX(-8px) rotate(-2deg) scale(1.02)}54%{transform:translateX(9px) rotate(2.4deg) scale(1.04)}58%{transform:translateX(-11px) rotate(-3deg) scale(1.06)}62%{transform:translateX(12px) rotate(3.2deg) scale(1.08)}66%{transform:translateX(-14px) rotate(-3.6deg) scale(1.1)}70%{transform:translateX(14px) rotate(3.8deg) scale(1.11)}74%{transform:translateX(-15px) rotate(-4deg) scale(1.12)}78%{transform:translateX(15px) rotate(4deg) scale(1.13)}82%,100%{transform:scale(1.14)}}
+.overlay.prompt{background
+:rgba(15,18,12,.5)}
 .prompt-card{background:var(--panel);border:3px solid var(--caution);border-radius:16px;padding:28px 30px;text-align:center;max-width:560px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.55);animation:promptin .6s cubic-bezier(.2,1.4,.4,1) both}
 .prompt-card .eyebrow{font-family:var(--f-cond);font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--caution);font-size:15px}
 .prompt-card h2{font-family:var(--f-display);font-size:clamp(30px,5vw,48px);line-height:1.05;margin:10px 0 8px}
@@ -456,13 +489,16 @@ const ITEMS = [
  [41,"🍳","Frying pan"],[42,"🧯","Fire extinguisher"],[43,"⛑️","First-aid kit"],[44,"🧄","Garlic necklace"],[45,"🛌","Sleeping bag"],
  [46,"🗝️","Mysterious golden key"],[47,"☕","Flask of hot coffee"],[48,"🧑‍🏫","Aziz Hoca (English teacher)"],[49,"🎒","Backpack full of textbooks"],[50,"🥚","Box of 30 eggs"],
  [51,"👔","Ferhan Hoca (principal)"],[52,"📋","Erman Hoca (vice principal)"],
- [53,"🎣","Fishing rod"],[54,"🪓","Axe"],[55,"🛠️","Swiss Army knife"],[56,"🚁","Helicopter (no pilot)"]
+ [53,"🎣","Fishing rod"],[54,"🪓","Axe"],[55,"🛠️","Swiss Army knife"],[56,"🚁","Helicopter (no pilot)"],
+ [57,"👩‍🏫","Sezen Hoca (head of English)"],[58,"📵","Key to the phone locker"],[59,"🛋️","School corridor couch"],[60,"🖥️","School computer"]
 ];
 const ITEM = Object.fromEntries(ITEMS.map(([id,e,n])=>[id,{id,e,n}]));
 const FOUND = [[101,"🍱","Army ration pack"],[102,"🥽","Night-vision goggles"],[103,"🔑","Jeep keys"],[104,"📡","Army radio"],
  [105,"🛶","Rubber boat"],[106,"🧥","Warm army jacket"],[107,"🐟","Bucket of fresh fish"],[108,"🪵","Pile of firewood"],
  [109,"🎫","Antalya Kart (100 TL)"],[110,"🧭","Old compass"],[112,"🥞","Pile of hot pancakes"],[113,"📦","Army supply crate"],
- [114,"🚑","Ambulance keys"],[115,"🚌","School bus keys"],[116,"🔐","Master key to the school"]];
+ [114,"🚑","Ambulance keys"],[115,"🚌","School bus keys"],[116,"🔐","Master key to the school"],
+ [117,"🍪","Homemade cookies"],[118,"🧣","Hand-knitted scarf"],[119,"☂️","Flowery umbrella"],[120,"🧿","Lucky nazar bead"],[121,"💌","“I believe in you” letter"],[122,"🧸","Teddy bear"]];
+const GIFTS = [117,118,119,120,121,122];   // Sezen Hoca's presents: one at random each game
 FOUND.forEach(([id,e,n])=>{ ITEM[id]={id,e,n,found:true}; });
 
 const STORIES = {
@@ -519,6 +555,10 @@ const STORIES = {
  53:"You sat at the end of the pier and fished for three days. Zombies hate water, so they never came near you. On day three, the coast guard boat picked you up.",
  54:"You chopped down a tree and made a bridge over the Aksu River. After you crossed, you chopped the bridge too. The zombies were left on the other side.",
  56:"Nobody knew how to fly a helicopter, but you found the instruction book under the seat. Page 1: “How to take off.” It was a bumpy ride, but you landed safely at the airport.",
+ 57:"Sezen Hoca loves her students so much that she refused to leave anyone behind. She counted you every ten minutes, told you “You can do it, my dears!” and walked with you all the way to the airport. Even the zombies waved goodbye to her.",
+ 58:"You opened the phone locker, set an alarm on all 300 phones, left the door open and ran. At 07:00, 300 alarms rang at the same time. Every zombie in Antalya went to the locker, and you went to the airport.",
+ 59:"You pushed the couch against the classroom door and sat on it for three days. The zombies couldn't open the door, and you were very comfortable. The soldiers had to wake you up.",
+ 60:"You wrote an email to the army in perfect English. They answered in four minutes: “Great grammar! The helicopter is on its way.”",
  101:"The army rations kept you strong for three days. While other survivors were too weak to walk, you marched all the way to the airport.",
  102:"With the night-vision goggles, you walked through the dark city and saw every zombie before it saw you.",
  103:"You jumped into the army jeep and drove straight across the city. Zombies are slow. Army jeeps are not.",
@@ -534,6 +574,12 @@ const STORIES = {
  114:"You drove the ambulance with the siren on. Every zombie jumped out of the way, and the soldiers opened the airport gate for you.",
  115:"Ferhan Hoca's keys started the school bus. You picked up survivors on the way and drove everyone to the airport. The best school trip ever!",
  116:"With the master key, you locked every door behind you on your way out of the school. All the zombies were locked inside.",
+ 117:"You shared Sezen Hoca's homemade cookies with a hungry soldier at a roadblock. He took one bite, started to cry and drove you straight to the airport. They tasted like home.",
+ 118:"You tied Sezen Hoca's bright scarf to the school flagpole. The helicopter pilot saw it from far away. It also kept you warm on the flight.",
+ 119:"You opened the flowery umbrella and hid behind it. The zombies saw only flowers, so they walked past. You moved one step at a time, like a very slow garden, all the way to the airport.",
+ 120:"Sezen Hoca said the nazar bead would protect you, and it did. Every zombie that looked at it turned around and walked away. Nobody can explain it.",
+ 121:"You wanted to give up on the last night. Then you read Sezen Hoca's letter again: “I believe in you.” You stood up and walked the last 15 kilometres without stopping.",
+ 122:"You put the teddy bear on the road. The zombies stopped, hugged it one by one and forgot about you. You walked quietly around them to the airport.",
  55:"The Swiss Army knife had everything: a screwdriver, scissors, a saw and a tiny spoon. You fixed an old car with it and drove all the way to the airport.",
  49:"You built a wall with the heavy textbooks in front of the door. Finally, the textbooks were useful! The zombies couldn't get through.",
  50:"You threw 30 eggs at the zombies. They were so confused by the mess that they started fighting each other while you escaped."
@@ -547,37 +593,37 @@ const CARDS = [
  {id:"music",e:"🎶",t:"Party's over",x:"The zombies are following music and engines all over the city.",
   lose:{8:"Someone pressed play.",24:"The wheels rattle down the whole street.",25:"The engine is far too loud."}},
  {id:"rain",e:"🌧️",t:"Three days of rain",x:"It rains for three days without stopping. Everything gets soaking wet.",
-  lose:{3:"Wet fireworks don't work.",5:"100 rolls of wet mush.",6:"The ink washes away.",38:"It won't stick to anything wet.",45:"Soaked and freezing.",49:"The textbooks turn into paste.",106:"Soaked.",108:"Too wet to burn."}},
+  lose:{3:"Wet fireworks don't work.",5:"100 rolls of wet mush.",6:"The ink washes away.",38:"It won't stick to anything wet.",45:"Soaked and freezing.",49:"The textbooks turn into paste.",106:"Soaked.",108:"Too wet to burn.",121:"The ink washes away."}},
  {id:"power",e:"🔌",t:"Power cut",x:"The electricity goes off across the whole city. Nothing can be charged.",
-  lose:{7:"An electric guitar with no electricity…",30:"Battery dead, no way to charge it.",33:"No socket, no hairdryer."}},
+  lose:{7:"An electric guitar with no electricity…",30:"Battery dead, no way to charge it.",33:"No socket, no hairdryer.",60:"No electricity, no computer."}},
  {id:"bridge",e:"🌊",t:"The broken bridge",x:"The bridge over the Aksu River has collapsed. You must swim across. Heavy things and wheels sink.",
   lose:{18:"Far too heavy to swim with.",20:"5 kilos of water pulls you down.",21:"It sinks.",22:"It sinks.",23:"They sink.",42:"It sinks like a rock.",103:"They fell into the river.",110:"Lost in the river.",114:"They fell into the river."}},
  {id:"mud",e:"🟫",t:"The mud road",x:"The only road to the airport is deep mud. Anything with wheels gets stuck.",
-  lose:{21:"Stuck.",22:"Stuck.",23:"Stuck.",24:"Very stuck.",25:"Stuck, and out of fuel.",115:"The bus is stuck in the mud anyway."}},
+  lose:{21:"Stuck.",22:"Stuck.",23:"Stuck.",24:"Very stuck.",25:"Stuck, and out of fuel.",115:"The bus is stuck in the mud anyway.",122:"It fell into the mud."}},
  {id:"climb",e:"🧗",t:"Climbing zombies",x:"Bad news: the zombies have learned to climb. They are coming up the walls to the terrace!",
   lose:{26:"They use it to climb up to you.",27:"They bounce right over your wall."}},
  {id:"dogs",e:"🐺",t:"Zombie dogs!",x:"A pack of zombie dogs runs through the streets. Your animals panic and run away.",
-  lose:{12:"Gone over the rooftops.",13:"It ran after the pack.",14:"It galloped away.",15:"It flew off."}},
+  lose:{12:"Gone over the rooftops.",13:"It ran after the pack.",14:"It galloped away.",15:"It flew off.",122:"The zombie dogs took it."}},
  {id:"starving",e:"🍽️",t:"Starving",x:"The cafeteria on floor -1 and the canteen on the top floor are both empty. You haven't eaten for a whole day, so you eat every bit of food you have.",
-  lose:{16:"All 10 kilos… in one night.",17:"Licked clean.",19:"Gone in seconds.",44:"It tasted terrible.",50:"Raw. Yuck.",101:"Delicious. All gone.",107:"Grilled and eaten.",112:"Gone in ten seconds."}},
+  lose:{16:"All 10 kilos… in one night.",17:"Licked clean.",19:"Gone in seconds.",44:"It tasted terrible.",50:"Raw. Yuck.",101:"Delicious. All gone.",107:"Grilled and eaten.",112:"Gone in ten seconds.",117:"Every last crumb."}},
  {id:"sugar",e:"🍭",t:"Sweet smell",x:"Zombies can smell sugar from a kilometre away. Throw away anything sweet, NOW!",
-  lose:{16:"Thrown out of the window.",17:"Thrown out of the window.",19:"Thrown out of the window.",112:"Pancakes with syrup? Out of the window!"}},
+  lose:{16:"Thrown out of the window.",17:"Thrown out of the window.",19:"Thrown out of the window.",112:"Pancakes with syrup? Out of the window!",117:"Thrown out of the window. Sorry, Sezen Hoca!"}},
  {id:"fire",e:"🔥",t:"Fire!",x:"The observatory on the top floor catches fire! You escape, but some things burn or get used up.",
-  lose:{3:"BOOM!",28:"The balloon melts.",29:"It melts into a pink puddle.",39:"It burns.",42:"You used all of it to escape.",45:"Burnt.",105:"Melted.",106:"Burnt.",108:"It all burned.",113:"Burnt.",109:"Melted."}},
+  lose:{3:"BOOM!",28:"The balloon melts.",29:"It melts into a pink puddle.",39:"It burns.",42:"You used all of it to escape.",45:"Burnt.",105:"Melted.",106:"Burnt.",108:"It all burned.",113:"Burnt.",109:"Melted.",118:"Burnt."}},
  {id:"horde",e:"🧟",t:"The horde breaks in",x:"200 zombies smash the main entrance next to the front lobby desk. RUN! You can only carry small things.",
-  lose:{4:"Too big to carry.",8:"Too heavy.",24:"Too slow.",26:"Too long to run with.",27:"You can't run with a trampoline.",54:"Too heavy to run with.",113:"Far too heavy to run with."}},
+  lose:{4:"Too big to carry.",8:"Too heavy.",24:"Too slow.",26:"Too long to run with.",27:"You can't run with a trampoline.",54:"Too heavy to run with.",113:"Far too heavy to run with.",59:"You can't run with a couch."}},
  {id:"storm",e:"🌪️",t:"Storm",x:"A huge storm hits the coast. The wind blows away anything big or light.",
-  lose:{4:"Blown into the sea.",27:"Flying over Konyaaltı.",28:"Gone with the wind.",29:"Last seen over Kemer.",30:"Blown out of the sky.",53:"Blown into the sea.",105:"Blown away.",56:"Far too windy to fly."}},
+  lose:{4:"Blown into the sea.",27:"Flying over Konyaaltı.",28:"Gone with the wind.",29:"Last seen over Kemer.",30:"Blown out of the sky.",53:"Blown into the sea.",105:"Blown away.",56:"Far too windy to fly.",118:"Blown away.",119:"Blown inside out."}},
  {id:"battery",e:"🪫",t:"Dead batteries",x:"Day three. Every battery is empty.",
   lose:{1:"Click… nothing.",8:"Silent forever.",9:"Not a sound.",31:"3%… 2%… 0%.",32:"Only static.",102:"Battery dead.",104:"Battery dead."}},
  {id:"gulls",e:"🐦",t:"Zombie seagulls",x:"Zombie seagulls attack from the sea! Anything in the air is in danger.",
   lose:{15:"The seagulls chase it away.",28:"POP!",29:"POP!",30:"Knocked out of the sky.",53:"The seagulls stole it.",105:"POP!",107:"The seagulls ate all the fish.",56:"Seagulls in the rotor!"}},
  {id:"quake",e:"🌋",t:"Earthquake",x:"The ground shakes. Anything fragile breaks.",
-  lose:{17:"The glass jar smashes.",34:"Seven years of bad luck.",35:"“Outlook not so good.”",36:"Cracked lenses.",50:"Thirty broken eggs.",102:"Cracked lenses.",104:"Smashed.",110:"The needle broke."}},
+  lose:{17:"The glass jar smashes.",34:"Seven years of bad luck.",35:"“Outlook not so good.”",36:"Cracked lenses.",50:"Thirty broken eggs.",102:"Cracked lenses.",104:"Smashed.",110:"The needle broke.",120:"It cracked. It did its job!"}},
  {id:"thieves",e:"🦹",t:"Thieves",x:"A gang of survivors robs you. They take anything shiny or valuable.",
-  lose:{31:"Taken.",32:"Taken.",36:"Taken.",41:"Shiny! Taken.",43:"Taken.",46:"Taken. Nobody knows what it opens.",55:"Taken.",101:"Taken."}},
+  lose:{31:"Taken.",32:"Taken.",36:"Taken.",41:"Shiny! Taken.",43:"Taken.",46:"Taken. Nobody knows what it opens.",55:"Taken.",101:"Taken.",119:"Taken. It was a nice umbrella."}},
  {id:"freeze",e:"🥶",t:"Freezing night",x:"The ice rink on floor -1 goes crazy and the whole school drops below zero. You burn things to stay warm.",
-  lose:{5:"It burns very well.",6:"Burnt for warmth.",7:"It's made of wood.",40:"Wood burns.",49:"Textbooks burn surprisingly well.",108:"You burned all of it."}},
+  lose:{5:"It burns very well.",6:"Burnt for warmth.",7:"It's made of wood.",40:"Wood burns.",49:"Textbooks burn surprisingly well.",108:"You burned all of it.",59:"Wood and cushions burn very well.",121:"You cried, and then you burned it."}},
  {id:"heat",e:"☀️",t:"Heat wave",x:"Antalya, 42°C. Everything melts, dries out or goes bad.",
   lose:{16:"Chocolate soup.",19:"Black and rotten.",20:"You drank all of it.",37:"Dried into a rock.",50:"Cooked on the pavement.",107:"The fish went bad."}},
  {id:"scratch",e:"🩸",t:"Scratched!",x:"A zombie scratches someone on your team. The nurse's room is on the 1st floor, but there is only one nurse! Quick, do something!",
@@ -585,15 +631,15 @@ const CARDS = [
  {id:"teacher",e:"🧑‍🏫",t:"Grammar emergency",x:"Aziz Hoca stops to correct a zombie: “It's ‘I am hungry’, not ‘me hungry’!”",
   lose:{48:"Goodbye, Aziz Hoca.",47:"He took the coffee with him."}},
  {id:"oyss",e:"📝",t:"OYSS exam day",x:"Zombies or no zombies, the OYSS English exam is today! Exam rules: no phones, no devices, no cheating.",
-  lose:{31:"Phones go in the box.",32:"No communication devices in the exam!",35:"Obviously a cheating device.",55:"No sharp objects in the exam room!"}},
+  lose:{31:"Phones go in the box.",32:"No communication devices in the exam!",35:"Obviously a cheating device.",55:"No sharp objects in the exam room!",58:"Nobody opens the phone locker today!",60:"No computers in the exam!"}},
  {id:"corridor",e:"🚸",t:"Corridor rules",x:"Erman Hoca catches you in the corridor: “No skating in the corridors! No toys in class!”",
-  lose:{22:"Confiscated.",23:"Confiscated.",11:"Confiscated. SQUEAK.",54:"No axes in school!"}},
+  lose:{22:"Confiscated.",23:"Confiscated.",11:"Confiscated. SQUEAK.",54:"No axes in school!",59:"“No sleeping in the corridors!” Confiscated."}},
  {id:"meeting",e:"🗂️",t:"Emergency staff meeting",x:"Ferhan Hoca calls an emergency staff meeting in the middle of the zombie attack. All teachers must attend!",
-  lose:{51:"He is running the meeting.",52:"He is taking the notes.",48:"Aziz Hoca has to attend too."}},
+  lose:{51:"He is running the meeting.",52:"He is taking the notes.",48:"Aziz Hoca has to attend too.",57:"The head of English has to attend."}},
  {id:"parents",e:"👨‍👩‍👧",t:"Parent conference",x:"200 parents arrive at school for the veli toplantısı. Somebody has to talk to all of them!",
-  lose:{51:"Greeting every parent.",52:"Answering every question.",47:"The parents drank all the coffee."}},
+  lose:{51:"Greeting every parent.",52:"Answering every question.",47:"The parents drank all the coffee.",57:"Telling every parent how wonderful their child is."}},
  {id:"pickpockets",e:"👛",t:"Pickpockets",x:"At the tram stop, zombie pickpockets (yes, they exist) grab anything small from your pockets.",
-  lose:{31:"Gone from your pocket.",46:"Gone from your pocket.",103:"Gone.",109:"Gone. 100 TL!",114:"Gone.",115:"Gone.",116:"Gone."}},
+  lose:{31:"Gone from your pocket.",46:"Gone from your pocket.",103:"Gone.",109:"Gone. 100 TL!",114:"Gone.",115:"Gone.",116:"Gone.",58:"Gone from your pocket.",120:"Gone from your pocket."}},
  {id:"quiet",e:"😮‍💨",t:"Quiet night",x:"Nothing happens. Everyone gets some sleep. Phew!",lose:{}}
 ];
 const BONUS = [
@@ -611,6 +657,7 @@ const BONUS = [
  {id:"b_nurse",bonus:true,e:"⛑️",t:"Thank you, nurse!",trigger:43,found:114,x:"The team with the first-aid kit helps the school nurse on the 1st floor. To say thank you, she gives them the keys to her brother's ambulance!"},
  {id:"b_ferhan",bonus:true,e:"👔",t:"The principal's safe",trigger:51,found:115,x:"Ferhan Hoca opens the safe in his office on the 4th floor. Inside: the keys to the school bus!"},
  {id:"b_erman",bonus:true,e:"📋",t:"Erman Hoca's drawer",trigger:52,found:116,x:"Erman Hoca opens his desk drawer: “I always keep a spare.” It's the master key to every door in the school!"},
+ {id:"b_sezen",bonus:true,e:"🎁",t:"A present from Sezen Hoca",trigger:57,found:117,x:"Sezen Hoca opens her bag and smiles: “I brought a little something for my favourite students!” (She says this to every class.)"},
  {id:"b_aziz",bonus:true,e:"🔭",t:"Eyes on the sky",trigger:48,found:106,x:"Aziz Hoca looks through the telescope in the observatory and spots an army supply drop on the terrace!"}
 ];
 const BASE = Object.fromEntries(CARDS.concat(BONUS).map(c=>[c.id,c]));
@@ -625,7 +672,7 @@ function freshState(){
 }
 function save(){ try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){} }
 function load(){ try{const s=JSON.parse(localStorage.getItem(KEY)); if(s&&s.teams&&s.v===4) return s;}catch(e){} return null; }
-const CARD = id => id==="last" ? state.special : BASE[id];
+const CARD = id => id==="last" ? state.special : id==="b_sezen" && state.gift ? {...BASE[id],found:state.gift} : BASE[id];
 
 const $ = s=>document.querySelector(s);
 const esc = s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -651,7 +698,12 @@ const SND=(()=>{
     if(o.vib){ const l=c.createOscillator(), lg=c.createGain(); l.frequency.value=o.vib; lg.gain.value=o.vibDepth||8; l.connect(lg); lg.connect(osc.frequency); l.start(t); l.stop(t+dur); }
     osc.connect(g); g.connect(master); osc.start(t); osc.stop(t+dur+.05); }
   const S={
-    heartbeat(d=0){ [0,.18].forEach(x=>tone({freq:62,freqTo:40,dur:.22,gain:.6,delay:d+x})); },
+    heartbeat(d=0,vol=1){ [0,.18].forEach(x=>tone({freq:62,freqTo:40,dur:.22,gain:.6*vol,delay:d+x})); },
+    riser(d=2,vol=1){ tone({freq:48,freqTo:210,dur:d,gain:.13*vol,wave:"sawtooth",attack:d*.9,release:d*.06,vib:6,vibDepth:5}); noise({type:"bandpass",freq:180,freqTo:3800,q:1.4,dur:d,gain:.22*vol,attack:d*.9,release:d*.06}); },
+    drumroll(from=0,d=1.5,vol=1){ for(let t=0;t<d;){ const p=t/d; noise({type:"lowpass",freq:260,dur:.09,gain:(.12+.4*p)*vol,attack:.004,release:.07,delay:from+t}); t+=.13-.07*p; } },
+    boom(){ tone({freq:95,freqTo:26,dur:1.5,gain:.8,release:1.4}); noise({type:"lowpass",freq:700,freqTo:60,dur:1.3,gain:.55,attack:.005,release:1.2}); },
+    chomp(){ [0,.34,.68].forEach(d=>{ noise({type:"bandpass",freq:1500,freqTo:350,q:1.2,dur:.16,gain:.55,attack:.004,release:.12,delay:d}); tone({freq:170,freqTo:60,dur:.16,gain:.3,wave:"square",delay:d}); }); },
+    thud(){ tone({freq:120,freqTo:35,dur:.45,gain:.7}); noise({type:"lowpass",freq:500,dur:.2,gain:.4,attack:.003,release:.18}); },
     whoosh(){ noise({type:"bandpass",freq:300,freqTo:3000,q:.8,dur:.45,gain:.35,attack:.25,release:.2}); },
     thunder(d=0){ noise({type:"lowpass",freq:900,freqTo:80,dur:2.8,gain:.9,attack:.01,release:2.5,delay:d}); },
     rain(d=3.5){ noise({type:"highpass",freq:1500,dur:d,gain:.18,attack:.4,release:1}); noise({type:"lowpass",freq:600,dur:d,gain:.12,attack:.4,release:1}); },
@@ -728,7 +780,7 @@ const FX=(()=>{
       layer.appendChild(e); later(()=>e.remove(),ms+600); }
   }
   function stamp(text,ms=1600,cls=""){ const e=document.createElement("div"); e.className="fx-stamp "+cls; e.textContent=text; layer.appendChild(e); later(()=>e.remove(),ms); }
-  function clear(){ timers.forEach(clearTimeout); timers=[]; parts=[]; layer.dataset.mood=""; beam.classList.remove("on"); layer.querySelectorAll(".fx-e,.fx-stamp").forEach(e=>e.remove()); $("main").classList.remove("fx-shake-hard","fx-shake-soft"); }
+  function clear(){ timers.forEach(clearTimeout); timers=[]; parts=[]; layer.dataset.mood=""; beam.classList.remove("on"); layer.querySelectorAll(".fx-e,.fx-stamp").forEach(e=>e.remove()); $("main").classList.remove("fx-shake-hard","fx-shake-soft"); $("#card3d").classList.remove("charge","t1","t2","t3","t4"); }
 
   const RUN={
     night(){ mood("night",3800); beam.classList.add("on"); later(()=>beam.classList.remove("on"),3800); sound("hoot"); },
@@ -761,18 +813,35 @@ const FX=(()=>{
     last(){ mood("dark",3800); emojis(["🧟","🧟‍♂️","🧟‍♀️"],"climb",20,3600,90); sound("groan"); sound("rumble",2.5); },
     quiet(){ mood("calm",7600); P.stars(7600); P.flies(7600); stamp("🔥",7000,"campfire"); sound("crickets",7.2); sound("crackle",7,.5); }
   };
-  function suspense(id,cb){
+  const WAIT=[1250,1800,2500,3300,4600];
+  function suspense(id,tn,cb){          // tn 0 to 4: how close the end is; cb runs on its own timer so clear() can't swallow it
     if(!fxOn&&!sndOn){ cb(); return; }
-    const c=CARD(id), c3=$("#card3d");
-    if(id==="quiet"){ if(fxOn) mood("calm",9000); later(cb,900); return; }   // a calm build-up for a calm card
-    if(fxOn){ mood("suspense",1400); c3.classList.add("charge"); }
-    sound("heartbeat",0); sound("heartbeat",.55);
-    later(()=>{ c3.classList.remove("charge"); cb(); }, fxOn?1250:800);
+    const c3=$("#card3d"), charge=["charge","t1","t2","t3","t4"];
+    if(id==="quiet"){ if(fxOn) mood("calm",9000); setTimeout(cb,900); return; }   // a calm build-up for a calm card
+    const ms=Math.round(WAIT[tn]*(fxOn?1:.65)), hush=tn===4?ms*.18:0, s=(ms-hush)/1000;
+    if(fxOn){
+      const r=c3.getBoundingClientRect(); layer.style.setProperty("--cx",r.left+r.width/2+"px"); layer.style.setProperty("--cy",r.top+r.height/2+"px");
+      mood(tn?"suspense"+tn:"suspense",ms+150); c3.classList.add("charge"); if(tn) c3.classList.add("t"+tn);
+      if(tn>=2) P.sparks(ms-hush,[0,0,40,90,150][tn]);
+      if(tn>=3) later(()=>shake("soft",ms*.3),ms*.5);
+      if(tn===4){ stamp("FINAL CARD",1500,"word"); later(()=>mood("hush",hush+150),ms-hush); }
+    }
+    let t=0, gap=[.55,.55,.55,.5,.5][tn]; const least=[.55,.5,.4,.3,.27][tn];
+    while(t<s-.35){ sound("heartbeat",t,1+tn*.12); t+=gap; gap=Math.max(least,gap*.9); }
+    if(tn>=2) sound("riser",s,[0,0,.5,.9,1.2][tn]);
+    if(tn>=3) sound("drumroll",s*.5,s*.5,tn===4?1:.7);
+    setTimeout(()=>{ c3.classList.remove(...charge); cb(); },ms);
   }
-  function reveal(id){
+  function eaten(n){                    // n teams were eaten by this card
+    const at=fxOn?2200:1200;
+    if(fxOn) later(()=>mood("bite",2300+n*500),at-500);
+    for(let i=0;i<n;i++){ const d=at+i*600; later(()=>sound("groan"),d); later(()=>sound("chomp"),d+650); later(()=>sound("thud"),d+1800); }
+  }
+  function reveal(id,tn=0){
     const c=CARD(id);
+    if(tn>=2&&!c.bonus&&id!=="quiet"){ sound("boom"); if(fxOn&&tn>=3) shake("hard",tn===4?900:450); }
     if(id!=="quiet"){ if(fxOn) flash(1,0,c.bonus?.5:.75); sound("whoosh"); }
-    if(c.bonus){ if(fxOn){ mood("lucky",2600); P.burst(); stamp(ITEM[c.found].e,1800,"lucky"); } sound("chime"); return; }
+    if(c.bonus){ if(fxOn){ mood("lucky",2600); P.burst(); stamp(ITEM[c.found].e,1800,"lucky"); if(id==="b_sezen") emojis(["💛","🌸","🎁"],"rise",18,3200,54); } sound("chime"); return; }
     if(!fxOn){ // sound only
       const s={night:"hoot",silence:"shh",music:"notes",rain:"rain",power:"powerdown",bridge:"splash",mud:"squelch",climb:"groan",dogs:"growl",starving:"stomach",sugar:"swish",fire:"crackle",horde:"groan",storm:"thunder",battery:"powerdown",gulls:"squawks",quake:"rumble",thieves:"swish",pickpockets:"swish",freeze:"wind",heat:"wind",scratch:"swish",teacher:"ding",oyss:"bell",corridor:"whistle",meeting:"ding",parents:"murmur",last:"groan",quiet:"crickets"}[id];
       if(s) sound(s); if(id==="quiet") sound("crackle",7,.5); return; }
@@ -782,7 +851,7 @@ const FX=(()=>{
   function celebrate(){ if(fxOn){ P.burst(2800,170); P.burst(2800,90,["rgba(242,144,43,A)","rgba(255,255,255,A)"]); } sound("chime"); }
   function setFx(v){ fxOn=v; try{localStorage.setItem("zr-fx",v?"1":"0");}catch(e){} if(!v) clear(); }
   function setSnd(v){ sndOn=v; try{localStorage.setItem("zr-snd",v?"1":"0");}catch(e){} if(v) SND.ding(); }
-  return {suspense,reveal,rescue,celebrate,clear,setFx,setSnd,get fx(){return fxOn;},get snd(){return sndOn;},shakePre:()=>fxOn};
+  return {suspense,reveal,eaten,rescue,celebrate,clear,setFx,setSnd,get fx(){return fxOn;},get snd(){return sndOn;},shakePre:()=>fxOn};
 })();
 
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
@@ -818,14 +887,17 @@ function buildPlan(){
   let x=shuffle(pool.filter(v=>killers(v).length===minK))[0];    // the "wisest" pick wins
   const win=ownerOf(x);
   // lucky finds: 2–3 per game, mostly for the other teams (comebacks)
-  const cands=shuffle(BONUS.filter(b=>ownerOf(b.trigger)>=0));
+  const cands=shuffle(BONUS.filter(b=>b.id!=="b_sezen"&&ownerOf(b.trigger)>=0));
   const others=cands.filter(b=>ownerOf(b.trigger)!==win), mine=cands.filter(b=>ownerOf(b.trigger)===win);
   const nB=Math.min(cands.length, T.length===4?3:2);
   let bonus=others.slice(0,nB);
   if(mine.length && (bonus.length<nB || Math.random()<.35)){ if(bonus.length>=nB) bonus.pop(); bonus.push(mine[0]); }
+  // Sezen Hoca always has a surprise for the team that chose her
+  state.gift=shuffle(GIFTS)[0];
+  const hasSezen=ownerOf(57)>=0; if(hasSezen) bonus.push(CARD("b_sezen"));
   // sometimes the winners' own lucky find becomes the winning item
   const allIds=ids.concat(bonus.map(b=>b.found));
-  const wb=bonus.find(b=>ownerOf(b.trigger)===win);
+  const wb=shuffle(bonus.filter(b=>ownerOf(b.trigger)===win))[0];
   if(wb && Math.random()<.5 && sparesAll(wb.found,allIds)) x=wb.found;
   // cards that destroy everything except x
   const need=new Set(allIds.filter(v=>v!==x));
@@ -844,8 +916,14 @@ function buildPlan(){
     if(o.length>=5 && Math.random()<.5){ o.splice(1+Math.floor(Math.random()*(o.length-2)),0,"quiet"); }
     const sc=scoreOrder(o,x,T,win); if(sc>bestScore){bestScore=sc;bestOrder=o;}
   }
-  // make sure a winning lucky find really happens
-  if(x>100){ const k=bestOrder.indexOf(wb.id); if(simulate(bestOrder,T).steps[k].fail){ bestOrder=bestOrder.filter(id=>id!==wb.id); bestOrder.unshift(wb.id); } }
+  // make sure Sezen Hoca's present and a winning lucky find really happen
+  const must=new Set(); if(x>100) must.add(wb.id); if(hasSezen) must.add("b_sezen");
+  must.forEach(id=>{
+    const tooLate=o=>{ const k=o.indexOf(id), st=simulate(o,T).steps; return st[k].fail || st.slice(0,k).some(s=>s.alive.reduce((a,b)=>a+b,0)<=1); };
+    if(!tooLate(bestOrder)) return;
+    const rest=bestOrder.filter(c=>c!==id);
+    for(const p of [2,1,0]){ const o=rest.slice(); o.splice(p,0,id); if(p===0||!tooLate(o)){ bestOrder=o; break; } }
+  });
   // safety net: anything still alive apart from x is taken by one final card
   const sim=simulate(bestOrder,T); const left={};
   sim.inv.forEach(L=>L.forEach(it=>{ if(!it.lost&&it.id!==x) left[it.id]="The zombies found it."; }));
@@ -922,7 +1000,7 @@ function renderStart(){
   $("#startAnyway").hidden = true;
 }
 function renderPlay(){
-  const T=teams(), n=state.played.length, last=n?CARD(state.played[n-1]):null;
+  const T=teams(), n=state.plan?state.played.length:0, last=n?CARD(state.played[n-1]):null;
   const sim=state.plan?current():null, done=finished();
   $("#aliveTotal").textContent = sim? totalAlive(sim) : 0;
   $("#undoBtn").disabled=n===0;
@@ -937,7 +1015,7 @@ function renderPlay(){
     if(last.bonus){
       const trig=ITEM[last.trigger], f=ITEM[last.found];
       body = step.gains.length
-        ? `<div class="gainhdr">Lucky find!</div><div class="gainbox"><span class="ge">${f.e}</span><span><b>${esc(T[step.gains[0].team].name)}</b> gets<br><b class="gi">${esc(f.n)}</b></span>${dot(step.gains[0].team)}</div><p class="gnote">Thanks to: ${trig.e} ${esc(trig.n)}</p>`
+        ? `<div class="gainhdr">${last.id==="b_sezen"?"With love from Sezen Hoca":"Lucky find!"}</div><div class="gainbox"><span class="ge">${f.e}</span><span><b>${esc(T[step.gains[0].team].name)}</b> gets<br><b class="gi">${esc(f.n)}</b></span>${dot(step.gains[0].team)}</div><p class="gnote">Thanks to: ${trig.e} ${esc(trig.n)}</p>`
         : `<div class="gainhdr">No luck</div><p class="ctext">Nobody has the ${esc(trig.n)} any more. Nothing happens.</p>`;
     } else {
       const hitBy={}; step.hits.forEach(h=>{ (hitBy[h.id]=hitBy[h.id]||[]).push(h.team); });
@@ -953,16 +1031,18 @@ function renderPlay(){
   } else { c3.classList.remove("flipped"); front.innerHTML=""; front.classList.remove("bonus"); }
   $("#backHint").textContent = done? "The rescue has arrived" : "Press “Flip next card” or Space";
   const win=done&&state.plan?state.plan.team:-1;
+  const died=n?diedOn(sim,n):[], dying=state.justFlipped&&FX.fx?died:[];
   $("#board").innerHTML=T.map((t,i)=>{
     const L=sim?sim.inv[i]:t.picks.map(id=>({id,found:false,got:0,lost:0}));
     const alive=L.filter(it=>!it.lost).length;
     const ate = alive===0&&sim ? Math.max(...L.map(it=>it.lost)) : 0;
-    return `<div class="team${alive===0?" out":""}${i===win?" win":""}" style="--tc:${TEAM_COLORS[i]}">
+    return `<div class="team${alive===0?" out":""}${i===win?" win":""}${dying.includes(i)?" dying":""}" style="--tc:${TEAM_COLORS[i]};--bd:${2.2+Math.max(0,dying.indexOf(i))*.6}s">
       <h3>${esc(t.name)}</h3>
       <div class="left">${alive===0?`Eaten on card ${ate}`:i===win?"Rescued!":`${alive} item${alive===1?"":"s"} left`}</div>
       <ul>${L.map(it=>{const fresh=state.justFlipped&&it.lost===n, got=state.justFlipped&&it.got===n&&it.found;
-        return `<li class="${it.lost?"lost":""}${it.found?" found":""}${fresh?" fresh":""}${got?" gained":""}"><span class="e">${ITEM[it.id].e}</span>${esc(ITEM[it.id].n)}</li>`;}).join("")}</ul>
+        return `<li class="${it.lost?"lost":""}${it.found?" found":""}${GIFTS.includes(it.id)?" gift":""}${fresh?" fresh":""}${got?" gained":""}"><span class="e">${ITEM[it.id].e}</span>${esc(ITEM[it.id].n)}</li>`;}).join("")}</ul>
       ${alive===0?`<div class="eaten">EATEN</div>`:""}
+      ${dying.includes(i)?`<div class="bite" aria-hidden="true"><span class="bz two">🧟‍♀️</span><span class="bz three">🧟‍♂️</span><span class="bz">🧟</span></div>`:""}
     </div>`;
   }).join("");
   $("#log").innerHTML = n? state.played.map((id,k)=>`<li${CARD(id).bonus?' class="lucky"':""}><b>${k+1}</b>${CARD(id).e} ${esc(CARD(id).t)}</li>`).join("") : `<li>None yet</li>`;
@@ -970,7 +1050,7 @@ function renderPlay(){
   const wantPrompt = done && !state.revealed && state.phase==="play";
   if(wantPrompt){
     $("#overlay").hidden=true;
-    if(state.justFlipped){ $("#revealPrompt").hidden=true; window.__zrPrompt=setTimeout(()=>{ if(finished()&&!state.revealed) $("#revealPrompt").hidden=false; },4000); }
+    if(state.justFlipped){ $("#revealPrompt").hidden=true; window.__zrPrompt=setTimeout(()=>{ if(finished()&&!state.revealed) $("#revealPrompt").hidden=false; },died.length?5000+died.length*600:4000); }
     else $("#revealPrompt").hidden=false;
   } else {
     $("#revealPrompt").hidden=true;
@@ -984,7 +1064,7 @@ function fillWin(typing){
   const T=teams(), x=state.plan.survivor, it=ITEM[x], tm=T[state.plan.team];
   $("#winEmoji").textContent=it.e;
   $("#winTitle").textContent=`${tm.name} survives!`;
-  $("#winWith").textContent= x<100 ? `The last item standing: #${x} ${it.n}` : `The last item standing: ${it.n} (a lucky find!)`;
+  $("#winWith").textContent= x<100 ? `The last item standing: #${x} ${it.n}` : `The last item standing: ${it.n} ${GIFTS.includes(x)?"(a present from Sezen Hoca!)":"(a lucky find!)"}`;
   $("#winText").textContent=`Rescued after ${state.played.length} event cards.`;
   clearInterval(window.__zrType);
   const el=$("#winStory"), full=STORIES[x];
@@ -1006,23 +1086,33 @@ function revealEscape(){
 /* ---------- actions ---------- */
 function setPicks(i,str){
   const out=[], blocked=[];
-  (str.match(/\d+/g)||[]).forEach(v=>{ v=+v; if(v<1||v>56||out.includes(v)) return; const o=ownerOf(v); if(o>=0&&o!==i){ blocked.push(`#${v} → ${state.teams[o].name}`); return; } out.push(v); });
+  (str.match(/\d+/g)||[]).forEach(v=>{ v=+v; if(v<1||v>ITEMS.length||out.includes(v)) return; const o=ownerOf(v); if(o>=0&&o!==i){ blocked.push(`#${v} → ${state.teams[o].name}`); return; } out.push(v); });
   state.teams[i].picks=out.slice(0,state.perTeam);
   const over=out.length>state.perTeam;
   return blocked.length? `Taken: ${blocked.join(", ")}` : over? `Only ${state.perTeam} items allowed` : "";
 }
-let busy=false;
-function flip(){
-  if(busy||finished()||!state.deck.length) return;
-  busy=true; FX.clear();
-  const next=state.deck[0], c3=$("#card3d"), was=c3.classList.contains("flipped");
-  c3.classList.remove("flipped");
-  setTimeout(()=>FX.suspense(next,()=>{
-    state.played.push(state.deck.shift()); state.justFlipped=true; state.overlayDismissed=false;
-    save(); render(); FX.reveal(next); setTimeout(()=>{busy=false;},600);
-  }), was&&(FX.fx||FX.snd)?700:(was?250:0));
+let busy=false, run=0;
+function cancelFlip(){ run++; busy=false; FX.clear(); }
+function tension(){ // 0 = early in the game, 3 = close to the end, 4 = the card that ends it
+  const order=state.played.concat(state.deck), st=simulate(order,teams()).steps, n=state.played.length;
+  let end=st.findIndex(s=>s.alive.reduce((a,b)=>a+b,0)<=1); if(end<0) end=order.length-1;
+  if(n>=end) return 4;
+  const p=n/end; return p<.35?0:p<.6?1:p<.8?2:3;
 }
-function startGame(){ buildPlan(); state.overlayDismissed=false; setPhase("play"); }
+function diedOn(sim,n){ return sim.inv.map((L,i)=>i).filter(i=>sim.steps[n-1].alive[i]===0&&(n===1||sim.steps[n-2].alive[i]>0)); }
+function flip(){
+  if(busy||!state.plan||finished()||!state.deck.length) return;
+  busy=true; FX.clear();
+  const next=state.deck[0], c3=$("#card3d"), was=c3.classList.contains("flipped"), tn=tension(), g=run;
+  c3.classList.remove("flipped");
+  setTimeout(()=>{ if(g!==run) return; FX.suspense(next,tn,()=>{
+    if(g!==run) return;
+    state.played.push(state.deck.shift()); state.justFlipped=true; state.overlayDismissed=false;
+    const died=diedOn(current(),state.played.length).length;
+    save(); render(); FX.reveal(next,tn); if(died) FX.eaten(died); setTimeout(()=>{ if(g===run) busy=false; },600);
+  }); }, was&&(FX.fx||FX.snd)?700:(was?250:0));
+}
+function startGame(){ cancelFlip(); state.revealed=false; buildPlan(); state.overlayDismissed=false; setPhase("play"); }
 
 document.addEventListener("click",e=>{
   const go=e.target.closest("[data-go]"); if(go){ if(go.dataset.go==="play"&&!state.plan){ setPhase("choose"); return;} setPhase(go.dataset.go); return; }
@@ -1065,6 +1155,7 @@ document.addEventListener("keydown",e=>{
 });
 
 function newGame(){
+  cancelFlip();
   const old=state; state=freshState();
   state.teamCount=old.teamCount; state.perTeam=old.perTeam; state.teams.forEach((t,i)=>t.name=old.teams[i].name);
   stopTimer(); resetTimer(); save(); render();
